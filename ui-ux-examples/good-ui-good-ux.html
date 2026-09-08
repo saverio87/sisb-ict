@@ -1,0 +1,221 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <title>⚡🔥 SUPER EVENT REGISTRATION 2026 🔥⚡</title>
+  <style>
+    /* INTENTIONALLY TERRIBLE UI DESIGN */
+    body {
+      background-color: #00FF00; /* Eye-searing Lime */
+      color: #FF007F;            /* Hot Pink */
+      font-family: "Comic Sans MS", "Chalkboard SE", cursive;
+      margin: 0;
+      padding: 0;
+    }
+
+    .banner {
+      background: #FFFF00;
+      color: #0000FF;
+      font-family: 'Impact', fantasy;
+      font-size: 32px;
+      text-align: right;
+      padding: 5px;
+      border: 8px dashed #FF0000;
+      transform: rotate(-1deg);
+    }
+
+    .container {
+      background-color: #FFEE00;
+      border: 10px ridge #FF00FF;
+      margin: 10px;
+      padding: 2px;
+      display: block;
+    }
+
+    h1 {
+      font-family: 'Times New Roman', serif;
+      font-size: 27px;
+      color: #7B00FF;
+      text-decoration: underline overline;
+      text-align: left;
+      letter-spacing: -2px;
+      margin: 0;
+    }
+
+    p.intro {
+      font-family: 'Impact', sans-serif;
+      font-size: 19px;
+      color: #FF1493;
+      text-align: center;
+      background: cyan;
+      margin-top: -15px;
+    }
+
+    .form-group {
+      margin-bottom: 0px;
+      padding: 4px;
+      border-bottom: 3px dotted #00FF00;
+    }
+
+    label {
+      font-size: 13px;
+      color: #000080;
+      font-weight: 900;
+      display: inline-block;
+      width: 45%;
+      text-align: right;
+      vertical-align: top;
+    }
+
+    input, select {
+      background-color: #FF69B4;
+      color: #00FFFF;
+      font-size: 18px;
+      font-family: "Comic Sans MS";
+      border: 4px inset #FF0000;
+    }
+
+    /* BAD UX: Hidden scrolling box for critical fields */
+    .hidden-scroller {
+      width: 260px;
+      height: 48px;
+      overflow-y: scroll;
+      background: #FF0000;
+      color: #FFFFFF;
+      border: 2px solid black;
+      margin: 5px auto;
+      font-size: 10px;
+    }
+
+    /* BAD UX: Big Reset Button in place of Submit */
+    .huge-reset-btn {
+      background: #00FF00;
+      color: #FF0000;
+      font-family: 'Impact';
+      font-size: 28px;
+      width: 95%;
+      display: block;
+      margin: 10px auto;
+      padding: 15px;
+      border: 6px outset #FFFF00;
+      cursor: pointer;
+    }
+
+    .huge-reset-btn:hover {
+      background: #FF0000;
+      color: #00FF00;
+    }
+
+    /* BAD UX: Tiny hidden submit button at bottom */
+    .tiny-submit-btn {
+      background: #D3D3D3;
+      color: #A9A9A9;
+      font-size: 8px;
+      border: 1px solid #E0E0E0;
+      cursor: pointer;
+      margin: 40px 0 20px 80%;
+      padding: 1px 4px;
+    }
+
+    .slider-container {
+      display: inline-block;
+      width: 50%;
+    }
+
+    marquee {
+      background: #FF00FF;
+      color: #FFFFFF;
+      font-size: 20px;
+      font-weight: bold;
+    }
+  </style>
+</head>
+<body>
+
+  <marquee behavior="alternate">⚠️ REGISTER NOW OR LOSE YOUR SPOT FOREVER! BEST EVENT IN BANGKOK! ⚠️</marquee>
+
+  <div class="banner">
+    LIMITED TICKETS! ONLY 999999 SEATS LEFT!
+  </div>
+
+  <div class="container">
+    <h1>Super Mega Youth Tech Fest 2026</h1>
+    <p class="intro">FILL OUT EVERY SINGLE BOX WITH ZERO MISTAKES!</p>
+
+    <form id="badForm" onsubmit="handleBadSubmit(event)">
+
+      <div class="form-group">
+        <label for="fname">GIVEN NAME (FIRST):</label>
+        <input type="text" id="fname" placeholder="TYPE HERE..." style="width: 140px;">
+      </div>
+
+      <div class="form-group">
+        <label for="ageSlider">SELECT EXACT AGE (1-100):</label>
+        <div class="slider-container">
+          <!-- BAD UX: Using a 1-100 continuous slider for age with no numeric indicator -->
+          <input type="range" id="ageSlider" min="1" max="100" value="1" style="width: 120px;">
+          <span style="font-size: 10px; color: black;">(Slide carefully)</span>
+        </div>
+      </div>
+
+      <div class="form-group">
+        <label>SECRET REQUIRED FIELDS (SCROLL CAREFULLY!):</label>
+        <!-- BAD UX: Crucial required fields hidden in a 48px height scroll box -->
+        <div class="hidden-scroller">
+          <p style="margin:0; font-size:9px;">Scroll down inside here ⬇️</p>
+          <br><br>
+          <label style="color:white; font-size:10px; width:auto;">Parent Emergency Phone (*):</label>
+          <input type="text" id="emPhone" placeholder="08XXXXXXXX" style="font-size:10px; width:100px;">
+          <br><br>
+          <label style="color:white; font-size:10px; width:auto;">Medical Allergy Details (*):</label>
+          <input type="text" id="med" placeholder="None" style="font-size:10px; width:100px;">
+          <br><br>
+          <span style="font-size:8px; color:yellow;">End of box.</span>
+        </div>
+      </div>
+
+      <div class="form-group">
+        <label for="shirt">SHIRT SIZE CHOICE:</label>
+        <select id="shirt">
+          <option>CHOOSE SIZE</option>
+          <option>XXXL (CHILD)</option>
+          <option>EXTRA EXTRA SMALL</option>
+          <option>CUSTOM TAILORED (+900 THB)</option>
+        </select>
+      </div>
+
+      <!-- BAD UX: Prominent button where users expect "SUBMIT" is actually "RESET FORM" -->
+      <button type="button" class="huge-reset-btn" onclick="wipeEverything()">
+        👉 CLICK HERE TO CONFIRM &amp; PROCEED 👈
+      </button>
+
+      <p style="font-size: 11px; text-align: center; color: purple; margin-top: 10px;">
+        * By tapping above, your entire input is instantly erased!
+      </p>
+
+      <div style="height: 60px;"></div>
+
+      <!-- The actual submit button is hidden at the very bottom in tiny gray text -->
+      <button type="submit" class="tiny-submit-btn">
+        submit
+      </button>
+
+    </form>
+  </div>
+
+  <script>
+    function wipeEverything() {
+      document.getElementById('badForm').reset();
+      alert("⚠️ RESET COMPLETE! All your typed data has been completely erased. Please type everything again!");
+    }
+
+    function handleBadSubmit(e) {
+      e.preventDefault();
+      // BAD UX: Error wipes everything, gives cryptic code, refreshes page
+      alert("Error 0x44: Operation failed due to invalid internal validation descriptor.");
+      document.getElementById('badForm').reset();
+      window.location.reload();
+    }
+  </script>
+</body>
+</html>
