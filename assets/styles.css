@@ -1,0 +1,670 @@
+/* ==========================================================================
+   SISB ICT — Design System
+   Shared by the hub and every activity page.
+   No external dependencies except an optional webfont (system fallback below).
+   ========================================================================== */
+
+/* --------------------------------------------------------------------------
+   1. Design tokens
+   -------------------------------------------------------------------------- */
+:root {
+  /* Brand */
+  --accent: #4F46E5;
+  --accent-hover: #4338CA;
+  --accent-soft: #EEF2FF;
+  --accent-glow: rgba(79, 70, 229, 0.18);
+
+  --secondary: #10B981;
+  --secondary-soft: #ECFDF5;
+  --accent-amber: #F59E0B;
+  --accent-amber-soft: #FFFBEB;
+
+  /* Surfaces */
+  --bg: #F7F7FB;
+  --bg-tint: #EFEFF7;
+  --surface: #FFFFFF;
+  --surface-2: #FAFAFE;
+
+  /* Text */
+  --text: #14142B;
+  --text-muted: #5A5A72;
+  --text-faint: #8B8BA3;
+
+  /* Lines */
+  --border: #E5E7EB;
+  --border-strong: #D4D4E0;
+
+  /* Shape & motion */
+  --radius: 14px;
+  --radius-sm: 9px;
+  --radius-pill: 999px;
+  --shadow-sm: 0 1px 2px rgba(20, 20, 43, 0.05);
+  --shadow: 0 2px 8px rgba(20, 20, 43, 0.07);
+  --shadow-lg: 0 12px 28px -8px rgba(20, 20, 43, 0.16);
+  --ease: cubic-bezier(0.22, 0.61, 0.36, 1);
+  --speed: 0.22s;
+
+  /* Type */
+  --font: 'Inter', system-ui, -apple-system, BlinkMacSystemFont, 'Segoe UI',
+          Roboto, 'Helvetica Neue', sans-serif;
+  --font-mono: ui-monospace, SFMono-Regular, 'SF Mono', Menlo, Consolas, monospace;
+}
+
+/* --------------------------------------------------------------------------
+   2. Base
+   -------------------------------------------------------------------------- */
+*,
+*::before,
+*::after {
+  box-sizing: border-box;
+  margin: 0;
+  padding: 0;
+}
+
+html {
+  scroll-behavior: smooth;
+  -webkit-text-size-adjust: 100%;
+}
+
+body {
+  font-family: var(--font);
+  background: var(--bg);
+  color: var(--text);
+  line-height: 1.6;
+  min-height: 100vh;
+  padding: 40px 24px 64px;
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+}
+
+/* Subtle ambient wash behind the hub */
+body::before {
+  content: '';
+  position: fixed;
+  inset: 0;
+  z-index: -1;
+  pointer-events: none;
+  background:
+    radial-gradient(60rem 32rem at 12% -8%, rgba(79, 70, 229, 0.10), transparent 60%),
+    radial-gradient(48rem 28rem at 92% 4%, rgba(16, 185, 129, 0.08), transparent 62%);
+}
+
+.container {
+  max-width: 1060px;
+  margin: 0 auto;
+}
+
+/* --------------------------------------------------------------------------
+   3. Typography
+   -------------------------------------------------------------------------- */
+h1 {
+  font-size: clamp(1.85rem, 1.3rem + 2vw, 2.6rem);
+  font-weight: 800;
+  letter-spacing: -0.03em;
+  line-height: 1.12;
+  margin-bottom: 10px;
+}
+
+h2 {
+  font-size: 1.2rem;
+  font-weight: 700;
+  letter-spacing: -0.015em;
+  margin-bottom: 16px;
+  color: var(--text);
+}
+
+.subtitle {
+  color: var(--text-muted);
+  font-size: 1.02rem;
+  margin-bottom: 32px;
+  max-width: 62ch;
+}
+
+/* --------------------------------------------------------------------------
+   4. Hub header
+   -------------------------------------------------------------------------- */
+.hero {
+  padding: 8px 0 32px;
+}
+
+.hero-eyebrow {
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  font-size: 0.72rem;
+  font-weight: 700;
+  letter-spacing: 0.1em;
+  text-transform: uppercase;
+  color: var(--accent);
+  background: var(--accent-soft);
+  border: 1px solid rgba(79, 70, 229, 0.16);
+  padding: 5px 12px;
+  border-radius: var(--radius-pill);
+  margin-bottom: 16px;
+}
+
+.hero h1 {
+  background: linear-gradient(120deg, #14142B 0%, #4F46E5 58%, #10B981 130%);
+  -webkit-background-clip: text;
+  background-clip: text;
+  color: transparent;
+}
+
+.hero-stats {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px 20px;
+  font-size: 0.85rem;
+  color: var(--text-muted);
+  margin-top: 4px;
+}
+
+.hero-stats strong {
+  color: var(--text);
+  font-weight: 700;
+}
+
+/* --------------------------------------------------------------------------
+   5. Filter bar
+   -------------------------------------------------------------------------- */
+.filter-bar {
+  position: sticky;
+  top: 0;
+  z-index: 20;
+  margin: 0 -24px 28px;
+  padding: 14px 24px;
+  background: rgba(247, 247, 251, 0.86);
+  backdrop-filter: blur(10px);
+  -webkit-backdrop-filter: blur(10px);
+  border-bottom: 1px solid var(--border);
+}
+
+.filter-groups {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 10px 22px;
+  align-items: center;
+}
+
+.filter-group {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  flex-wrap: wrap;
+}
+
+.filter-label {
+  font-size: 0.7rem;
+  font-weight: 700;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+  color: var(--text-faint);
+}
+
+.filter-chip {
+  font-family: inherit;
+  font-size: 0.82rem;
+  font-weight: 600;
+  color: var(--text-muted);
+  background: var(--surface);
+  border: 1px solid var(--border-strong);
+  border-radius: var(--radius-pill);
+  padding: 6px 14px;
+  min-height: 34px;
+  cursor: pointer;
+  transition: all var(--speed) var(--ease);
+  white-space: nowrap;
+}
+
+.filter-chip:hover {
+  border-color: var(--accent);
+  color: var(--accent);
+  transform: translateY(-1px);
+}
+
+.filter-chip[aria-pressed='true'] {
+  background: var(--accent);
+  border-color: var(--accent);
+  color: #fff;
+  box-shadow: 0 4px 12px var(--accent-glow);
+}
+
+.filter-chip:focus-visible {
+  outline: 2px solid var(--accent);
+  outline-offset: 2px;
+}
+
+.filter-clear {
+  font-family: inherit;
+  font-size: 0.8rem;
+  font-weight: 600;
+  color: var(--text-muted);
+  background: none;
+  border: none;
+  cursor: pointer;
+  padding: 6px 4px;
+  margin-left: auto;
+  text-decoration: underline;
+  text-underline-offset: 3px;
+  transition: color var(--speed) var(--ease);
+}
+
+.filter-clear:hover {
+  color: var(--accent);
+}
+
+.filter-clear[hidden] {
+  display: none;
+}
+
+/* Live result count */
+.result-count {
+  font-size: 0.85rem;
+  color: var(--text-muted);
+  margin-bottom: 18px;
+}
+
+.result-count strong {
+  color: var(--text);
+}
+
+/* Mobile filter toggle (hidden on wide screens) */
+.filter-toggle {
+  display: none;
+  font-family: inherit;
+  font-size: 0.9rem;
+  font-weight: 600;
+  align-items: center;
+  gap: 8px;
+  color: var(--text);
+  background: var(--surface);
+  border: 1px solid var(--border-strong);
+  border-radius: var(--radius-pill);
+  padding: 10px 18px;
+  min-height: 44px;
+  cursor: pointer;
+  box-shadow: var(--shadow-sm);
+}
+
+.filter-toggle-count {
+  background: var(--accent);
+  color: #fff;
+  font-size: 0.72rem;
+  font-weight: 700;
+  min-width: 20px;
+  height: 20px;
+  border-radius: var(--radius-pill);
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  padding: 0 6px;
+}
+
+.filter-toggle-count[hidden] {
+  display: none;
+}
+
+/* --------------------------------------------------------------------------
+   6. Card grid & cards
+   -------------------------------------------------------------------------- */
+.card-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(290px, 1fr));
+  gap: 18px;
+  margin-bottom: 32px;
+}
+
+.card {
+  position: relative;
+  display: flex;
+  flex-direction: column;
+  background: var(--surface);
+  border: 1px solid var(--border);
+  border-radius: var(--radius);
+  padding: 26px 24px 22px;
+  text-decoration: none;
+  color: var(--text);
+  box-shadow: var(--shadow-sm);
+  transition: transform var(--speed) var(--ease),
+              box-shadow var(--speed) var(--ease),
+              border-color var(--speed) var(--ease);
+  overflow: hidden;
+}
+
+/* Gradient top edge that blooms on hover */
+.card::after {
+  content: '';
+  position: absolute;
+  inset: 0 0 auto 0;
+  height: 3px;
+  background: linear-gradient(90deg, var(--accent), var(--secondary));
+  transform: scaleX(0);
+  transform-origin: left;
+  transition: transform var(--speed) var(--ease);
+}
+
+.card:hover,
+.card:focus-visible {
+  transform: translateY(-4px);
+  border-color: transparent;
+  box-shadow: var(--shadow-lg);
+  outline: none;
+}
+
+.card:hover::after,
+.card:focus-visible::after {
+  transform: scaleX(1);
+}
+
+.card:focus-visible {
+  outline: 2px solid var(--accent);
+  outline-offset: 3px;
+}
+
+.card-head {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 12px;
+  margin-bottom: 14px;
+}
+
+/* Activity type badge */
+.type-badge {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  font-size: 0.66rem;
+  font-weight: 700;
+  letter-spacing: 0.07em;
+  text-transform: uppercase;
+  padding: 5px 10px;
+  border-radius: var(--radius-sm);
+  background: var(--accent-soft);
+  color: var(--accent);
+}
+
+.type-badge[data-type='game']        { background: var(--accent-soft);       color: var(--accent); }
+.type-badge[data-type='activity']    { background: var(--secondary-soft);    color: #047857; }
+.type-badge[data-type='website']     { background: #EFF6FF;                  color: #1D4ED8; }
+.type-badge[data-type='video']       { background: #FEF2F2;                  color: #B91C1C; }
+.type-badge[data-type='worksheet']   { background: var(--accent-amber-soft); color: #B45309; }
+.type-badge[data-type='slides']      { background: #FFF7ED;                  color: #C2410C; }
+
+/* Week / term marker */
+.card-week {
+  font-size: 0.7rem;
+  font-weight: 600;
+  letter-spacing: 0.05em;
+  text-transform: uppercase;
+  color: var(--text-faint);
+  white-space: nowrap;
+}
+
+.card-title {
+  font-size: 1.06rem;
+  font-weight: 700;
+  letter-spacing: -0.015em;
+  margin-bottom: 7px;
+  line-height: 1.3;
+}
+
+.card-desc {
+  font-size: 0.875rem;
+  color: var(--text-muted);
+  line-height: 1.55;
+  margin-bottom: 16px;
+  flex: 1;
+}
+
+/* Tag chips inside cards */
+.tag-row {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 6px;
+}
+
+.tag {
+  font-size: 0.68rem;
+  font-weight: 600;
+  color: var(--text-muted);
+  background: var(--bg-tint);
+  border-radius: var(--radius-pill);
+  padding: 3px 9px;
+}
+
+.tag[data-kind='year'] {
+  background: var(--accent-soft);
+  color: var(--accent);
+}
+
+.tag[data-kind='topic'] {
+  background: var(--secondary-soft);
+  color: #047857;
+}
+
+/* Legacy tag style still used by migrated pages */
+.card-tag {
+  display: inline-block;
+  font-size: 0.7rem;
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
+  color: var(--accent);
+  margin-bottom: 8px;
+}
+
+/* --------------------------------------------------------------------------
+   7. Empty state
+   -------------------------------------------------------------------------- */
+.empty-state {
+  text-align: center;
+  padding: 56px 24px;
+  border: 1px dashed var(--border-strong);
+  border-radius: var(--radius);
+  background: var(--surface-2);
+  color: var(--text-muted);
+}
+
+.empty-state .empty-emoji {
+  font-size: 2rem;
+  display: block;
+  margin-bottom: 10px;
+}
+
+.empty-state p {
+  font-size: 0.92rem;
+}
+
+/* --------------------------------------------------------------------------
+   8. Back link & footer
+   -------------------------------------------------------------------------- */
+.back-link {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  margin-bottom: 24px;
+  font-size: 0.875rem;
+  font-weight: 600;
+  color: var(--text-muted);
+  text-decoration: none;
+  transition: color var(--speed) var(--ease), transform var(--speed) var(--ease);
+}
+
+.back-link:hover {
+  color: var(--accent);
+  transform: translateX(-2px);
+}
+
+footer {
+  margin-top: 48px;
+  padding-top: 20px;
+  border-top: 1px solid var(--border);
+  font-size: 0.82rem;
+  color: var(--text-faint);
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px 16px;
+  align-items: center;
+  justify-content: space-between;
+}
+
+footer a {
+  color: var(--text-muted);
+  text-decoration: none;
+  font-weight: 600;
+}
+
+footer a:hover {
+  color: var(--accent);
+}
+
+/* --------------------------------------------------------------------------
+   9. Activity list (used by the Wordwall page)
+   -------------------------------------------------------------------------- */
+.week-section {
+  margin-bottom: 36px;
+}
+
+.week-label {
+  font-size: 0.75rem;
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: 0.08em;
+  color: var(--accent);
+  margin-bottom: 12px;
+  padding-bottom: 8px;
+  border-bottom: 2px solid var(--border);
+}
+
+.activity-list {
+  list-style: none;
+}
+
+.activity-item {
+  background: var(--surface);
+  border: 1px solid var(--border);
+  border-radius: var(--radius);
+  padding: 16px 20px;
+  margin-bottom: 10px;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  gap: 16px;
+  box-shadow: var(--shadow-sm);
+  transition: border-color var(--speed) var(--ease),
+              transform var(--speed) var(--ease),
+              box-shadow var(--speed) var(--ease);
+}
+
+.activity-item:hover {
+  border-color: var(--accent);
+  transform: translateY(-2px);
+  box-shadow: var(--shadow);
+}
+
+.activity-info {
+  flex: 1;
+}
+
+.activity-name {
+  font-weight: 600;
+  font-size: 0.95rem;
+  margin-bottom: 2px;
+}
+
+.activity-meta {
+  font-size: 0.8rem;
+  color: var(--text-muted);
+}
+
+.activity-link {
+  font-size: 0.8rem;
+  font-weight: 600;
+  color: var(--accent);
+  text-decoration: none;
+  white-space: nowrap;
+  opacity: 0.5;
+  min-height: 44px;
+  display: inline-flex;
+  align-items: center;
+}
+
+.activity-link.live {
+  opacity: 1;
+}
+
+.activity-link.live:hover {
+  text-decoration: underline;
+}
+
+/* --------------------------------------------------------------------------
+   10. Motion preferences
+   -------------------------------------------------------------------------- */
+@media (prefers-reduced-motion: reduce) {
+  *,
+  *::before,
+  *::after {
+    animation-duration: 0.01ms !important;
+    animation-iteration-count: 1 !important;
+    transition-duration: 0.01ms !important;
+    scroll-behavior: auto !important;
+  }
+}
+
+/* --------------------------------------------------------------------------
+   11. Responsive
+   -------------------------------------------------------------------------- */
+@media (max-width: 720px) {
+  body { padding: 28px 16px 48px; }
+
+  .filter-bar {
+    margin: 0 -16px 22px;
+    padding: 12px 16px;
+  }
+
+  /* Collapse filters behind a toggle on small screens */
+  .filter-toggle { display: inline-flex; }
+
+  .filter-groups {
+    display: none;
+    flex-direction: column;
+    align-items: flex-start;
+    gap: 14px;
+    padding-top: 14px;
+  }
+
+  .filter-bar.open .filter-groups {
+    display: flex;
+  }
+
+  .filter-group {
+    width: 100%;
+  }
+
+  .filter-clear {
+    margin-left: 0;
+  }
+
+  .card-grid {
+    grid-template-columns: 1fr;
+    gap: 14px;
+  }
+
+  .activity-item {
+    flex-direction: column;
+    align-items: flex-start;
+    gap: 10px;
+  }
+}
+
+@media (max-width: 420px) {
+  .filter-chip {
+    font-size: 0.78rem;
+    padding: 6px 11px;
+  }
+
+  .card {
+    padding: 22px 18px 18px;
+  }
+}

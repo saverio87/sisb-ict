@@ -1,0 +1,599 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8" />
+<meta name="viewport" content="width=device-width,initial-scale=1" />
+<title>Build-a-LAN — Primary 4 ICT</title>
+<style>
+:root{
+  --bg:#07121f; --panel:#101d30; --panel2:#142640; --line:#2b4362;
+  --text:#f4f7fb; --muted:#adbed2; --cyan:#67e8f9; --blue:#60a5fa;
+  --purple:#b794f6; --green:#63e6a6; --yellow:#ffd166; --red:#ff6b6b;
+}
+*{box-sizing:border-box}
+html,body{margin:0;min-height:100%;font-family:Inter,system-ui,-apple-system,"Segoe UI",sans-serif;
+background:radial-gradient(circle at top,#152843 0,#07121f 58%);color:var(--text)}
+button{font:inherit}
+.app{max-width:1220px;margin:auto;padding:18px}
+.top{display:flex;align-items:center;justify-content:space-between;gap:14px;flex-wrap:wrap;margin-bottom:14px}
+.brand{display:flex;gap:12px;align-items:center}
+.logo{width:50px;height:50px;border-radius:15px;display:grid;place-items:center;font-size:27px;
+background:linear-gradient(135deg,var(--cyan),var(--purple))}
+h1{margin:0;font-size:clamp(1.55rem,3vw,2.35rem)}
+.sub{color:var(--muted);font-size:.94rem}
+.stats{display:flex;gap:8px;flex-wrap:wrap}
+.pill{background:#ffffff0e;border:1px solid #ffffff18;padding:8px 12px;border-radius:999px;font-weight:850}
+.layout{display:grid;grid-template-columns:330px 1fr;gap:14px}
+.card{background:linear-gradient(180deg,#12213a,#0d1829);border:1px solid #29405d;border-radius:18px;
+box-shadow:0 18px 44px #0004}
+.side{padding:18px;display:flex;flex-direction:column;gap:15px}
+.kicker{font-size:.76rem;text-transform:uppercase;letter-spacing:.12em;color:#91a9c6;font-weight:900}
+.mission{font-weight:900;font-size:1.12rem;margin-top:4px}
+.goal{color:#d7e2f1;font-size:.9rem;margin-top:7px}
+.palette{display:grid;grid-template-columns:1fr 1fr;gap:8px}
+.device-btn{border:1px solid #385576;background:#112239;color:white;border-radius:12px;padding:10px;
+cursor:pointer;text-align:left;transition:.15s}
+.device-btn:hover:not(:disabled){border-color:var(--cyan);transform:translateY(-1px)}
+.device-btn:disabled{opacity:.35;cursor:not-allowed}
+.device-btn .ico{font-size:1.28rem;display:block}
+.device-btn small{color:#a9bad0}
+.toolbar{display:flex;gap:8px;flex-wrap:wrap}
+.btn{border:0;border-radius:12px;padding:10px 13px;font-weight:900;cursor:pointer}
+.btn.primary{background:linear-gradient(135deg,var(--cyan),#5fb8ff);color:#062034}
+.btn.secondary{background:#203650;color:white;border:1px solid #34506f}
+.btn.danger{background:#40212a;color:#ffccd2;border:1px solid #70404b}
+.btn.active{outline:2px solid var(--yellow);background:#3a321f}
+.btn:disabled{opacity:.42;cursor:not-allowed}
+.instructions{font-size:.86rem;color:var(--muted);line-height:1.5;background:#091522;border-radius:12px;padding:11px}
+.status{border-radius:12px;padding:11px 12px;background:#0a1524;border:1px solid #263d58;font-size:.9rem;min-height:66px}
+.status.good{border-color:#2d6e53;background:#102d24}
+.status.bad{border-color:#6f3f48;background:#2e171d}
+.checks{display:flex;flex-direction:column;gap:6px}
+.check{font-size:.84rem;color:#c8d4e2;display:flex;gap:8px}
+.check .mark{width:20px;text-align:center}
+.game{min-height:690px;position:relative;overflow:hidden}
+.board{position:absolute;inset:0;background:
+linear-gradient(#ffffff06 1px,transparent 1px),
+linear-gradient(90deg,#ffffff06 1px,transparent 1px);
+background-size:40px 40px;touch-action:none}
+.board:before{content:"LAN WORKSPACE";position:absolute;right:18px;top:14px;color:#ffffff13;font-weight:1000;
+letter-spacing:.16em;font-size:1.1rem}
+svg.wires{position:absolute;inset:0;width:100%;height:100%;pointer-events:none;overflow:visible}
+.wire{stroke:#537096;stroke-width:4;stroke-linecap:round}
+.wire.active{stroke:var(--cyan);stroke-width:5;filter:drop-shadow(0 0 5px #67e8f988)}
+.wire.bad{stroke:var(--red)}
+.node{position:absolute;width:112px;min-height:78px;transform:translate(-50%,-50%);border-radius:15px;
+border:2px solid #456583;background:linear-gradient(180deg,#172b45,#102036);display:flex;flex-direction:column;
+align-items:center;justify-content:center;text-align:center;cursor:grab;user-select:none;padding:7px;
+box-shadow:0 10px 24px #0005;transition:border-color .12s,box-shadow .12s}
+.node:hover{border-color:#7ba6d0}
+.node .icon{font-size:28px;line-height:1}
+.node .label{font-size:.8rem;font-weight:900;margin-top:5px}
+.node .type{font-size:.68rem;color:#9eb0c5;text-transform:uppercase;letter-spacing:.05em}
+.node.selected{border-color:var(--yellow);box-shadow:0 0 0 4px #ffd16622,0 10px 24px #0005}
+.node.packet-hot{border-color:var(--cyan);box-shadow:0 0 22px #67e8f977}
+.node.endpoint{border-color:#4f8a71}
+.node.internet{border-color:#755aa8}
+.packet{position:absolute;width:38px;height:30px;border-radius:7px;background:var(--cyan);border:2px solid #d8fbff;
+display:grid;place-items:center;color:#082338;font-size:.72rem;font-weight:1000;transform:translate(-50%,-50%);
+box-shadow:0 0 22px #67e8f999;z-index:20;pointer-events:none}
+.tip{position:absolute;left:50%;top:16px;transform:translateX(-50%);background:#07121ee8;border:1px solid #385474;
+border-radius:999px;padding:9px 14px;font-weight:850;text-align:center;z-index:30;max-width:82%;backdrop-filter:blur(5px)}
+.overlay{position:absolute;inset:0;display:grid;place-items:center;background:#06101de9;padding:20px;z-index:50}
+.overlay.hidden{display:none}
+.dialog{width:min(690px,95%);border:1px solid #345171;background:#122039;border-radius:20px;padding:24px;
+box-shadow:0 30px 90px #000a}
+.dialog h2{font-size:1.9rem;margin:8px 0}
+.dialog p{color:#d2ddeb}
+.badge{display:inline-block;border-radius:999px;padding:5px 9px;background:#153b31;color:#8ff0bd;font-weight:900;font-size:.79rem}
+.rules{display:grid;grid-template-columns:repeat(3,1fr);gap:10px;margin:18px 0}
+.rule{background:#0b1728;border:1px solid #2b425f;border-radius:13px;padding:12px}
+.rule strong{display:block;margin-bottom:4px}
+.progress{height:9px;background:#21354f;border-radius:999px;overflow:hidden}
+.progress>div{height:100%;width:0;background:linear-gradient(90deg,var(--cyan),var(--green));transition:width .25s}
+@media(max-width:920px){.layout{grid-template-columns:1fr}.game{min-height:640px}.side{order:2}}
+@media(max-width:620px){.palette{grid-template-columns:1fr 1fr}.rules{grid-template-columns:1fr}.node{width:96px;min-height:72px}.game{min-height:600px}}
+</style>
+</head>
+<body>
+<div class="app">
+  <header class="top">
+    <div class="brand">
+      <div class="logo">🕸️</div>
+      <div><h1>Build-a-LAN</h1><div class="sub">Construct a working local area network</div></div>
+    </div>
+    <div class="stats">
+      <div class="pill">Mission <span id="levelNum">1</span>/5</div>
+      <div class="pill">Score <span id="score">0</span></div>
+      <div class="pill">Tests <span id="tests">0</span></div>
+    </div>
+  </header>
+
+  <div class="layout">
+    <aside class="card side">
+      <div>
+        <div class="kicker">Network mission</div>
+        <div class="mission" id="mission"></div>
+        <div class="goal" id="goal"></div>
+      </div>
+
+      <div>
+        <div class="kicker">Devices to place</div>
+        <div class="palette" id="palette"></div>
+      </div>
+
+      <div>
+        <div class="kicker">Cabling tools</div>
+        <div class="toolbar">
+          <button class="btn secondary" id="cableBtn">🔌 Cable mode</button>
+          <button class="btn secondary" id="undoBtn">↩ Undo cable</button>
+          <button class="btn danger" id="clearBtn">Clear board</button>
+        </div>
+      </div>
+
+      <div class="instructions">
+        <strong>How to build:</strong><br>
+        1. Add every required device.<br>
+        2. Drag devices into a clear layout.<br>
+        3. Turn on <strong>Cable mode</strong>.<br>
+        4. Click two devices to connect them.<br>
+        5. Press <strong>Test Network</strong>.
+      </div>
+
+      <button class="btn primary" id="testBtn">▶ Test Network</button>
+      <div class="progress"><div id="progress"></div></div>
+      <div class="status" id="status">Build the network, then test it.</div>
+      <div class="checks" id="checks"></div>
+    </aside>
+
+    <section class="card game">
+      <div class="board" id="board">
+        <svg class="wires" id="wires"></svg>
+        <div class="tip" id="tip">Place the devices from the palette.</div>
+
+        <div class="overlay" id="intro">
+          <div class="dialog">
+            <span class="badge">Primary 4 ICT · Computer Systems</span>
+            <h2>Build the network 🕸️</h2>
+            <p>A <strong>LAN</strong> connects devices in a local place such as a classroom or school. Computers usually connect to a <strong>switch</strong>. The switch connects to a <strong>router</strong>, which links the local network to other networks and the internet.</p>
+            <div class="rules">
+              <div class="rule"><strong>💻 Client</strong><span>Uses the network.</span></div>
+              <div class="rule"><strong>🔀 Switch</strong><span>Connects local devices.</span></div>
+              <div class="rule"><strong>📡 Router</strong><span>Links networks together.</span></div>
+            </div>
+            <button class="btn primary" id="startBtn">Start building</button>
+          </div>
+        </div>
+
+        <div class="overlay hidden" id="result">
+          <div class="dialog">
+            <span class="badge" id="resultBadge">Network online!</span>
+            <h2 id="resultTitle">Packets delivered 🎉</h2>
+            <p id="resultText"></p>
+            <button class="btn primary" id="nextBtn">Next mission</button>
+          </div>
+        </div>
+      </div>
+    </section>
+  </div>
+</div>
+
+<script>
+const TYPES = {
+  client:{name:"Chromebook",icon:"💻"},
+  switch:{name:"Switch",icon:"🔀"},
+  router:{name:"Router",icon:"📡"},
+  internet:{name:"Internet",icon:"☁️"},
+  website:{name:"Website",icon:"🖥️"},
+  cloud:{name:"Cloud Drive",icon:"🗄️"},
+  printer:{name:"Printer",icon:"🖨️"},
+  localserver:{name:"Local Server",icon:"🗃️"}
+};
+
+const levels = [
+  {
+    mission:"Connect one Chromebook to the School Website.",
+    goal:"Build the path: Chromebook → Switch → Router → Internet → Website.",
+    inventory:{client:1,switch:1,router:1,internet:1,website:1},
+    routes:[["client","website"]],
+    requiredEdges:[["client","switch"],["switch","router"],["router","internet"],["internet","website"]]
+  },
+  {
+    mission:"Build a classroom LAN for two Chromebooks.",
+    goal:"Both Chromebooks must share one switch and reach Cloud Drive through the router.",
+    inventory:{client:2,switch:1,router:1,internet:1,cloud:1},
+    routes:[["client","cloud"]],
+    requiredEdges:[["client","switch"],["switch","router"],["router","internet"],["internet","cloud"]]
+  },
+  {
+    mission:"Add a shared printer to the local network.",
+    goal:"Two Chromebooks must reach both the local printer and the School Website.",
+    inventory:{client:2,switch:1,printer:1,router:1,internet:1,website:1},
+    routes:[["client","printer"],["client","website"]],
+    requiredEdges:[["client","switch"],["printer","switch"],["switch","router"],["router","internet"],["internet","website"]]
+  },
+  {
+    mission:"Connect two classroom switches to one router.",
+    goal:"Every Chromebook must reach the Local Server and Cloud Drive.",
+    inventory:{client:3,switch:2,localserver:1,router:1,internet:1,cloud:1},
+    routes:[["client","localserver"],["client","cloud"]],
+    requiredEdges:[["client","switch"],["localserver","switch"],["switch","router"],["router","internet"],["internet","cloud"]],
+    minSwitchesUsed:2
+  },
+  {
+    mission:"Build a small school network.",
+    goal:"Three Chromebooks, a printer and local server must share the LAN; all clients must also reach the website.",
+    inventory:{client:3,switch:2,printer:1,localserver:1,router:1,internet:1,website:1},
+    routes:[["client","printer"],["client","localserver"],["client","website"]],
+    requiredEdges:[["client","switch"],["printer","switch"],["localserver","switch"],["switch","router"],["router","internet"],["internet","website"]],
+    minSwitchesUsed:2
+  }
+];
+
+const board = document.getElementById("board");
+const wiresSvg = document.getElementById("wires");
+const palette = document.getElementById("palette");
+const statusEl = document.getElementById("status");
+const tip = document.getElementById("tip");
+const checksEl = document.getElementById("checks");
+const q = id=>document.getElementById(id);
+
+let levelIndex=0, score=0, tests=0, nodes=[], edges=[], cableMode=false, selected=null, nodeCounter=0, animating=false;
+
+function level(){ return levels[levelIndex]; }
+function countsPlaced(type){ return nodes.filter(n=>n.type===type).length; }
+function remaining(type){ return (level().inventory[type]||0)-countsPlaced(type); }
+
+function setupLevel(){
+  nodes=[]; edges=[]; selected=null; cableMode=false; nodeCounter=0; animating=false;
+  wiresSvg.innerHTML="";
+  board.querySelectorAll(".node,.packet").forEach(x=>x.remove());
+  q("levelNum").textContent=levelIndex+1;
+  q("score").textContent=score;
+  q("tests").textContent=tests;
+  q("mission").textContent=level().mission;
+  q("goal").textContent=level().goal;
+  q("progress").style.width="0%";
+  q("cableBtn").classList.remove("active");
+  tip.textContent="Place the devices from the palette.";
+  status("Build the network, then test it.");
+  renderPalette();
+  renderChecks();
+}
+
+function status(text,kind=""){
+  statusEl.textContent=text;
+  statusEl.className="status"+(kind?" "+kind:"");
+}
+
+function renderPalette(){
+  palette.innerHTML="";
+  Object.entries(level().inventory).forEach(([type,total])=>{
+    const rem=remaining(type), t=TYPES[type];
+    const b=document.createElement("button");
+    b.className="device-btn";
+    b.disabled=rem<=0 || animating;
+    b.innerHTML=`<span class="ico">${t.icon}</span><strong>${t.name}</strong><br><small>${rem} left</small>`;
+    b.onclick=()=>addNode(type);
+    palette.appendChild(b);
+  });
+}
+
+function defaultPosition(i){
+  const rect=board.getBoundingClientRect();
+  const cols=4, col=i%cols, row=Math.floor(i/cols);
+  return {x:120+col*Math.max(145,(rect.width-220)/3), y:145+row*125};
+}
+
+function addNode(type){
+  if(remaining(type)<=0) return;
+  const pos=defaultPosition(nodes.length);
+  const id=`n${++nodeCounter}`;
+  const sameCount=nodes.filter(n=>n.type===type).length+1;
+  const label=(level().inventory[type]||0)>1 ? `${TYPES[type].name} ${sameCount}` : TYPES[type].name;
+  const n={id,type,label,x:pos.x,y:pos.y};
+  nodes.push(n);
+  createNodeElement(n);
+  renderPalette();
+  renderChecks();
+  tip.textContent="Drag devices to arrange them. Then connect them with cables.";
+}
+
+function createNodeElement(n){
+  const el=document.createElement("div");
+  el.className="node"+(n.type==="website"||n.type==="cloud"||n.type==="printer"||n.type==="localserver"?" endpoint":"")+(n.type==="internet"?" internet":"");
+  el.dataset.id=n.id;
+  el.innerHTML=`<div class="icon">${TYPES[n.type].icon}</div><div class="label">${n.label}</div><div class="type">${n.type}</div>`;
+  el.style.left=n.x+"px"; el.style.top=n.y+"px";
+  board.appendChild(el);
+
+  let drag=null;
+  el.addEventListener("pointerdown",e=>{
+    if(animating) return;
+    if(cableMode){ e.preventDefault(); handleCableClick(n.id); return; }
+    drag={sx:e.clientX,sy:e.clientY,ox:n.x,oy:n.y,moved:false};
+    el.setPointerCapture(e.pointerId);
+    el.style.cursor="grabbing";
+  });
+  el.addEventListener("pointermove",e=>{
+    if(!drag || cableMode) return;
+    const dx=e.clientX-drag.sx,dy=e.clientY-drag.sy;
+    if(Math.abs(dx)+Math.abs(dy)>4) drag.moved=true;
+    const r=board.getBoundingClientRect();
+    n.x=Math.max(60,Math.min(r.width-60,drag.ox+dx));
+    n.y=Math.max(75,Math.min(r.height-55,drag.oy+dy));
+    el.style.left=n.x+"px";el.style.top=n.y+"px";renderWires();
+  });
+  el.addEventListener("pointerup",e=>{
+    drag=null;el.style.cursor="grab";
+  });
+}
+
+function toggleCable(){
+  if(animating) return;
+  cableMode=!cableMode;
+  selected=null;
+  document.querySelectorAll(".node").forEach(x=>x.classList.remove("selected"));
+  q("cableBtn").classList.toggle("active",cableMode);
+  tip.textContent=cableMode?"Cable mode: click the first device, then the second.":"Drag mode: move devices around the board.";
+}
+
+function handleCableClick(id){
+  if(!selected){
+    selected=id;
+    document.querySelector(`[data-id="${id}"]`).classList.add("selected");
+    tip.textContent="Now click the device you want to connect to.";
+    return;
+  }
+  if(selected===id){
+    document.querySelector(`[data-id="${id}"]`).classList.remove("selected");
+    selected=null; tip.textContent="Selection cancelled. Choose the first device.";
+    return;
+  }
+  const a=selected,b=id;
+  document.querySelector(`[data-id="${a}"]`).classList.remove("selected");
+  selected=null;
+  if(edges.some(e=>(e[0]===a&&e[1]===b)||(e[0]===b&&e[1]===a))){
+    status("Those devices are already connected.","bad");
+  } else {
+    edges.push([a,b]);
+    status("Cable connected.");
+  }
+  renderWires();
+  renderChecks();
+  tip.textContent="Choose two more devices, or test the network.";
+}
+
+function renderWires(activeEdges=[],badEdges=[]){
+  wiresSvg.innerHTML="";
+  edges.forEach(([a,b])=>{
+    const A=nodes.find(n=>n.id===a),B=nodes.find(n=>n.id===b);
+    if(!A||!B)return;
+    const line=document.createElementNS("http://www.w3.org/2000/svg","line");
+    line.setAttribute("x1",A.x);line.setAttribute("y1",A.y);
+    line.setAttribute("x2",B.x);line.setAttribute("y2",B.y);
+    const key=[a,b].sort().join("-");
+    line.setAttribute("class","wire"+(activeEdges.includes(key)?" active":"")+(badEdges.includes(key)?" bad":""));
+    wiresSvg.appendChild(line);
+  });
+}
+
+function undoCable(){
+  if(animating)return;
+  edges.pop();renderWires();renderChecks();status("Last cable removed.");
+}
+function clearBoard(){
+  if(animating)return;
+  setupLevel();
+}
+
+function adjacency(){
+  const adj={};
+  nodes.forEach(n=>adj[n.id]=[]);
+  edges.forEach(([a,b])=>{if(adj[a]&&adj[b]){adj[a].push(b);adj[b].push(a)}});
+  return adj;
+}
+function shortestPath(start,end){
+  const adj=adjacency(), queue=[[start]], seen=new Set([start]);
+  while(queue.length){
+    const path=queue.shift(), cur=path[path.length-1];
+    if(cur===end)return path;
+    for(const nx of (adj[cur]||[])){
+      if(!seen.has(nx)){seen.add(nx);queue.push([...path,nx])}
+    }
+  }
+  return null;
+}
+function typeOf(id){return nodes.find(n=>n.id===id)?.type}
+
+function edgeExistsByTypes(typeA,typeB){
+  return edges.some(([a,b])=>{
+    const A=typeOf(a),B=typeOf(b);
+    return (A===typeA&&B===typeB)||(A===typeB&&B===typeA);
+  });
+}
+
+function clientHasSwitch(clientId){
+  return edges.some(([a,b])=>{
+    if(a===clientId) return typeOf(b)==="switch";
+    if(b===clientId) return typeOf(a)==="switch";
+    return false;
+  });
+}
+function endpointHasSwitch(id){
+  return edges.some(([a,b])=>{
+    if(a===id) return typeOf(b)==="switch";
+    if(b===id) return typeOf(a)==="switch";
+    return false;
+  });
+}
+function usedSwitchCount(){
+  return nodes.filter(n=>n.type==="switch" && edges.some(e=>e.includes(n.id))).length;
+}
+
+function validateStructure(){
+  const problems=[], checks=[];
+  // inventory
+  let allPlaced=true;
+  for(const [type,total] of Object.entries(level().inventory)){
+    if(countsPlaced(type)!==total) allPlaced=false;
+  }
+  checks.push([allPlaced,"All required devices are placed"]);
+  if(!allPlaced) problems.push("Place all required devices.");
+
+  // local clients must join switches
+  const clients=nodes.filter(n=>n.type==="client");
+  const clientsOk=clients.length>0 && clients.every(n=>clientHasSwitch(n.id));
+  checks.push([clientsOk,"Every Chromebook connects to a switch"]);
+  if(nodes.length && !clientsOk) problems.push("Each Chromebook should connect to a switch.");
+
+  // local peripherals / server to switch if present
+  const locals=nodes.filter(n=>["printer","localserver"].includes(n.type));
+  const localOk=locals.every(n=>endpointHasSwitch(n.id));
+  if(locals.length) checks.push([localOk,"Local devices connect to a switch"]);
+  if(locals.length && !localOk) problems.push("Connect local shared devices to a switch.");
+
+  const sr=edgeExistsByTypes("switch","router");
+  checks.push([sr,"A switch connects to the router"]);
+  if(nodes.some(n=>n.type==="router")&&!sr)problems.push("Connect a switch to the router.");
+
+  const ri=edgeExistsByTypes("router","internet");
+  checks.push([ri,"The router connects to the Internet"]);
+  if(nodes.some(n=>n.type==="internet")&&!ri)problems.push("Connect the router to the Internet cloud.");
+
+  const remoteType=nodes.some(n=>n.type==="website")?"website":nodes.some(n=>n.type==="cloud")?"cloud":null;
+  if(remoteType){
+    const ir=edgeExistsByTypes("internet",remoteType);
+    checks.push([ir,`Internet connects to ${TYPES[remoteType].name}`]);
+    if(!ir)problems.push(`Connect the Internet cloud to ${TYPES[remoteType].name}.`);
+  }
+
+  if(level().minSwitchesUsed){
+    const ok=usedSwitchCount()>=level().minSwitchesUsed;
+    checks.push([ok,`Use both switches in the LAN`]);
+    if(!ok)problems.push("Both switches need to be part of the LAN.");
+  }
+
+  // required connectivity routes
+  let routeOk=true;
+  for(const [fromType,toType] of level().routes){
+    const starts=nodes.filter(n=>n.type===fromType), ends=nodes.filter(n=>n.type===toType);
+    for(const s of starts){
+      if(!ends.some(e=>shortestPath(s.id,e.id))) routeOk=false;
+    }
+  }
+  checks.push([routeOk,"Required devices can reach their destinations"]);
+  if(nodes.length&&!routeOk) problems.push("At least one required network path is broken.");
+
+  return {ok:allPlaced&&clientsOk&&localOk&&sr&&ri&&routeOk&&(!level().minSwitchesUsed||usedSwitchCount()>=level().minSwitchesUsed), problems, checks};
+}
+
+function renderChecks(){
+  const v=validateStructure();
+  checksEl.innerHTML=v.checks.map(([ok,text])=>`<div class="check"><span class="mark">${ok?"✅":"⬜"}</span><span>${text}</span></div>`).join("");
+}
+
+function findDemoPaths(){
+  const result=[];
+  for(const [fromType,toType] of level().routes){
+    const starts=nodes.filter(n=>n.type===fromType);
+    const ends=nodes.filter(n=>n.type===toType);
+    for(const s of starts){
+      const candidates=ends.map(e=>shortestPath(s.id,e.id)).filter(Boolean).sort((a,b)=>a.length-b.length);
+      if(candidates[0]) result.push(candidates[0]);
+    }
+  }
+  return result;
+}
+
+async function testNetwork(){
+  if(animating)return;
+  tests++;q("tests").textContent=tests;
+  const v=validateStructure();
+  renderChecks();
+  if(!v.ok){
+    score=Math.max(0,score-5);q("score").textContent=score;
+    status(v.problems[0]||"The network is not ready yet.","bad");
+    tip.textContent="Check the network structure and try again.";
+    return;
+  }
+
+  animating=true; renderPalette();
+  q("testBtn").disabled=true;
+  status("Testing network... packets are travelling.","");
+  tip.textContent="Watch the packet travel through your LAN.";
+  const paths=findDemoPaths();
+  const uniquePaths=paths.slice(0,Math.min(paths.length,4));
+  q("progress").style.width="10%";
+
+  for(let i=0;i<uniquePaths.length;i++){
+    await animatePath(uniquePaths[i]);
+    q("progress").style.width=(20+Math.round(((i+1)/uniquePaths.length)*75))+"%";
+  }
+  q("progress").style.width="100%";
+  score+=Math.max(50,100-(tests-1)*5);
+  q("score").textContent=score;
+  status("Network online! All required packets were delivered.","good");
+  tip.textContent="Success — your LAN is working.";
+  animating=false;q("testBtn").disabled=false;renderPalette();
+
+  setTimeout(()=>{
+    q("resultTitle").textContent="Network online! 🎉";
+    q("resultText").innerHTML=`Your devices formed a working LAN. Local devices reached the <strong>switch</strong>, the switch connected to the <strong>router</strong>, and the router linked the LAN to the <strong>Internet</strong>.<br><br>When you tested it, packets successfully travelled through the connections you built.`;
+    q("nextBtn").textContent=levelIndex===levels.length-1?"Play again":"Next mission";
+    q("result").classList.remove("hidden");
+  },450);
+}
+
+function sleep(ms){return new Promise(r=>setTimeout(r,ms));}
+
+async function animatePath(path){
+  let packet=document.createElement("div");
+  packet.className="packet"; packet.textContent="PKT";
+  board.appendChild(packet);
+  const first=nodes.find(n=>n.id===path[0]);
+  packet.style.left=first.x+"px";packet.style.top=first.y+"px";
+
+  for(let i=0;i<path.length-1;i++){
+    const a=nodes.find(n=>n.id===path[i]),b=nodes.find(n=>n.id===path[i+1]);
+    const key=[a.id,b.id].sort().join("-");
+    renderWires([key]);
+    document.querySelectorAll(".node").forEach(x=>x.classList.remove("packet-hot"));
+    document.querySelector(`[data-id="${b.id}"]`)?.classList.add("packet-hot");
+    await movePacket(packet,a,b,500);
+    await sleep(130);
+  }
+  document.querySelectorAll(".node").forEach(x=>x.classList.remove("packet-hot"));
+  renderWires();
+  packet.remove();
+}
+
+function movePacket(packet,a,b,duration){
+  return new Promise(resolve=>{
+    const start=performance.now();
+    function frame(t){
+      const q=Math.min(1,(t-start)/duration), e=1-Math.pow(1-q,3);
+      packet.style.left=(a.x+(b.x-a.x)*e)+"px";
+      packet.style.top=(a.y+(b.y-a.y)*e)+"px";
+      if(q<1)requestAnimationFrame(frame);else resolve();
+    }
+    requestAnimationFrame(frame);
+  });
+}
+
+q("cableBtn").onclick=toggleCable;
+q("undoBtn").onclick=undoCable;
+q("clearBtn").onclick=clearBoard;
+q("testBtn").onclick=testNetwork;
+q("startBtn").onclick=()=>q("intro").classList.add("hidden");
+q("nextBtn").onclick=()=>{
+  q("result").classList.add("hidden");
+  if(levelIndex===levels.length-1){levelIndex=0;score=0;tests=0}else levelIndex++;
+  setupLevel();
+};
+
+window.addEventListener("resize",()=>renderWires());
+setupLevel();
+</script>
+</body>
+</html>

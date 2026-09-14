@@ -1,0 +1,60 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+
+  <!-- 1. Change this to the activity name -->
+  <title>ACTIVITY NAME — SISB ICT</title>
+  <meta name="description" content="One-line description of the activity.">
+
+  <!-- 2. STYLESHEET PATH — this changes depending on where you save the file.
+
+       Right here (activities/_template.html)          -> ../assets/styles.css
+       Once copied into a topic folder, e.g.
+       (activities/networks/my-new-game.html)          -> ../../assets/styles.css
+
+       So: when you copy this file into a topic folder, add one more "../".
+       If the page loads with no styling, this path is why. -->
+  <link rel="stylesheet" href="../assets/styles.css">
+
+  <!-- Optional: uncomment if you want the activity to use the Inter webfont -->
+  <!--
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600;700;800&display=swap" rel="stylesheet">
+  -->
+</head>
+<body>
+  <div class="container">
+
+    <!-- 3. Back link — always points to the hub -->
+    <a class="back-link" href="../../">← Back to hub</a>
+
+    <!-- 4. Title + intro -->
+    <h1>ACTIVITY NAME</h1>
+    <p class="subtitle">One or two sentences telling students what to do here.</p>
+
+    <!-- 5. Your activity goes below.
+            Write it in plain HTML/CSS/JS — no frameworks, no build step.
+            The three network games in activities/networks/ are good examples
+            of fully self-contained activity pages. -->
+
+    <div class="card-grid">
+      <div class="card">
+        <div class="card-head">
+          <span class="type-badge" data-type="game">🎮 Game</span>
+        </div>
+        <div class="card-title">Replace this placeholder</div>
+        <div class="card-desc">Delete this card and put your activity here.</div>
+      </div>
+    </div>
+
+    <footer>
+      <span>SISB Primary ICT</span>
+      <a href="../../">← Back to hub</a>
+    </footer>
+
+  </div>
+</body>
+</html>

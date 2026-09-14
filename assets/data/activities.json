@@ -1,0 +1,67 @@
+[
+  {
+    "id": "build-a-lan-week4",
+    "title": "Build-a-LAN",
+    "description": "Drag network nodes onto the canvas and draw arrows to build a working local area network.",
+    "path": "activities/networks/build-a-lan-week4.html",
+    "year_levels": ["P4"],
+    "topic": "Networks",
+    "type": "game",
+    "week": 4,
+    "term": 1,
+    "tags": ["LAN", "router", "gateway", "network architecture"],
+    "external": false
+  },
+  {
+    "id": "packet-panic-week4",
+    "title": "Packet Panic",
+    "description": "Traffic is flooding in — keep the network stable by routing packets before the buffer overflows.",
+    "path": "activities/networks/packet-panic-week4.html",
+    "year_levels": ["P4"],
+    "topic": "Networks",
+    "type": "game",
+    "week": 4,
+    "term": 1,
+    "tags": ["data packets", "router", "traffic", "network"],
+    "external": false
+  },
+  {
+    "id": "packet-post-week4",
+    "title": "Packet Post",
+    "description": "Deliver a data packet safely across the network by sending it through the right stops in order.",
+    "path": "activities/networks/packet-post-week4.html",
+    "year_levels": ["P4"],
+    "topic": "Networks",
+    "type": "game",
+    "week": 4,
+    "term": 1,
+    "tags": ["data packets", "routing", "IP address", "gateway"],
+    "external": false
+  },
+  {
+    "id": "ui-ux-good-vs-bad",
+    "title": "UI/UX — Good vs Bad Examples",
+    "description": "Four interactive pages showing what good UI, good UX, and their opposites look like in the wild.",
+    "path": "activities/ui-ux/index.html",
+    "year_levels": ["P4"],
+    "topic": "UI/UX",
+    "type": "activity",
+    "week": 2,
+    "term": 1,
+    "tags": ["UI", "UX", "design", "usability", "contrast"],
+    "external": false
+  },
+  {
+    "id": "wordwall-activities",
+    "title": "Wordwall Activities",
+    "description": "Nine interactive Wordwall games for vocabulary, concept reinforcement, and review — organised by week.",
+    "path": "activities/wordwall/index.html",
+    "year_levels": ["P4"],
+    "topic": "Mixed Review",
+    "type": "activity",
+    "week": null,
+    "term": 1,
+    "tags": ["wordwall", "vocabulary", "review", "quiz", "weeks 1-3"],
+    "external": false
+  }
+]

@@ -3,34 +3,79 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>SISB ICT — Class Hub</title>
-  <link rel="stylesheet" href="styles.css">
+  <title>SISB ICT — Activity Hub</title>
+  <meta name="description" content="A growing library of ICT activities, games, and resources for SISB Primary students.">
+
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600;700;800&display=swap" rel="stylesheet">
+
+  <link rel="stylesheet" href="assets/styles.css">
 </head>
 <body>
   <div class="container">
-    <h1>SISB ICT</h1>
-    <p class="subtitle">Primary 4 — Term 1 activities, lessons, and resources.</p>
 
-    <h2>Lessons & Activities</h2>
-    <div class="card-grid">
+    <header class="hero">
+      <span class="hero-eyebrow">SISB Primary · ICT</span>
+      <h1>Activity Hub</h1>
+      <p class="subtitle">
+        Every game, activity, and resource for our ICT lessons — in one place.
+        Filter by year level, topic, or type to find what you need.
+      </p>
+      <div class="hero-stats">
+        <span><strong id="statCount">—</strong> activities</span>
+        <span><strong>P1–P6</strong> year levels</span>
+        <span><strong>Term 1</strong> · updated weekly</span>
+      </div>
+    </header>
 
-      <a class="card" href="ui-ux-examples/">
-        <span class="card-tag">Week 2</span>
-        <div class="card-title">UI / UX — Good vs Bad Examples</div>
-        <div class="card-desc">Four interactive pages showing what good UI, good UX, and their opposites look like in the wild.</div>
-      </a>
+    <div class="filter-bar" id="filterBar">
+      <button class="filter-toggle" id="filterToggle" type="button"
+              aria-expanded="false" aria-controls="filterGroups">
+        <span>⚙️ Filters</span>
+        <span class="filter-toggle-count" id="filterToggleCount" hidden>0</span>
+      </button>
 
-      <a class="card" href="wordwall/">
-        <span class="card-tag">Weeks 1–3</span>
-        <div class="card-title">Wordwall Activities</div>
-        <div class="card-desc">Interactive games for vocabulary, concept reinforcement, and review — organised by week.</div>
-      </a>
+      <div class="filter-groups" id="filterGroups">
+        <!-- Filter chips are generated from activities.json -->
+      </div>
 
+      <button class="filter-clear" id="filterClear" type="button" hidden>Clear all</button>
     </div>
 
+    <p class="result-count" id="resultCount"></p>
+
+    <div class="card-grid" id="cardGrid">
+      <!-- Activity cards are rendered from activities.json -->
+    </div>
+
+    <noscript>
+      <div class="empty-state">
+        <span class="empty-emoji">🔌</span>
+        <p>This page needs JavaScript to load the activity list.<br>
+        You can still reach the activity folders directly.</p>
+      </div>
+    </noscript>
+
     <footer>
-      Built for SISB Primary 4 ICT classes.
+      <span>Built for SISB Primary ICT classes.</span>
+      <a href="README.md">How to add an activity →</a>
     </footer>
+
   </div>
+
+  <script src="assets/app.js"></script>
+  <script>
+    // Reflect the real activity count in the hero once the data loads.
+    window.addEventListener('load', function () {
+      var grid = document.getElementById('cardGrid');
+      var stat = document.getElementById('statCount');
+      var tick = setInterval(function () {
+        var m = document.getElementById('resultCount').textContent.match(/of\s+(\d+)/);
+        if (m) { stat.textContent = m[1]; clearInterval(tick); }
+      }, 60);
+      setTimeout(function () { clearInterval(tick); }, 4000);
+    });
+  </script>
 </body>
 </html>

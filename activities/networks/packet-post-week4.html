@@ -1,0 +1,490 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8" />
+<meta name="viewport" content="width=device-width,initial-scale=1" />
+<title>Packet Post — Network Routing Game</title>
+<style>
+:root{
+  --bg:#08111f;
+  --panel:#111d30;
+  --panel2:#17263d;
+  --line:#2c4263;
+  --text:#f4f7fb;
+  --muted:#b8c4d6;
+  --accent:#6be3ff;
+  --good:#58e39c;
+  --warn:#ffd166;
+  --bad:#ff6b6b;
+  --purple:#ae8cff;
+}
+*{box-sizing:border-box}
+html,body{margin:0;min-height:100%;font-family:Inter,system-ui,-apple-system,Segoe UI,sans-serif;background:
+radial-gradient(circle at top,#13223a 0,#08111f 55%);color:var(--text)}
+button{font:inherit}
+.app{max-width:1180px;margin:auto;padding:18px}
+.topbar{display:flex;gap:14px;align-items:center;justify-content:space-between;flex-wrap:wrap;margin-bottom:14px}
+.brand{display:flex;align-items:center;gap:12px}
+.logo{width:48px;height:48px;border-radius:14px;background:linear-gradient(135deg,var(--accent),var(--purple));display:grid;place-items:center;font-size:26px}
+h1{font-size:clamp(1.5rem,3vw,2.3rem);margin:0}
+.subtitle{color:var(--muted);font-size:.94rem}
+.stats{display:flex;gap:8px;flex-wrap:wrap}
+.pill{background:#ffffff10;border:1px solid #ffffff16;border-radius:999px;padding:8px 12px;font-weight:800}
+.grid{display:grid;grid-template-columns:330px 1fr;gap:14px}
+.card{background:linear-gradient(180deg,#122039,#0e1829);border:1px solid #263a58;border-radius:18px;box-shadow:0 18px 40px #00000024}
+.side{padding:18px;display:flex;flex-direction:column;gap:14px}
+.section-title{font-size:.78rem;text-transform:uppercase;letter-spacing:.12em;color:#8fa4c2;font-weight:900}
+.packet{border:1px solid #3a5277;border-radius:14px;background:#0c1627;padding:14px}
+.packet-line{display:flex;justify-content:space-between;gap:10px;padding:5px 0;border-bottom:1px dashed #2a3a53}
+.packet-line:last-child{border-bottom:0}
+.packet-line b{color:var(--accent)}
+.mission{font-size:1.05rem;font-weight:800}
+.hint{color:var(--muted);font-size:.9rem}
+.route-log{min-height:120px;border-radius:12px;background:#091321;padding:10px;font-size:.88rem;color:#d6deea}
+.log-entry{padding:5px 0;border-bottom:1px solid #ffffff0c}
+.legend{display:grid;grid-template-columns:1fr 1fr;gap:8px;font-size:.82rem;color:var(--muted)}
+.dot{display:inline-block;width:9px;height:9px;border-radius:50%;margin-right:6px}
+.actions{display:flex;gap:8px;flex-wrap:wrap}
+.btn{border:0;border-radius:12px;padding:10px 14px;font-weight:900;cursor:pointer}
+.btn.primary{background:linear-gradient(135deg,var(--accent),#54b9ff);color:#062037}
+.btn.secondary{background:#213551;color:white}
+.btn:disabled{opacity:.45;cursor:not-allowed}
+.game{position:relative;min-height:650px;overflow:hidden}
+.canvas-wrap{position:absolute;inset:0}
+canvas{display:block;width:100%;height:100%}
+.message{
+position:absolute;left:50%;top:18px;transform:translateX(-50%);
+background:#07101edb;border:1px solid #36506f;border-radius:999px;padding:9px 15px;
+font-weight:850;max-width:85%;text-align:center;backdrop-filter:blur(6px)
+}
+.router-actions{
+position:absolute;left:50%;bottom:18px;transform:translateX(-50%);
+display:flex;gap:10px;flex-wrap:wrap;justify-content:center;width:min(92%,700px)
+}
+.route-btn{
+border:1px solid #47658d;background:#152740;color:white;border-radius:12px;
+padding:10px 14px;font-weight:900;cursor:pointer;box-shadow:0 8px 20px #0003
+}
+.route-btn:hover{border-color:var(--accent);transform:translateY(-1px)}
+.overlay{
+position:absolute;inset:0;background:#07101ee8;display:grid;place-items:center;padding:20px;z-index:10
+}
+.overlay.hidden{display:none}
+.dialog{
+width:min(680px,94%);background:#122039;border:1px solid #345174;border-radius:20px;padding:24px;
+box-shadow:0 30px 80px #0009
+}
+.dialog h2{margin-top:0;font-size:1.9rem}
+.dialog p{color:#d6deea}
+.rules{display:grid;grid-template-columns:repeat(3,1fr);gap:10px;margin:18px 0}
+.rule{background:#0b1627;border:1px solid #263d5b;border-radius:14px;padding:12px}
+.rule strong{display:block;margin-bottom:4px}
+.big{font-size:1.1rem;padding:13px 18px}
+.badge{display:inline-flex;align-items:center;gap:6px;padding:5px 9px;border-radius:999px;font-size:.8rem;font-weight:900}
+.badge.good{background:#183d31;color:#93f1bf}
+.badge.warn{background:#453719;color:#ffe08b}
+.progress{height:9px;background:#233753;border-radius:999px;overflow:hidden}
+.progress>div{height:100%;background:linear-gradient(90deg,var(--accent),var(--good));width:0%}
+@media(max-width:900px){
+  .grid{grid-template-columns:1fr}
+  .game{min-height:590px}
+  .side{order:2}
+}
+@media(max-width:620px){
+  .rules{grid-template-columns:1fr}
+  .legend{grid-template-columns:1fr}
+  .game{min-height:560px}
+}
+</style>
+</head>
+<body>
+<div class="app">
+  <div class="topbar">
+    <div class="brand">
+      <div class="logo">📦</div>
+      <div>
+        <h1>Packet Post</h1>
+        <div class="subtitle">Route data packets across the network</div>
+      </div>
+    </div>
+    <div class="stats">
+      <div class="pill">Level <span id="levelNum">1</span>/5</div>
+      <div class="pill">Score <span id="score">0</span></div>
+      <div class="pill">Delays <span id="delays">0</span></div>
+    </div>
+  </div>
+
+  <div class="grid">
+    <aside class="card side">
+      <div>
+        <div class="section-title">Current mission</div>
+        <div class="mission" id="missionText">Deliver the packet.</div>
+      </div>
+
+      <div>
+        <div class="section-title">Packet header</div>
+        <div class="packet">
+          <div class="packet-line"><span>FROM</span><b id="srcIP">10.0.0.24</b></div>
+          <div class="packet-line"><span>TO</span><b id="dstIP">203.0.113.8</b></div>
+          <div class="packet-line"><span>TYPE</span><b id="packetType">WEB</b></div>
+          <div class="packet-line"><span>SIZE</span><b id="packetSize">512 B</b></div>
+        </div>
+      </div>
+
+      <div>
+        <div class="section-title">Delivery progress</div>
+        <div class="progress"><div id="progressBar"></div></div>
+      </div>
+
+      <div>
+        <div class="section-title">Routing log</div>
+        <div class="route-log" id="routeLog"></div>
+      </div>
+
+      <div class="legend">
+        <div><span class="dot" style="background:#6be3ff"></span>Your packet</div>
+        <div><span class="dot" style="background:#ae8cff"></span>Router</div>
+        <div><span class="dot" style="background:#58e39c"></span>Correct server</div>
+        <div><span class="dot" style="background:#ff6b6b"></span>Wrong destination</div>
+      </div>
+
+      <div class="hint" id="hintText">
+        Routers read the destination address in the packet header and forward the packet toward its target.
+      </div>
+
+      <div class="actions">
+        <button class="btn secondary" id="restartBtn">Restart level</button>
+        <button class="btn secondary" id="helpBtn">How it works</button>
+      </div>
+    </aside>
+
+    <section class="card game">
+      <div class="canvas-wrap"><canvas id="gameCanvas"></canvas></div>
+      <div class="message" id="message">Choose the next router.</div>
+      <div class="router-actions" id="routerActions"></div>
+
+      <div class="overlay" id="introOverlay">
+        <div class="dialog">
+          <span class="badge good">Primary 4 ICT · Computer Systems</span>
+          <h2>Deliver the data packet 📦</h2>
+          <p>A file travelling across a network is split into <strong>data packets</strong>. Each packet carries a destination address. <strong>Routers</strong> read that address and decide where to send the packet next.</p>
+          <div class="rules">
+            <div class="rule"><strong>1. Read</strong><span>Check the packet’s destination IP.</span></div>
+            <div class="rule"><strong>2. Route</strong><span>Choose the router that moves it closer.</span></div>
+            <div class="rule"><strong>3. Deliver</strong><span>Reach the correct server with few delays.</span></div>
+          </div>
+          <button class="btn primary big" id="startBtn">Start routing</button>
+        </div>
+      </div>
+
+      <div class="overlay hidden" id="resultOverlay">
+        <div class="dialog">
+          <span class="badge good" id="resultBadge">Delivered!</span>
+          <h2 id="resultTitle">Packet delivered 🎉</h2>
+          <p id="resultText"></p>
+          <button class="btn primary big" id="nextBtn">Next level</button>
+        </div>
+      </div>
+    </section>
+  </div>
+</div>
+
+<script>
+const canvas = document.getElementById('gameCanvas');
+const ctx = canvas.getContext('2d');
+const routerActions = document.getElementById('routerActions');
+
+let W=900,H=650,dpr=1;
+function resize(){
+  const r=canvas.getBoundingClientRect();
+  dpr=Math.min(window.devicePixelRatio||1,2);
+  canvas.width=Math.max(1,Math.floor(r.width*dpr));
+  canvas.height=Math.max(1,Math.floor(r.height*dpr));
+  W=r.width; H=r.height;
+  ctx.setTransform(dpr,0,0,dpr,0,0);
+}
+window.addEventListener('resize',resize);
+
+const levels = [
+  {
+    mission:"Send a web request to the School Website.",
+    src:"10.0.0.24", dst:"203.0.113.8", type:"WEB", size:"512 B",
+    nodes:[
+      ["laptop","Your Chromebook",.10,.50],
+      ["r1","Router A",.29,.50],
+      ["r2","Router B",.50,.28],
+      ["r3","Router C",.50,.72],
+      ["school","School Website",.80,.22],
+      ["games","Game Server",.80,.50],
+      ["mail","Mail Server",.80,.78]
+    ],
+    edges:[["laptop","r1"],["r1","r2"],["r1","r3"],["r2","school"],["r2","games"],["r3","games"],["r3","mail"]],
+    path:["laptop","r1","r2","school"]
+  },
+  {
+    mission:"Upload a class file to Cloud Drive.",
+    src:"10.0.0.31", dst:"198.51.100.42", type:"UPLOAD", size:"2 KB",
+    nodes:[
+      ["laptop","Your Chromebook",.09,.50],
+      ["r1","Router A",.27,.50],
+      ["r2","Router B",.46,.20],
+      ["r3","Router C",.46,.50],
+      ["r4","Router D",.46,.80],
+      ["cloud","Cloud Drive",.80,.18],
+      ["video","Video Server",.80,.50],
+      ["shop","Shop Server",.80,.82]
+    ],
+    edges:[["laptop","r1"],["r1","r2"],["r1","r3"],["r1","r4"],["r2","cloud"],["r2","video"],["r3","video"],["r3","cloud"],["r4","video"],["r4","shop"]],
+    path:["laptop","r1","r2","cloud"]
+  },
+  {
+    mission:"Send an email packet to the Mail Server.",
+    src:"10.0.0.18", dst:"192.0.2.25", type:"MAIL", size:"1 KB",
+    nodes:[
+      ["laptop","Your Chromebook",.08,.48],
+      ["r1","Router A",.24,.48],
+      ["r2","Router B",.42,.25],
+      ["r3","Router C",.42,.70],
+      ["r4","Router D",.61,.25],
+      ["r5","Router E",.61,.70],
+      ["mail","Mail Server",.84,.18],
+      ["media","Media Server",.84,.50],
+      ["cloud","Cloud Drive",.84,.82]
+    ],
+    edges:[["laptop","r1"],["r1","r2"],["r1","r3"],["r2","r4"],["r3","r5"],["r3","r4"],["r4","mail"],["r4","media"],["r5","media"],["r5","cloud"]],
+    path:["laptop","r1","r2","r4","mail"]
+  },
+  {
+    mission:"Download a learning video from the Media Server.",
+    src:"10.0.0.55", dst:"203.0.113.77", type:"VIDEO", size:"4 KB",
+    nodes:[
+      ["laptop","Your Chromebook",.07,.50],
+      ["r1","Router A",.23,.50],
+      ["r2","Router B",.38,.20],
+      ["r3","Router C",.38,.80],
+      ["r4","Router D",.56,.35],
+      ["r5","Router E",.56,.68],
+      ["media","Media Server",.84,.20],
+      ["school","School Website",.84,.50],
+      ["game","Game Server",.84,.80]
+    ],
+    edges:[["laptop","r1"],["r1","r2"],["r1","r3"],["r2","r4"],["r3","r4"],["r3","r5"],["r4","media"],["r4","school"],["r5","school"],["r5","game"]],
+    path:["laptop","r1","r2","r4","media"]
+  },
+  {
+    mission:"Reach the correct server using the shortest safe route.",
+    src:"10.0.0.99", dst:"198.51.100.88", type:"DATA", size:"8 KB",
+    nodes:[
+      ["laptop","Your Chromebook",.06,.52],
+      ["r1","Router A",.20,.52],
+      ["r2","Router B",.36,.18],
+      ["r3","Router C",.36,.52],
+      ["r4","Router D",.36,.84],
+      ["r5","Router E",.54,.18],
+      ["r6","Router F",.54,.52],
+      ["r7","Router G",.54,.84],
+      ["target","Learning Server",.84,.20],
+      ["decoy1","Archive Server",.84,.52],
+      ["decoy2","Game Server",.84,.82]
+    ],
+    edges:[["laptop","r1"],["r1","r2"],["r1","r3"],["r1","r4"],["r2","r5"],["r3","r5"],["r3","r6"],["r4","r6"],["r4","r7"],["r5","target"],["r5","decoy1"],["r6","decoy1"],["r6","target"],["r7","decoy1"],["r7","decoy2"]],
+    path:["laptop","r1","r2","r5","target"]
+  }
+];
+
+let levelIndex=0, score=0, delays=0, currentNode="laptop", moving=false, packetPos=null, flash=null;
+let routeHistory=[];
+
+const el=id=>document.getElementById(id);
+const levelNum=el('levelNum'),scoreEl=el('score'),delaysEl=el('delays'),missionText=el('missionText');
+const srcIP=el('srcIP'),dstIP=el('dstIP'),packetType=el('packetType'),packetSize=el('packetSize');
+const routeLog=el('routeLog'),message=el('message'),progressBar=el('progressBar');
+const introOverlay=el('introOverlay'),resultOverlay=el('resultOverlay');
+
+function getLevel(){return levels[levelIndex]}
+function nodeObj(id){
+  const n=getLevel().nodes.find(n=>n[0]===id);
+  return {id:n[0],label:n[1],x:n[2]*W,y:n[3]*H};
+}
+function neighbours(id){
+  return getLevel().edges.filter(e=>e.includes(id)).map(e=>e[0]===id?e[1]:e[0]).filter(n=>!routeHistory.includes(n) || n===getLevel().path[getLevel().path.length-1]);
+}
+function isRouter(id){return id.startsWith('r')}
+function isEndpoint(id){return !id.startsWith('r') && id!=="laptop"}
+
+function setupLevel(){
+  currentNode="laptop"; moving=false; routeHistory=["laptop"]; flash=null;
+  const L=getLevel();
+  levelNum.textContent=levelIndex+1;
+  scoreEl.textContent=score; delaysEl.textContent=delays;
+  missionText.textContent=L.mission;
+  srcIP.textContent=L.src; dstIP.textContent=L.dst; packetType.textContent=L.type; packetSize.textContent=L.size;
+  routeLog.innerHTML="";
+  addLog(`Packet created at ${nodeObj("laptop").label}.`);
+  addLog(`Destination address: ${L.dst}.`);
+  message.textContent="First hop: send the packet to the local router.";
+  progressBar.style.width="0%";
+  packetPos=nodeObj("laptop");
+  renderActions();
+}
+
+function addLog(text,kind=""){
+  const d=document.createElement('div');
+  d.className='log-entry';
+  d.textContent=(kind==="bad"?"⚠️ ":"• ")+text;
+  routeLog.prepend(d);
+}
+
+function renderActions(){
+  routerActions.innerHTML="";
+  const opts=neighbours(currentNode);
+  opts.forEach(id=>{
+    const n=nodeObj(id);
+    const b=document.createElement('button');
+    b.className='route-btn';
+    b.textContent=(isRouter(id)?"📡 ":"🖥️ ")+n.label;
+    b.onclick=()=>choose(id);
+    routerActions.appendChild(b);
+  });
+  if(!opts.length) message.textContent="No forward route available.";
+}
+
+function expectedNext(){
+  const p=getLevel().path;
+  const idx=p.indexOf(currentNode);
+  return p[idx+1];
+}
+
+function choose(next){
+  if(moving)return;
+  const from=nodeObj(currentNode), to=nodeObj(next);
+  const expected=expectedNext();
+  const correct = next===expected;
+  if(!correct){
+    delays++;
+    delaysEl.textContent=delays;
+    score=Math.max(0,score-10);
+    scoreEl.textContent=score;
+    addLog(`${to.label} is not the best next hop. The packet is delayed.`, "bad");
+    flash={id:next,color:'#ff6b6b',until:performance.now()+800};
+    message.textContent="That route adds a delay. Try another path.";
+    // animate there and back
+    animatePacket(from,to,600,()=>{
+      animatePacket(to,from,500,()=>{moving=false;renderActions();});
+    });
+    return;
+  }
+  score+=20;
+  scoreEl.textContent=score;
+  addLog(`Forwarded to ${to.label}.`);
+  routeHistory.push(next);
+  animatePacket(from,to,650,()=>{
+    currentNode=next;
+    moving=false;
+    const p=getLevel().path;
+    const idx=p.indexOf(currentNode);
+    progressBar.style.width=Math.round((idx/(p.length-1))*100)+"%";
+    if(isEndpoint(currentNode)){
+      completeLevel();
+    }else{
+      message.textContent=isRouter(currentNode)
+        ? `${to.label} reads the destination address. Choose the next hop.`
+        : "Choose the next hop.";
+      renderActions();
+    }
+  });
+}
+
+function animatePacket(from,to,duration,done){
+  moving=true; routerActions.innerHTML="";
+  const start=performance.now();
+  function step(t){
+    const q=Math.min(1,(t-start)/duration);
+    const eased=1-Math.pow(1-q,3);
+    packetPos={x:from.x+(to.x-from.x)*eased,y:from.y+(to.y-from.y)*eased};
+    if(q<1) requestAnimationFrame(step); else {packetPos=to;done&&done();}
+  }
+  requestAnimationFrame(step);
+}
+
+function completeLevel(){
+  const bonus=Math.max(0,100-delays*5);
+  score+=bonus; scoreEl.textContent=score;
+  message.textContent="Delivered!";
+  routerActions.innerHTML="";
+  el('resultTitle').textContent="Packet delivered 🎉";
+  el('resultText').innerHTML=`The packet reached <strong>${nodeObj(currentNode).label}</strong>. The routers used the destination address to move it hop by hop across the network. <br><br><strong>Delivery bonus: +${bonus}</strong>`;
+  el('nextBtn').textContent=levelIndex===levels.length-1?"Play again":"Next level";
+  resultOverlay.classList.remove('hidden');
+}
+
+function restartLevel(){
+  setupLevel();
+}
+
+function draw(){
+  ctx.clearRect(0,0,W,H);
+  const L=getLevel();
+
+  // soft background grid
+  ctx.strokeStyle='#ffffff08'; ctx.lineWidth=1;
+  for(let x=0;x<W;x+=40){ctx.beginPath();ctx.moveTo(x,0);ctx.lineTo(x,H);ctx.stroke()}
+  for(let y=0;y<H;y+=40){ctx.beginPath();ctx.moveTo(0,y);ctx.lineTo(W,y);ctx.stroke()}
+
+  // edges
+  L.edges.forEach(([a,b])=>{
+    const A=nodeObj(a),B=nodeObj(b);
+    const used = routeHistory.includes(a)&&routeHistory.includes(b);
+    ctx.strokeStyle=used?'#355f7b':'#2a3b55';
+    ctx.lineWidth=used?4:3;
+    ctx.beginPath();ctx.moveTo(A.x,A.y);ctx.lineTo(B.x,B.y);ctx.stroke();
+  });
+
+  // moving dots to suggest traffic
+  const time=performance.now()/1400;
+  L.edges.forEach(([a,b],i)=>{
+    const A=nodeObj(a),B=nodeObj(b), q=(time+i*.13)%1;
+    const x=A.x+(B.x-A.x)*q,y=A.y+(B.y-A.y)*q;
+    ctx.fillStyle='#6be3ff33';ctx.beginPath();ctx.arc(x,y,3,0,Math.PI*2);ctx.fill();
+  });
+
+  // nodes
+  L.nodes.forEach(n=>{
+    const N=nodeObj(n[0]);
+    let color='#6b7f9c', fill='#13223a', icon='💻';
+    if(isRouter(N.id)){color='#ae8cff';fill='#241d3c';icon='📡'}
+    if(isEndpoint(N.id)){color='#ffb86b';fill='#352518';icon='🖥️'}
+    if(N.id===L.path[L.path.length-1]){color='#58e39c';fill='#143126'}
+    if(flash&&flash.id===N.id&&performance.now()<flash.until){color=flash.color;fill='#3b1818'}
+
+    ctx.fillStyle=fill;ctx.strokeStyle=color;ctx.lineWidth=3;
+    ctx.beginPath();ctx.arc(N.x,N.y,33,0,Math.PI*2);ctx.fill();ctx.stroke();
+    ctx.font='23px system-ui';ctx.textAlign='center';ctx.textBaseline='middle';ctx.fillStyle='white';ctx.fillText(icon,N.x,N.y);
+    ctx.font='700 13px system-ui';ctx.textBaseline='top';ctx.fillStyle='#eaf0f7';ctx.fillText(N.label,N.x,N.y+42);
+  });
+
+  // packet
+  if(packetPos){
+    ctx.save();
+    ctx.shadowColor='#6be3ff';ctx.shadowBlur=20;
+    ctx.fillStyle='#6be3ff';ctx.strokeStyle='#d9fbff';ctx.lineWidth=2;
+    ctx.beginPath();ctx.roundRect(packetPos.x-16,packetPos.y-13,32,26,6);ctx.fill();ctx.stroke();
+    ctx.shadowBlur=0;ctx.fillStyle='#082235';ctx.font='900 13px system-ui';ctx.textAlign='center';ctx.textBaseline='middle';ctx.fillText('PKT',packetPos.x,packetPos.y);
+    ctx.restore();
+  }
+  requestAnimationFrame(draw);
+}
+
+el('startBtn').onclick=()=>introOverlay.classList.add('hidden');
+el('restartBtn').onclick=restartLevel;
+el('helpBtn').onclick=()=>introOverlay.classList.remove('hidden');
+el('nextBtn').onclick=()=>{
+  resultOverlay.classList.add('hidden');
+  if(levelIndex===levels.length-1){levelIndex=0;score=0;delays=0}else levelIndex++;
+  setupLevel();
+};
+
+resize(); setupLevel(); requestAnimationFrame(draw);
+</script>
+</body>
+</html>

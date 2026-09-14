@@ -1,23 +1,161 @@
-# SISB ICT
+# SISB ICT — Activity Hub
 
-Class hub for Primary 4 ICT at SISB. Hosted on GitHub Pages.
+A growing library of ICT activities, games, worksheets, and resources for SISB Primary.
+Hosted on GitHub Pages.
+
+**Live site:** `https://saverio87.github.io/sisb-ict/`
+
+---
 
 ## Structure
 
 ```
-/                   → Main hub (links to everything)
-/ui-ux-examples/    → Good vs Bad UI/UX interactive examples (4 pages)
-/wordwall/          → Wordwall activities by week
+/
+├── index.html              → the hub: topic cards + tag filters
+├── assets/
+│   ├── styles.css           → the design system (shared by every page)
+│   ├── app.js               → filtering + card rendering
+│   └── data/
+│       └── activities.json  → the catalogue: every activity + its tags
+├── activities/
+│   ├── _template.html       → starter file for new activities
+│   ├── networks/            → P4 Week 4 network games
+│   ├── ui-ux/               → P4 UI/UX good-vs-bad examples
+│   └── wordwall/            → Wordwall activity list
+├── ui-ux-examples/          → redirect stubs (old URLs still work)
+└── wordwall/                → redirect stub (old URL still works)
 ```
 
-## How to use
+The hub is **data-driven**. `index.html` contains no activity listings —
+it renders whatever is in `assets/data/activities.json`. Adding an activity
+means adding one JSON entry, not editing HTML.
 
-Push to `main` — GitHub Pages will serve the site at:
-`https://<your-username>.github.io/sisb-ict/`
+---
 
-## Adding a new Wordwall link
+## Adding a new activity
 
-1. Create the activity on [Wordwall](https://wordwall.net)
-2. Open `wordwall/index.html`
-3. Replace the `<span class="activity-link">Coming soon</span>` for that activity with:
-   `<a class="activity-link live" href="YOUR_WORDWALL_URL" target="_blank">Open →</a>`
+### 1. Put the file in the right topic folder
+
+```
+activities/networks/my-new-game.html
+```
+
+If the topic is new, create the folder. Use lowercase, hyphens instead of spaces.
+
+### 2. Add an entry to `assets/data/activities.json`
+
+```json
+{
+  "id": "my-new-game-week5",
+  "title": "My New Game",
+  "description": "One sentence telling students what they'll do.",
+  "path": "activities/networks/my-new-game.html",
+  "year_levels": ["P4"],
+  "topic": "Networks",
+  "type": "game",
+  "week": 5,
+  "term": 1,
+  "tags": ["router", "packets"],
+  "external": false
+}
+```
+
+| Field | Notes |
+|---|---|
+| `id` | Unique slug. Must not repeat an existing one. |
+| `title` | Shown on the card. |
+| `description` | One line. Keep it short — it truncates on narrow screens. |
+| `path` | Path **from the site root**. |
+| `year_levels` | Array — use several if it suits multiple years, e.g. `["P3","P4"]`. |
+| `topic` | Groups activities together. New topics create a new filter chip automatically. |
+| `type` | `game`, `activity`, `website`, `video`, `worksheet`, `slides`, or `other`. |
+| `week` / `term` | Optional. Use `null` if not tied to a week. |
+| `tags` | Free-form keywords. The first three show on the card. |
+| `external` | `true` for off-site links (opens a new tab), `false` for local files. |
+
+**Filter chips are generated from the data.** You never edit the filter bar —
+add an entry with a new topic or year level and the chip appears by itself.
+
+### 3. Starting a new activity page
+
+Copy `activities/_template.html` into your topic folder, rename it, and fill it in.
+It has the standard back-link, footer, and a placeholder for your activity.
+
+**One thing to change:** the stylesheet path. The template sits one level up from
+the topic folders, so its link reads `../assets/styles.css`. Once copied into a
+topic folder it needs one more level:
+
+```html
+<link rel="stylesheet" href="../../assets/styles.css">
+```
+
+If your finished page loads with no styling, that path is almost always why.
+
+### 4. Check it before pushing
+
+```bash
+# Validate the JSON — a syntax error here breaks the whole hub
+python3 -c "import json; json.load(open('assets/data/activities.json'))"
+
+# Preview locally (opening index.html directly won't work — see below)
+python3 -m http.server 8000
+# then visit http://localhost:8000
+```
+
+> **Why a server?** The hub loads `activities.json` with `fetch()`, and browsers
+> block that when you open a file directly from disk. Over GitHub Pages — or any
+> local server — it works normally. If you open it straight from disk you'll see
+> a friendly message explaining this.
+
+### 5. Publish
+
+```bash
+git add .
+git commit -m "Add <activity name>"
+git push
+```
+
+GitHub Pages redeploys within a minute or so.
+
+---
+
+## Filtering
+
+The hub filters on three axes:
+
+- **Year level** — P1 through P6
+- **Topic** — Networks, UI/UX, ...
+- **Type** — game, activity, video, ...
+
+Matching is **OR within a group**, **AND across groups**: selecting `P4` + `Networks`
+shows P4 network activities; adding `P5` widens it to P4 *or* P5 network activities.
+
+Filtered views are shareable — the URL updates as you filter, e.g.
+`.../#year=P4&topic=Networks`. Copy the address bar to send someone a specific view.
+
+---
+
+## Design system
+
+`assets/styles.css` holds all shared styling as CSS custom properties at the top
+of the file (`:root`). To retheme the whole site, change the tokens there —
+colours, radii, shadows, fonts — and every page follows.
+
+All activity pages should link it:
+
+```html
+<link rel="stylesheet" href="../../assets/styles.css">
+```
+
+The three network games are deliberately **self-contained** (no shared CSS,
+no external requests) so they keep working offline. That's fine — they simply
+don't participate in the design system.
+
+---
+
+## Old URLs
+
+Moving files into `activities/` changed some URLs. The old paths still work:
+`ui-ux-examples/` and `wordwall/` contain redirect stubs pointing to the new
+locations. Once you're confident nothing links to the old paths any more,
+these stubs can be deleted.

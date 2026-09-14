@@ -1,0 +1,345 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <title>LOGIS-DISPATCH TERMINAL v2.14 (1998 BUILD)</title>
+  <style>
+    /* BAD UI: Visually raw, unstyled 1998 default browser aesthetics */
+    body {
+      background-color: #FFFFFF;
+      color: #000000;
+      font-family: "Times New Roman", Times, serif;
+      margin: 15px;
+      padding: 0;
+    }
+
+    h1 {
+      font-size: 20px;
+      margin-bottom: 2px;
+      font-weight: bold;
+    }
+
+    hr {
+      border: 0;
+      border-top: 1px solid black;
+      margin: 8px 0;
+    }
+
+    a {
+      color: #0000EE;
+      text-decoration: underline;
+    }
+
+    /* Summary Bar */
+    .summary-box {
+      border: 1px solid black;
+      padding: 4px 8px;
+      margin-bottom: 10px;
+      background: #F0F0F0;
+      font-size: 13px;
+    }
+
+    /* Raw Table with 1px black borders and zero fluff */
+    table {
+      width: 100%;
+      border-collapse: collapse;
+      border: 1px solid black;
+      font-size: 13px;
+    }
+
+    th, td {
+      border: 1px solid black;
+      padding: 3px 5px;
+      text-align: left;
+    }
+
+    th {
+      background-color: #DFDFDF;
+    }
+
+    /* GOOD UX: Clear active keyboard/hover highlight */
+    tr.active-row {
+      background-color: #FFFFAA !important;
+      outline: 2px solid #000000;
+    }
+
+    tr:hover {
+      background-color: #F5F5F5;
+      cursor: pointer;
+    }
+
+    /* Form and shortcuts bar */
+    .controls {
+      margin-bottom: 10px;
+      font-size: 13px;
+    }
+
+    .shortcut-badge {
+      font-family: "Courier New", monospace;
+      font-weight: bold;
+      background: #E0E0E0;
+      padding: 1px 4px;
+      border: 1px solid #999;
+    }
+
+    .error-msg {
+      color: #CC0000;
+      font-size: 12px;
+      font-weight: bold;
+      display: none;
+      margin-top: 3px;
+    }
+
+    .success-banner {
+      background-color: #DFF0D8;
+      border: 1px solid #3C763D;
+      color: #3C763D;
+      padding: 6px 10px;
+      margin-bottom: 10px;
+      display: none;
+      font-size: 13px;
+      font-weight: bold;
+    }
+
+    .status-badge {
+      font-weight: bold;
+    }
+    .status-delayed { color: #A00; }
+    .status-transit { color: #008; }
+    .status-delivered { color: #080; }
+  </style>
+</head>
+<body>
+
+  <h1>LOGIS-DISPATCH TERMINAL [SOUTHEAST ASIA REGION]</h1>
+  <div>System Date: 24-AUG-2026 | Operator: DISP_409 | Host: node-bkk-01</div>
+  <hr>
+
+  <!-- High Information Hierarchy: Instant Metric Counters -->
+  <div class="summary-box">
+    <strong>OPERATIONAL METRICS:</strong>
+    Total Shipments: <span id="countTotal">5</span> |
+    Delayed: <span id="countDelayed" style="color:red; font-weight:bold;">2</span> |
+    In Transit: <span id="countTransit" style="color:blue; font-weight:bold;">2</span> |
+    Delivered: <span id="countDelivered" style="color:green; font-weight:bold;">1</span>
+  </div>
+
+  <!-- Success Notification -->
+  <div id="successBox" class="success-banner"></div>
+
+  <!-- GOOD UX: Live Search with explicit Keyboard Shortcuts -->
+  <div class="controls">
+    <label for="searchInput"><strong>Instant Filter:</strong></label>
+    <input type="text" id="searchInput" placeholder="Type tracking #, destination, or status..." style="width: 300px;" oninput="filterTable()">
+    <button onclick="clearSearch()">Clear Filter</button>
+    <span style="margin-left: 15px;">
+      Shortcuts: Press <span class="shortcut-badge">/</span> to search, <span class="shortcut-badge">ESC</span> to clear, <span class="shortcut-badge">↑ / ↓</span> to navigate rows.
+    </span>
+  </div>
+
+  <!-- Main Logistics Data Table -->
+  <table id="dispatchTable">
+    <thead>
+      <tr>
+        <th>#</th>
+        <th>Tracking Code</th>
+        <th>Origin</th>
+        <th>Destination</th>
+        <th>Priority</th>
+        <th>Status</th>
+        <th>ETA</th>
+        <th>Action</th>
+      </tr>
+    </thead>
+    <tbody id="tableBody">
+      <tr data-index="0">
+        <td>1</td>
+        <td><strong>TH-8821</strong></td>
+        <td>Bangkok (BKK)</td>
+        <td>Singapore (SIN)</td>
+        <td>URGENT</td>
+        <td><span class="status-badge status-delayed">Delayed (Customs)</span></td>
+        <td>2026-08-25 14:00</td>
+        <td><a href="#" onclick="expedite('TH-8821'); return false;">[Expedite]</a></td>
+      </tr>
+      <tr data-index="1">
+        <td>2</td>
+        <td><strong>TH-9942</strong></td>
+        <td>Chiang Mai (CNX)</td>
+        <td>Tokyo (NRT)</td>
+        <td>STANDARD</td>
+        <td><span class="status-badge status-transit">In Transit</span></td>
+        <td>2026-08-26 09:30</td>
+        <td><a href="#" onclick="expedite('TH-9942'); return false;">[Expedite]</a></td>
+      </tr>
+      <tr data-index="2">
+        <td>3</td>
+        <td><strong>VN-1029</strong></td>
+        <td>Hanoi (HAN)</td>
+        <td>Bangkok (BKK)</td>
+        <td>URGENT</td>
+        <td><span class="status-badge status-delayed">Delayed (Weather)</span></td>
+        <td>2026-08-25 18:00</td>
+        <td><a href="#" onclick="expedite('VN-1029'); return false;">[Expedite]</a></td>
+      </tr>
+      <tr data-index="3">
+        <td>4</td>
+        <td><strong>SG-4491</strong></td>
+        <td>Singapore (SIN)</td>
+        <td>Kuala Lumpur (KUL)</td>
+        <td>STANDARD</td>
+        <td><span class="status-badge status-transit">In Transit</span></td>
+        <td>2026-08-25 22:15</td>
+        <td><a href="#" onclick="expedite('SG-4491'); return false;">[Expedite]</a></td>
+      </tr>
+      <tr data-index="4">
+        <td>5</td>
+        <td><strong>TH-3301</strong></td>
+        <td>Phuket (HKT)</td>
+        <td>Seoul (ICN)</td>
+        <td>LOW</td>
+        <td><span class="status-badge status-delivered">Delivered</span></td>
+        <td>2026-08-24 08:00</td>
+        <td><a href="#" onclick="expedite('TH-3301'); return false;">[Re-verify]</a></td>
+      </tr>
+    </tbody>
+  </table>
+
+  <hr>
+
+  <!-- GOOD UX: Instant Inline Validation and Explicit Helpful Errors -->
+  <form id="newEntryForm" onsubmit="handleNewDispatch(event)" style="margin-top: 10px;">
+    <strong>REGISTER NEW DISPATCH:</strong><br><br>
+    <label for="newCode">Tracking Code:</label>
+    <input type="text" id="newCode" placeholder="XX-1234 (e.g. TH-5502)" oninput="validateCodeLive()" style="width: 140px;">
+
+    <label for="newDest" style="margin-left: 10px;">Destination:</label>
+    <input type="text" id="newDest" placeholder="e.g. Manila (MNL)" style="width: 140px;">
+
+    <button type="submit" style="margin-left: 10px;">Commit Dispatch Entry</button>
+    <div id="codeError" class="error-msg">⚠️ Format Error: Tracking Code must be 2 uppercase letters, a hyphen, and 4 digits (e.g., TH-9999).</div>
+  </form>
+
+  <script>
+    let activeRowIndex = -1;
+
+    // GOOD UX: Instant table search filter
+    function filterTable() {
+      const query = document.getElementById('searchInput').value.toUpperCase();
+      const rows = document.querySelectorAll('#tableBody tr');
+      let visibleCount = 0;
+
+      rows.forEach(row => {
+        const text = row.innerText.toUpperCase();
+        if (text.includes(query)) {
+          row.style.display = '';
+          visibleCount++;
+        } else {
+          row.style.display = 'none';
+        }
+      });
+      activeRowIndex = -1;
+      clearHighlights();
+    }
+
+    function clearSearch() {
+      document.getElementById('searchInput').value = '';
+      filterTable();
+      document.getElementById('searchInput').focus();
+    }
+
+    // GOOD UX: Inline Real-time Regex Validation
+    function validateCodeLive() {
+      const val = document.getElementById('newCode').value.trim();
+      const errorDiv = document.getElementById('codeError');
+      const regex = /^[A-Z]{2}-\d{4}$/;
+
+      if (val.length === 0) {
+        errorDiv.style.display = 'none';
+        return false;
+      }
+      if (!regex.test(val)) {
+        errorDiv.style.display = 'block';
+        return false;
+      } else {
+        errorDiv.style.display = 'none';
+        return true;
+      }
+    }
+
+    function handleNewDispatch(e) {
+      e.preventDefault();
+      const code = document.getElementById('newCode').value.trim();
+      const dest = document.getElementById('newDest').value.trim();
+
+      if (!validateCodeLive() || !dest) {
+        alert("Please fix validation errors before committing.");
+        return;
+      }
+
+      // Add to table
+      const tbody = document.getElementById('tableBody');
+      const newRow = document.createElement('tr');
+      const nextIdx = tbody.children.length;
+      newRow.setAttribute('data-index', nextIdx);
+      newRow.innerHTML = `
+        <td>${nextIdx + 1}</td>
+        <td><strong>${code}</strong></td>
+        <td>Bangkok (BKK)</td>
+        <td>${dest}</td>
+        <td>STANDARD</td>
+        <td><span class="status-badge status-transit">In Transit</span></td>
+        <td>2026-08-26 12:00</td>
+        <td><a href="#" onclick="expedite('${code}'); return false;">[Expedite]</a></td>
+      `;
+      tbody.appendChild(newRow);
+
+      // Show success feedback
+      showSuccess(`✓ Success: Shipment ${code} to ${dest} successfully registered and queued for routing.`);
+      document.getElementById('newEntryForm').reset();
+      document.getElementById('countTotal').innerText = nextIdx + 1;
+    }
+
+    function expedite(code) {
+      showSuccess(`⚡ Route Priority Updated: Dispatch team alerted for priority clearance on ${code}.`);
+    }
+
+    function showSuccess(msg) {
+      const banner = document.getElementById('successBox');
+      banner.innerText = msg;
+      banner.style.display = 'block';
+      setTimeout(() => { banner.style.display = 'none'; }, 6000);
+    }
+
+    function clearHighlights() {
+      document.querySelectorAll('#tableBody tr').forEach(r => r.classList.remove('active-row'));
+    }
+
+    // GOOD UX: Global Keyboard Accessibility Shortcuts
+    document.addEventListener('keydown', function(e) {
+      const searchInput = document.getElementById('searchInput');
+
+      if (e.key === '/' && document.activeElement !== searchInput && document.activeElement.tagName !== 'INPUT') {
+        e.preventDefault();
+        searchInput.focus();
+        searchInput.select();
+      } else if (e.key === 'Escape') {
+        clearSearch();
+        searchInput.blur();
+      } else if (e.key === 'ArrowDown' || e.key === 'ArrowUp') {
+        const rows = Array.from(document.querySelectorAll('#tableBody tr')).filter(r => r.style.display !== 'none');
+        if (rows.length === 0) return;
+
+        if (e.key === 'ArrowDown') {
+          activeRowIndex = (activeRowIndex + 1) % rows.length;
+        } else if (e.key === 'ArrowUp') {
+          activeRowIndex = (activeRowIndex - 1 + rows.length) % rows.length;
+        }
+        clearHighlights();
+        rows[activeRowIndex].classList.add('active-row');
+        rows[activeRowIndex].scrollIntoView({ block: 'nearest' });
+      }
+    });
+  </script>
+</body>
+</html>

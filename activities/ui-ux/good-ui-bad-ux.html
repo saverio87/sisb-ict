@@ -1,0 +1,370 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>AURELIA — Haute Horlogerie & Optics</title>
+  <style>
+    /* GOOD UI: Polished Dark Luxury Aesthetics */
+    :root {
+      --bg: #0b0b0c;
+      --surface: #141416;
+      --card: #1b1b1e;
+      --gold: #D4AF37;
+      --gold-light: #F3E5AB;
+      --border: #26262b;
+
+      /* BAD UX: Extremely low contrast text tokens */
+      --text-unreadable: #303036;
+      --text-faint: #3e3e46;
+      --text-almost-hidden: #232328;
+    }
+
+    * {
+      box-sizing: border-box;
+      margin: 0;
+      padding: 0;
+      font-family: -apple-system, BlinkMacSystemFont, "SF Pro Display", "Segoe UI", Roboto, sans-serif;
+    }
+
+    body {
+      background-color: var(--bg);
+      color: var(--text-unreadable);
+      min-height: 100vh;
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      padding: 40px 20px;
+    }
+
+    .checkout-modal {
+      background: var(--surface);
+      border: 1px solid var(--border);
+      border-radius: 20px;
+      width: 100%;
+      max-width: 520px;
+      padding: 36px;
+      box-shadow: 0 24px 60px rgba(0, 0, 0, 0.7);
+    }
+
+    .brand-header {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      margin-bottom: 28px;
+    }
+
+    .brand-logo {
+      font-size: 1.1rem;
+      letter-spacing: 0.35em;
+      text-transform: uppercase;
+      color: var(--gold);
+      font-weight: 300;
+    }
+
+    /* BAD UX: Unlabeled Icon Actions */
+    .icon-bar {
+      display: flex;
+      gap: 12px;
+    }
+
+    .glyph-btn {
+      background: var(--card);
+      border: 1px solid var(--border);
+      color: var(--gold);
+      width: 38px;
+      height: 38px;
+      border-radius: 50%;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      cursor: pointer;
+      transition: all 0.2s ease;
+    }
+
+    .glyph-btn:hover {
+      border-color: var(--gold);
+      box-shadow: 0 0 12px rgba(212, 175, 55, 0.25);
+    }
+
+    .product-summary {
+      background: var(--card);
+      border: 1px solid var(--border);
+      border-radius: 14px;
+      padding: 18px;
+      margin-bottom: 24px;
+      display: flex;
+      align-items: center;
+      gap: 16px;
+      position: relative;
+    }
+
+    .product-img {
+      width: 64px;
+      height: 64px;
+      border-radius: 10px;
+      background: #232328;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      color: var(--gold);
+      font-size: 1.5rem;
+    }
+
+    .product-info {
+      flex: 1;
+    }
+
+    /* BAD UX: Text is unreadable low-contrast */
+    .product-name {
+      color: var(--text-faint);
+      font-size: 0.95rem;
+      font-weight: 500;
+      letter-spacing: 0.05em;
+      margin-bottom: 4px;
+    }
+
+    .product-desc {
+      color: var(--text-almost-hidden);
+      font-size: 0.78rem;
+    }
+
+    /* BAD UX: Price hidden completely inside hover-only tooltip on a tiny dot */
+    .price-anchor {
+      position: relative;
+      cursor: help;
+    }
+
+    .info-dot {
+      width: 18px;
+      height: 18px;
+      border-radius: 50%;
+      border: 1px solid var(--border);
+      color: var(--text-faint);
+      font-size: 10px;
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+    }
+
+    .tooltip {
+      position: absolute;
+      right: 0;
+      top: 24px;
+      background: #000;
+      border: 1px solid var(--gold);
+      color: var(--gold-light);
+      padding: 8px 12px;
+      font-size: 0.8rem;
+      border-radius: 8px;
+      white-space: nowrap;
+      opacity: 0;
+      pointer-events: none;
+      transition: opacity 0.2s ease;
+      z-index: 10;
+    }
+
+    .price-anchor:hover .tooltip {
+      opacity: 1;
+    }
+
+    .form-group {
+      margin-bottom: 18px;
+    }
+
+    /* BAD UX: Labels are so dark you can't read what the input is for */
+    .form-label {
+      display: block;
+      color: var(--text-unreadable);
+      font-size: 0.75rem;
+      text-transform: uppercase;
+      letter-spacing: 0.1em;
+      margin-bottom: 8px;
+    }
+
+    .form-input {
+      width: 100%;
+      background: var(--card);
+      border: 1px solid var(--border);
+      color: #777780;
+      padding: 14px 16px;
+      border-radius: 10px;
+      font-size: 0.9rem;
+      letter-spacing: 0.05em;
+      outline: none;
+      transition: border-color 0.2s ease;
+    }
+
+    .form-input:focus {
+      border-color: var(--gold);
+    }
+
+    /* BAD UX: Pay Button requires holding for 5 full seconds without progress feedback */
+    .pay-btn-container {
+      margin-top: 28px;
+      position: relative;
+    }
+
+    .luxury-btn {
+      width: 100%;
+      background: linear-gradient(135deg, var(--gold) 0%, #997A15 100%);
+      color: #0b0b0c;
+      border: none;
+      border-radius: 12px;
+      padding: 16px;
+      font-size: 0.85rem;
+      font-weight: 600;
+      letter-spacing: 0.2em;
+      text-transform: uppercase;
+      cursor: pointer;
+      box-shadow: 0 8px 24px rgba(212, 175, 55, 0.25);
+      user-select: none;
+      -webkit-user-select: none;
+    }
+
+    .luxury-btn:active {
+      transform: scale(0.99);
+      opacity: 0.9;
+    }
+
+    .feedback-note {
+      text-align: center;
+      margin-top: 14px;
+      font-size: 0.75rem;
+      color: var(--text-almost-hidden);
+    }
+  </style>
+</head>
+<body>
+
+  <div class="checkout-modal">
+    <!-- Header -->
+    <div class="brand-header">
+      <div class="brand-logo">AURELIA OPTICS</div>
+
+      <!-- BAD UX: Abstract glyph buttons with zero text or tooltips -->
+      <div class="icon-bar">
+        <button class="glyph-btn" onclick="triggerCryptic('Action ⟁ executed')">
+          <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="10"/><path d="m4.9 4.9 14.2 14.2"/></svg>
+        </button>
+        <button class="glyph-btn" onclick="triggerCryptic('Action ⌖ executed')">
+          <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M12 2v20M2 12h20"/></svg>
+        </button>
+        <button class="glyph-btn" onclick="triggerCryptic('Action ⎔ executed')">
+          <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polygon points="6 2 18 2 22 8 12 22 2 8 6 2"/></svg>
+        </button>
+      </div>
+    </div>
+
+    <!-- Product Line -->
+    <div class="product-summary">
+      <div class="product-img">📷</div>
+      <div class="product-info">
+        <div class="product-name">Monochrome Edition 35mm F/1.2</div>
+        <div class="product-desc">Serial #8829-X Limited Artisan Run</div>
+      </div>
+      <!-- BAD UX: Price is hidden behind a tiny hover-only dot -->
+      <div class="price-anchor">
+        <span class="info-dot">?</span>
+        <div class="tooltip">Total Price: $4,950.00 USD</div>
+      </div>
+    </div>
+
+    <!-- Form Area -->
+    <form id="checkoutForm" onsubmit="event.preventDefault();">
+
+      <!-- BAD UX: Blocks paste -->
+      <div class="form-group">
+        <label class="form-label">Client Full Identification</label>
+        <input
+          type="text"
+          class="form-input"
+          placeholder="Enter legal name"
+          onpaste="handlePasteBlock(event);"
+          autocomplete="off"
+        >
+      </div>
+
+      <!-- BAD UX: Blocks paste, requires exactly 16 raw digits with no spaces -->
+      <div class="form-group">
+        <label class="form-label">Encrypted 16-Digit Card Sequence</label>
+        <input
+          type="text"
+          id="rawCard"
+          class="form-input"
+          placeholder="XXXXXXXXXXXXXXXX (No spaces allowed)"
+          onpaste="handlePasteBlock(event);"
+          maxlength="16"
+          autocomplete="off"
+        >
+      </div>
+
+      <!-- Pay Button with 5s hold requirement -->
+      <div class="pay-btn-container">
+        <button
+          type="button"
+          id="holdPayBtn"
+          class="luxury-btn"
+          onmousedown="startHold()"
+          onmouseup="cancelHold()"
+          onmouseleave="cancelHold()"
+          onclick="handleClick()"
+        >
+          Authorize Vault
+        </button>
+      </div>
+
+      <div class="feedback-note">
+        Requires manual tactile verification.
+      </div>
+    </form>
+  </div>
+
+  <script>
+    function triggerCryptic(msg) {
+      alert(msg);
+    }
+
+    function handlePasteBlock(e) {
+      e.preventDefault();
+      alert("❌ Security Exception: Clipboard insertion is strictly prohibited on this luxury portal.");
+    }
+
+    let holdTimer = null;
+    let holdStartTime = 0;
+    let holdCompleted = false;
+
+    function startHold() {
+      holdCompleted = false;
+      holdStartTime = Date.now();
+      // BAD UX: Requires a full 5000ms (5s) hold with zero progress indicator
+      holdTimer = setTimeout(() => {
+        holdCompleted = true;
+        const cardVal = document.getElementById('rawCard').value;
+        if (cardVal.length !== 16 || isNaN(cardVal)) {
+          alert("❌ Card Format Rejection: Must contain strictly 16 continuous numeric glyphs.");
+        } else {
+          alert("✨ Payment Confirmed: $4,950.00 authorized via Aurelia Vault.");
+        }
+      }, 5000);
+    }
+
+    function cancelHold() {
+      if (holdTimer) {
+        clearTimeout(holdTimer);
+        holdTimer = null;
+      }
+    }
+
+    function handleClick() {
+      if (!holdCompleted) {
+        // Users will just click and nothing happens or it fails
+        const elapsed = Date.now() - holdStartTime;
+        if (elapsed < 5000) {
+          alert("⚠️ Incomplete Hold: Button must be continuously held down for 5 full seconds without letting go.");
+        }
+      }
+    }
+  </script>
+</body>
+</html>
