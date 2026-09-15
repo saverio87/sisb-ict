@@ -1,62 +1,515 @@
 <!doctype html>
 <html lang="en">
+
 <head>
-<meta charset="utf-8">
-<meta name="viewport" content="width=device-width,initial-scale=1">
-<title>Packet Panic — Primary 4 ICT</title>
-<style>
-:root{--bg:#07111d;--panel:#101e31;--line:#2c4666;--text:#f5f8fc;--muted:#aebfd3;--cyan:#67e8f9;--blue:#60a5fa;--purple:#b794f6;--green:#63e6a6;--yellow:#ffd166;--red:#ff6b6b}
-*{box-sizing:border-box}html,body{margin:0;min-height:100%;font-family:Inter,system-ui,-apple-system,"Segoe UI",sans-serif;background:radial-gradient(circle at top,#162944 0,#07111d 58%);color:var(--text)}button{font:inherit}.app{max-width:1240px;margin:auto;padding:18px}.top{display:flex;justify-content:space-between;align-items:center;gap:14px;flex-wrap:wrap;margin-bottom:14px}.brand{display:flex;align-items:center;gap:12px}.logo{width:50px;height:50px;border-radius:15px;display:grid;place-items:center;font-size:27px;background:linear-gradient(135deg,var(--cyan),var(--purple))}h1{margin:0;font-size:clamp(1.55rem,3vw,2.35rem)}.sub{color:var(--muted);font-size:.94rem}.stats{display:flex;gap:8px;flex-wrap:wrap}.pill{padding:8px 12px;border-radius:999px;background:#ffffff0f;border:1px solid #ffffff18;font-weight:900}.layout{display:grid;grid-template-columns:340px 1fr;gap:14px;align-items:start}.card{background:linear-gradient(180deg,#12213a,#0d1829);border:1px solid #29415f;border-radius:18px;box-shadow:0 18px 44px #0004}.side{padding:18px;display:flex;flex-direction:column;gap:14px}.kicker{font-size:.76rem;text-transform:uppercase;letter-spacing:.12em;color:#91a9c6;font-weight:900}.mission{font-size:1.07rem;font-weight:900;margin-top:4px}.muted{color:var(--muted);font-size:.88rem}.legend{display:grid;gap:7px}.legend-row{display:flex;justify-content:space-between;align-items:center;gap:10px;padding:8px 10px;border-radius:10px;background:#0a1625;border:1px solid #263d59}.dest{display:flex;gap:8px;align-items:center;font-weight:800}.swatch{width:11px;height:11px;border-radius:50%}.router-panel{background:#0a1625;border:1px solid #29405d;border-radius:14px;padding:12px}.router-panel h3{margin:0 0 8px;font-size:1rem}.rule-buttons{display:grid;grid-template-columns:1fr;gap:7px}.rule{border:1px solid #385474;background:#152740;color:white;border-radius:10px;padding:8px 10px;cursor:pointer;text-align:left;font-weight:800}.rule.active{outline:2px solid var(--yellow);background:#352f1c}.toolbar{display:flex;gap:8px;flex-wrap:wrap}.btn{border:0;border-radius:12px;padding:10px 13px;font-weight:900;cursor:pointer}.btn.primary{background:linear-gradient(135deg,var(--cyan),#5db7ff);color:#062034}.btn.secondary{background:#203650;color:white;border:1px solid #34506f}.btn.warn{background:#48381a;color:#ffe298;border:1px solid #705b29}.btn:disabled{opacity:.4;cursor:not-allowed}.progress{height:9px;background:#21354f;border-radius:999px;overflow:hidden}.progress>div{height:100%;width:0;background:linear-gradient(90deg,var(--cyan),var(--green));transition:width .2s}.status{min-height:66px;border-radius:12px;padding:11px 12px;background:#0a1524;border:1px solid #263d58;font-size:.89rem}.status.good{border-color:#2b7254;background:#102d24}.status.bad{border-color:#75424a;background:#30191f}.help{font-size:.84rem;color:var(--muted);line-height:1.5}.game{position:relative;min-height:690px;overflow:hidden}canvas{position:absolute;inset:0;width:100%;height:100%;display:block}.tip{position:absolute;left:50%;top:16px;transform:translateX(-50%);max-width:85%;text-align:center;background:#07121eea;border:1px solid #385474;border-radius:999px;padding:9px 14px;font-weight:850;backdrop-filter:blur(5px)}.overlay{position:absolute;inset:0;z-index:20;display:grid;place-items:center;background:#06101de9;padding:20px}.overlay.hidden{display:none}.dialog{width:min(710px,95%);background:#122039;border:1px solid #345171;border-radius:20px;padding:24px;box-shadow:0 30px 90px #000a}.dialog h2{font-size:1.9rem;margin:8px 0}.dialog p{color:#d3deec}.badge{display:inline-block;border-radius:999px;padding:5px 9px;background:#153b31;color:#8ff0bd;font-weight:900;font-size:.79rem}.rules{display:grid;grid-template-columns:repeat(3,1fr);gap:10px;margin:18px 0}.rulecard{background:#0b1728;border:1px solid #2b425f;border-radius:13px;padding:12px}.rulecard strong{display:block;margin-bottom:4px}@media(max-width:940px){.layout{grid-template-columns:1fr}.game{min-height:640px}.side{order:2}}@media(max-width:620px){.rules{grid-template-columns:1fr}.game{min-height:600px}}
-</style>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width,initial-scale=1">
+    <title>Packet Panic — Primary 4 ICT</title>
+    <style>
+        :root {
+            --bg: #07111d;
+            --panel: #101e31;
+            --line: #2c4666;
+            --text: #f5f8fc;
+            --muted: #aebfd3;
+            --cyan: #67e8f9;
+            --blue: #60a5fa;
+            --purple: #b794f6;
+            --green: #63e6a6;
+            --yellow: #ffd166;
+            --red: #ff6b6b
+        }
+
+        * {
+            box-sizing: border-box
+        }
+
+        html,
+        body {
+            margin: 0;
+            min-height: 100%;
+            font-family: Inter, system-ui, -apple-system, "Segoe UI", sans-serif;
+            background: radial-gradient(circle at top, #162944 0, #07111d 58%);
+            color: var(--text)
+        }
+
+        button {
+            font: inherit
+        }
+
+        .app {
+            max-width: 1240px;
+            margin: auto;
+            padding: 18px
+        }
+
+        .top {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            gap: 14px;
+            flex-wrap: wrap;
+            margin-bottom: 14px
+        }
+
+        .brand {
+            display: flex;
+            align-items: center;
+            gap: 12px
+        }
+
+        .logo {
+            width: 50px;
+            height: 50px;
+            border-radius: 15px;
+            display: grid;
+            place-items: center;
+            font-size: 27px;
+            background: linear-gradient(135deg, var(--cyan), var(--purple))
+        }
+
+        h1 {
+            margin: 0;
+            font-size: clamp(1.55rem, 3vw, 2.35rem)
+        }
+
+        .sub {
+            color: var(--muted);
+            font-size: .94rem
+        }
+
+        .stats {
+            display: flex;
+            gap: 8px;
+            flex-wrap: wrap
+        }
+
+        .pill {
+            padding: 8px 12px;
+            border-radius: 999px;
+            background: #ffffff0f;
+            border: 1px solid #ffffff18;
+            font-weight: 900
+        }
+
+        .layout {
+            display: grid;
+            grid-template-columns: 340px 1fr;
+            gap: 14px;
+            align-items: start
+        }
+
+        .card {
+            background: linear-gradient(180deg, #12213a, #0d1829);
+            border: 1px solid #29415f;
+            border-radius: 18px;
+            box-shadow: 0 18px 44px #0004
+        }
+
+        .side {
+            padding: 18px;
+            display: flex;
+            flex-direction: column;
+            gap: 14px
+        }
+
+        .kicker {
+            font-size: .76rem;
+            text-transform: uppercase;
+            letter-spacing: .12em;
+            color: #91a9c6;
+            font-weight: 900
+        }
+
+        .mission {
+            font-size: 1.07rem;
+            font-weight: 900;
+            margin-top: 4px
+        }
+
+        .muted {
+            color: var(--muted);
+            font-size: .88rem
+        }
+
+        .legend {
+            display: grid;
+            gap: 7px
+        }
+
+        .legend-row {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            gap: 10px;
+            padding: 8px 10px;
+            border-radius: 10px;
+            background: #0a1625;
+            border: 1px solid #263d59
+        }
+
+        .dest {
+            display: flex;
+            gap: 8px;
+            align-items: center;
+            font-weight: 800
+        }
+
+        .swatch {
+            width: 11px;
+            height: 11px;
+            border-radius: 50%
+        }
+
+        .router-panel {
+            background: #0a1625;
+            border: 1px solid #29405d;
+            border-radius: 14px;
+            padding: 12px
+        }
+
+        .router-panel h3 {
+            margin: 0 0 8px;
+            font-size: 1rem
+        }
+
+        .rule-buttons {
+            display: grid;
+            grid-template-columns: 1fr;
+            gap: 7px
+        }
+
+        .rule {
+            border: 1px solid #385474;
+            background: #152740;
+            color: white;
+            border-radius: 10px;
+            padding: 8px 10px;
+            cursor: pointer;
+            text-align: left;
+            font-weight: 800
+        }
+
+        .rule.active {
+            outline: 2px solid var(--yellow);
+            background: #352f1c
+        }
+
+        .toolbar {
+            display: flex;
+            gap: 8px;
+            flex-wrap: wrap
+        }
+
+        .btn {
+            border: 0;
+            border-radius: 12px;
+            padding: 10px 13px;
+            font-weight: 900;
+            cursor: pointer
+        }
+
+        .btn.primary {
+            background: linear-gradient(135deg, var(--cyan), #5db7ff);
+            color: #062034
+        }
+
+        .btn.secondary {
+            background: #203650;
+            color: white;
+            border: 1px solid #34506f
+        }
+
+        .btn.warn {
+            background: #48381a;
+            color: #ffe298;
+
+            border: 1px solid #705b29
+        }
+
+        .btn:disabled {
+            opacity: .4;
+            cursor: not-allowed
+        }
+
+        .progress {
+            height: 9px;
+            background: #21354f;
+            border-radius: 999px;
+            overflow: hidden
+        }
+
+        .progress>div {
+            height: 100%;
+            width: 0;
+            background: linear-gradient(90deg, var(--cyan), var(--green));
+            transition: width .2s
+        }
+
+        .status {
+            min-height: 66px;
+            border-radius: 12px;
+            padding: 11px 12px;
+            background: #0a1524;
+            border: 1px solid #263d58;
+            font-size: .89rem
+        }
+
+        .status.good {
+            border-color: #2b7254;
+            background: #102d24
+        }
+
+        .status.bad {
+            border-color: #75424a;
+            background: #30191f
+        }
+
+        .help {
+            font-size: .84rem;
+            color: var(--muted);
+            line-height: 1.5
+        }
+
+        .game {
+            position: relative;
+            min-height: 690px;
+            overflow: hidden
+        }
+
+        canvas {
+            position: absolute;
+            inset: 0;
+            width: 100%;
+            height: 100%;
+            display: block
+        }
+
+        .tip {
+            position: absolute;
+            left: 50%;
+            top: 16px;
+            transform: translateX(-50%);
+            max-width: 85%;
+            text-align: center;
+            background: #07121eea;
+            border: 1px solid #385474;
+            border-radius: 999px;
+            padding: 9px 14px;
+            font-weight: 850;
+            backdrop-filter: blur(5px)
+        }
+
+        .overlay {
+            position: absolute;
+            inset: 0;
+            z-index: 20;
+            display: grid;
+            place-items: center;
+            background: #06101de9;
+            padding: 20px
+        }
+
+        .overlay.hidden {
+            display: none
+        }
+
+        .dialog {
+            width: min(710px, 95%);
+            background: #122039;
+            border: 1px solid #345171;
+            border-radius: 20px;
+            padding: 24px;
+            box-shadow: 0 30px 90px #000a
+        }
+
+        .dialog h2 {
+            font-size: 1.9rem;
+            margin: 8px 0
+        }
+
+        .dialog p {
+            color: #d3deec
+        }
+
+        .badge {
+            display: inline-block;
+            border-radius: 999px;
+            padding: 5px 9px;
+            background: #153b31;
+            color: #8ff0bd;
+            font-weight: 900;
+            font-size: .79rem
+        }
+
+        .rules {
+            display: grid;
+            grid-template-columns: repeat(3, 1fr);
+            gap: 10px;
+            margin: 18px 0
+        }
+
+        .rulecard {
+            background: #0b1728;
+            border: 1px solid #2b425f;
+            border-radius: 13px;
+            padding: 12px
+        }
+
+        .rulecard strong {
+            display: block;
+            margin-bottom: 4px
+        }
+
+        @media(max-width:940px) {
+            .layout {
+                grid-template-columns: 1fr
+            }
+
+            .game {
+                min-height: 640px
+            }
+
+            .side {
+                order: 2
+            }
+        }
+
+        @media(max-width:620px) {
+            .rules {
+                grid-template-columns: 1fr
+            }
+
+            .game {
+                min-height: 600px
+            }
+        }
+    </style>
 </head>
+
 <body>
-<div class="app">
-<header class="top"><div class="brand"><div class="logo">🚦</div><div><h1>Packet Panic</h1><div class="sub">Route traffic before the network jams</div></div></div><div class="stats"><div class="pill">Wave <span id="waveNum">1</span>/5</div><div class="pill">Score <span id="score">0</span></div><div class="pill">Credits <span id="credits">120</span></div><div class="pill">❤️ <span id="lives">6</span></div></div></header>
-<div class="layout">
-<aside class="card side">
-<div><div class="kicker">Mission</div><div class="mission">Configure the routers so every packet reaches the server matching its destination IP.</div><div class="muted">Later waves send packets faster, so router upgrades become important.</div></div>
-<div><div class="kicker">Destination addresses</div><div class="legend"><div class="legend-row"><span class="dest"><span class="swatch" style="background:#60a5fa"></span>School Website</span><strong>203.0.113.8</strong></div><div class="legend-row"><span class="dest"><span class="swatch" style="background:#b794f6"></span>Mail Server</span><strong>192.0.2.25</strong></div><div class="legend-row"><span class="dest"><span class="swatch" style="background:#63e6a6"></span>Cloud Drive</span><strong>198.51.100.42</strong></div></div></div>
-<div class="router-panel"><h3 id="routerTitle">Select a router pad</h3><div class="muted" id="routerInfo">Click one of the three router pads on the network map.</div><div class="rule-buttons" id="ruleButtons" style="margin-top:10px"></div><div class="toolbar" style="margin-top:10px"><button class="btn secondary" id="placeBtn" disabled>Place router · 30</button><button class="btn warn" id="upgradeBtn" disabled>Upgrade</button></div></div>
-<div><div class="kicker">Wave progress</div><div class="progress"><div id="progress"></div></div></div>
-<div class="status" id="status">Configure the network before starting Wave 1.</div>
-<div class="toolbar"><button class="btn primary" id="waveBtn">▶ Start Wave 1</button><button class="btn secondary" id="resetBtn">Reset game</button></div>
-<div class="help"><strong>Simplified model:</strong> each router advertises one destination rule. A packet reads as <em>“TO: IP address”</em>, then waits for a router whose routing rule matches. If that router is connected to the wrong server, the packet is misrouted.</div>
-</aside>
-<section class="card game"><canvas id="canvas"></canvas><div class="tip" id="tip">Click a router pad, place a router, then choose its destination rule.</div>
-<div class="overlay" id="intro"><div class="dialog"><span class="badge">Primary 4 ICT · Computer Systems</span><h2>Traffic is coming! 🚦</h2><p>Packets carry a <strong>destination IP address</strong>. Routers examine that address and use routing rules to decide where the packet goes next.</p><div class="rules"><div class="rulecard"><strong>1. Place</strong><span>Build routers on the three branch pads.</span></div><div class="rulecard"><strong>2. Configure</strong><span>Give each router the correct destination rule.</span></div><div class="rulecard"><strong>3. Upgrade</strong><span>Faster routers prevent congestion in busy waves.</span></div></div><p>This is a deliberately simplified model of routing, designed to show the relationship between a packet header, a routing rule, and a destination.</p><button class="btn primary" id="startBtn">Open the network</button></div></div>
-<div class="overlay hidden" id="result"><div class="dialog"><span class="badge">Wave complete</span><h2 id="resultTitle">Network stable 🎉</h2><p id="resultText"></p><button class="btn primary" id="nextBtn">Continue</button></div></div>
-</section></div></div>
-<script>
-const canvas=document.getElementById('canvas'),ctx=canvas.getContext('2d'),$=id=>document.getElementById(id);
-const DESTS=[{key:'school',name:'School Website',ip:'203.0.113.8',color:'#60a5fa'},{key:'mail',name:'Mail Server',ip:'192.0.2.25',color:'#b794f6'},{key:'cloud',name:'Cloud Drive',ip:'198.51.100.42',color:'#63e6a6'}];
-const WAVES=[{count:10,interval:1500,types:['school'],label:'One destination'},{count:14,interval:1250,types:['school','mail'],label:'Two destinations'},{count:18,interval:1050,types:['school','mail','cloud'],label:'Three destinations'},{count:22,interval:820,types:['school','mail','cloud'],label:'Busy network'},{count:28,interval:620,types:['school','mail','cloud'],label:'Packet Panic'}];
-let W=900,H=690,dpr=1,routers=[],packets=[],selectedRouter=null,waveIndex=0,score=0,credits=120,lives=6,waveRunning=false,spawned=0,resolved=0,lastSpawn=0,gameOver=false,flashUntil=0;
-function geom(){return{source:{x:W*.09,y:H*.52},hub:{x:W*.31,y:H*.52},routerPos:[{x:W*.56,y:H*.24},{x:W*.56,y:H*.52},{x:W*.56,y:H*.80}],servers:[{x:W*.84,y:H*.20},{x:W*.84,y:H*.52},{x:W*.84,y:H*.84}]}}
-function resize(){const r=canvas.getBoundingClientRect();dpr=Math.min(devicePixelRatio||1,2);const newW=Math.max(1,Math.floor(r.width));const newH=Math.max(1,Math.floor(r.height));canvas.width=Math.floor(newW*dpr);canvas.height=Math.floor(newH*dpr);W=newW;H=newH;ctx.setTransform(dpr,0,0,dpr,0,0);const g=geom();if(!routers.length)routers=g.routerPos.map((p,i)=>({slot:i,x:p.x,y:p.y,placed:false,rule:null,level:1,busyUntil:0}));else routers.forEach((r,i)=>{r.x=g.routerPos[i].x;r.y=g.routerPos[i].y})}
-addEventListener('resize',resize);
-const gamePanel=document.querySelector('.game');
-if('ResizeObserver' in window){let resizeFrame=null;const ro=new ResizeObserver(()=>{cancelAnimationFrame(resizeFrame);resizeFrame=requestAnimationFrame(resize)});ro.observe(gamePanel)}
-const destByKey=k=>DESTS.find(d=>d.key===k),serverIndexForKey=k=>DESTS.findIndex(d=>d.key===k);
-function updateUI(){$('waveNum').textContent=Math.min(waveIndex+1,5);$('score').textContent=score;$('credits').textContent=credits;$('lives').textContent=lives}
-function setStatus(msg,kind=''){$('status').textContent=msg;$('status').className='status'+(kind?' '+kind:'')}
-function resetGame(){waveIndex=0;score=0;credits=120;lives=6;waveRunning=false;spawned=0;resolved=0;packets=[];routers=[];selectedRouter=null;gameOver=false;resize();updateUI();setStatus('Configure the network before starting Wave 1.');$('waveBtn').textContent='▶ Start Wave 1';$('waveBtn').disabled=false;$('progress').style.width='0%';renderRouterPanel()}
-function renderRouterPanel(){const r=selectedRouter,rb=$('ruleButtons');rb.innerHTML='';if(!r){$('routerTitle').textContent='Select a router pad';$('routerInfo').textContent='Click one of the three router pads on the network map.';$('placeBtn').disabled=true;$('upgradeBtn').disabled=true;return}$('routerTitle').textContent=`Router ${r.slot+1} · ${DESTS[r.slot].name} branch`;if(!r.placed){$('routerInfo').textContent='This branch has no router yet.';$('placeBtn').disabled=waveRunning||credits<30;$('placeBtn').textContent='Place router · 30';$('upgradeBtn').disabled=true}else{$('routerInfo').textContent=`Level ${r.level} router · connected physically to ${DESTS[r.slot].name}.`;$('placeBtn').disabled=true;$('placeBtn').textContent='Router placed';const cost=r.level===1?45:r.level===2?70:null;$('upgradeBtn').disabled=waveRunning||!cost||credits<cost;$('upgradeBtn').textContent=cost?`Upgrade to L${r.level+1} · ${cost}`:'Max level';DESTS.forEach(d=>{const b=document.createElement('button');b.className='rule'+(r.rule===d.key?' active':'');b.innerHTML=`Route <strong>${d.ip}</strong> → ${d.name}`;b.disabled=waveRunning;b.onclick=()=>{r.rule=d.key;renderRouterPanel();setStatus(`Router ${r.slot+1} now advertises a route to ${d.ip}.`)};rb.appendChild(b)})}}
-$('placeBtn').onclick=()=>{const r=selectedRouter;if(!r||r.placed||credits<30||waveRunning)return;credits-=30;r.placed=true;r.rule=DESTS[r.slot].key;updateUI();renderRouterPanel();setStatus(`Router ${r.slot+1} placed. Its default rule matches the connected server.`)};
-$('upgradeBtn').onclick=()=>{const r=selectedRouter;if(!r||!r.placed||waveRunning)return;const cost=r.level===1?45:r.level===2?70:null;if(!cost||credits<cost)return;credits-=cost;r.level++;updateUI();renderRouterPanel();setStatus(`Router ${r.slot+1} upgraded to Level ${r.level}. Faster processing reduces queues.`)};
-const routerDelay=r=>r.level===1?1150:r.level===2?760:440;
-function startWave(){if(waveRunning||gameOver)return;if(!routers.some(r=>r.placed)){setStatus('Place at least one router before starting the wave.','bad');return}waveRunning=true;spawned=0;resolved=0;lastSpawn=performance.now()-WAVES[waveIndex].interval;packets=[];$('waveBtn').disabled=true;setStatus(`${WAVES[waveIndex].label}: packets are arriving.`);selectedRouter=null;renderRouterPanel();$('tip').textContent='Watch each packet destination and see which router accepts it.'}
-function spawnPacket(now){const w=WAVES[waveIndex],key=w.types[Math.floor(Math.random()*w.types.length)],g=geom(),d=destByKey(key);packets.push({dest:key,color:d.color,x:g.source.x,y:g.source.y,stage:'toHub',created:now,waitStart:null,assigned:null,done:false,speed:130});spawned++;lastSpawn=now}
-function failPacket(p,reason){if(p.done)return;p.done=true;p.finishedAt=performance.now();resolved++;lives--;updateUI();setStatus(reason,'bad');if(lives<=0)endGame()}
-function resolveAtServer(p){const correct=serverIndexForKey(p.dest);if(p.assigned===correct){p.done=true;p.finishedAt=performance.now();resolved++;score+=20;credits+=8;updateUI();flashUntil=performance.now()+250}else failPacket(p,'A routing rule sent the packet to the wrong server.')}
-function updatePackets(now,dt){const g=geom();for(const p of packets){if(p.done)continue;if(p.stage==='waiting'){if(!p.waitStart)p.waitStart=now;const matching=routers.filter(r=>r.placed&&r.rule===p.dest&&now>=r.busyUntil);if(matching.length){const r=matching[0];r.busyUntil=now+routerDelay(r);p.assigned=r.slot;p.stage='toRouter'}else if(now-p.waitStart>5200)failPacket(p,'No available router advertised this destination.')}}const waiting=packets.filter(p=>!p.done&&p.stage==='waiting');if(waiting.length>8){waiting.sort((a,b)=>a.waitStart-b.waitStart);failPacket(waiting[0],'The hub queue overflowed.')}for(const p of packets){if(p.done)continue;let target=null;if(p.stage==='toHub')target=g.hub;if(p.stage==='toRouter')target=routers[p.assigned];if(p.stage==='toServer')target=g.servers[p.assigned];if(target){const dx=target.x-p.x,dy=target.y-p.y,dist=Math.hypot(dx,dy),step=p.speed*dt;if(dist<=step+2){p.x=target.x;p.y=target.y;if(p.stage==='toHub'){p.stage='waiting';p.waitStart=now}else if(p.stage==='toRouter')p.stage='toServer';else resolveAtServer(p)}else{p.x+=dx/dist*step;p.y+=dy/dist*step}}}packets=packets.filter(p=>!p.done||now-p.finishedAt<450)}
-function checkWaveEnd(){if(!waveRunning)return;if(spawned>=WAVES[waveIndex].count&&resolved>=WAVES[waveIndex].count){waveRunning=false;$('waveBtn').disabled=false;$('progress').style.width='100%';if(lives<=0)return;const bonus=lives*10;score+=bonus;credits+=30;updateUI();setStatus(`Wave ${waveIndex+1} complete. Bonus credits awarded.`,'good');const last=waveIndex===WAVES.length-1;$('resultTitle').textContent=last?'Network defended! 🎉':`Wave ${waveIndex+1} complete`;$('resultText').innerHTML=last?`You survived all five traffic waves. Packets were routed by their <strong>destination IP addresses</strong>, and faster routers helped prevent congestion.<br><br><strong>Final score: ${score}</strong>`:`Your routing rules delivered the traffic. You earned <strong>30 credits</strong> for the next wave. Consider whether your routers need upgrades before traffic speeds up.`;$('nextBtn').textContent=last?'Play again':'Prepare next wave';$('result').classList.remove('hidden')}}
-function endGame(){gameOver=true;waveRunning=false;$('waveBtn').disabled=true;$('resultTitle').textContent='Network overloaded';$('resultText').innerHTML='Too many packets were dropped or misrouted. Check that each branch router advertises the IP address of the server it is physically connected to, then try again.';$('nextBtn').textContent='Restart game';$('result').classList.remove('hidden')}
-$('waveBtn').onclick=startWave;$('resetBtn').onclick=resetGame;$('startBtn').onclick=()=>$('intro').classList.add('hidden');$('nextBtn').onclick=()=>{$('result').classList.add('hidden');if(gameOver||waveIndex===WAVES.length-1){resetGame();return}waveIndex++;updateUI();$('waveBtn').textContent=`▶ Start Wave ${waveIndex+1}`;$('waveBtn').disabled=false;setStatus(`Prepare for Wave ${waveIndex+1}: ${WAVES[waveIndex].label}.`);$('progress').style.width='0%';$('tip').textContent='Configure or upgrade routers before starting the next wave.';renderRouterPanel()};
-canvas.addEventListener('click',e=>{if(waveRunning)return;const rect=canvas.getBoundingClientRect(),x=e.clientX-rect.left,y=e.clientY-rect.top;let best=null,dist=999;for(const r of routers){const d=Math.hypot(x-r.x,y-r.y);if(d<45&&d<dist){best=r;dist=d}}if(best){selectedRouter=best;renderRouterPanel()}});
-function line(a,b,color='#35506f',width=4){ctx.strokeStyle=color;ctx.lineWidth=width;ctx.lineCap='round';ctx.beginPath();ctx.moveTo(a.x,a.y);ctx.lineTo(b.x,b.y);ctx.stroke()}
-function node(x,y,r,fill,stroke,icon,label,sub){ctx.fillStyle=fill;ctx.strokeStyle=stroke;ctx.lineWidth=3;ctx.beginPath();ctx.arc(x,y,r,0,Math.PI*2);ctx.fill();ctx.stroke();ctx.fillStyle='#fff';ctx.font='22px system-ui';ctx.textAlign='center';ctx.textBaseline='middle';ctx.fillText(icon,x,y-2);ctx.font='800 12px system-ui';ctx.textBaseline='top';ctx.fillText(label,x,y+r+9);if(sub){ctx.fillStyle='#9fb1c6';ctx.font='700 10px system-ui';ctx.fillText(sub,x,y+r+26)}}
-function draw(){ctx.clearRect(0,0,W,H);const g=geom();ctx.strokeStyle='#ffffff07';ctx.lineWidth=1;for(let x=0;x<W;x+=40){ctx.beginPath();ctx.moveTo(x,0);ctx.lineTo(x,H);ctx.stroke()}for(let y=0;y<H;y+=40){ctx.beginPath();ctx.moveTo(0,y);ctx.lineTo(W,y);ctx.stroke()}line(g.source,g.hub,'#35506f',5);routers.forEach((r,i)=>{line(g.hub,r,'#35506f',4);line(r,g.servers[i],DESTS[i].color+'77',4)});node(g.source.x,g.source.y,31,'#122a40','#67e8f9','💻','Classroom','packet source');node(g.hub.x,g.hub.y,34,'#17263f','#ffd166','🔀','Network Hub','queue');routers.forEach((r,i)=>{const sel=selectedRouter===r;ctx.save();if(sel){ctx.shadowColor='#ffd166';ctx.shadowBlur=18}if(r.placed)node(r.x,r.y,34,'#241d3c',sel?'#ffd166':'#b794f6','📡',`Router ${i+1}`,`L${r.level} · ${r.rule?destByKey(r.rule).ip:'no rule'}`);else{ctx.setLineDash([7,7]);ctx.strokeStyle=sel?'#ffd166':'#627793';ctx.lineWidth=3;ctx.fillStyle='#0d1a2b';ctx.beginPath();ctx.arc(r.x,r.y,34,0,Math.PI*2);ctx.fill();ctx.stroke();ctx.setLineDash([]);ctx.fillStyle='#93a6bc';ctx.font='800 12px system-ui';ctx.textAlign='center';ctx.textBaseline='middle';ctx.fillText('ROUTER',r.x,r.y-5);ctx.fillText('PAD',r.x,r.y+11);ctx.fillStyle='#9fb1c6';ctx.font='700 10px system-ui';ctx.textBaseline='top';ctx.fillText(`Branch ${i+1}`,r.x,r.y+43)}ctx.restore()});g.servers.forEach((s,i)=>{const d=DESTS[i];node(s.x,s.y,34,'#14283a',d.color,'🖥️',d.name,d.ip)});const waiting=packets.filter(p=>!p.done&&p.stage==='waiting').length;if(waiting){ctx.fillStyle=waiting>=6?'#ff6b6b':'#ffd166';ctx.font='900 13px system-ui';ctx.textAlign='center';ctx.fillText(`QUEUE ${waiting}/8`,g.hub.x,g.hub.y-57)}packets.forEach(p=>{if(p.done)return;const d=destByKey(p.dest);ctx.save();ctx.shadowColor=d.color;ctx.shadowBlur=15;ctx.fillStyle=d.color;ctx.strokeStyle='#f3fbff';ctx.lineWidth=2;ctx.beginPath();ctx.roundRect(p.x-18,p.y-14,36,28,6);ctx.fill();ctx.stroke();ctx.shadowBlur=0;ctx.fillStyle='#071826';ctx.font='1000 10px system-ui';ctx.textAlign='center';ctx.textBaseline='middle';ctx.fillText('PKT',p.x,p.y-3);ctx.font='900 7px system-ui';ctx.fillText(d.ip.split('.').at(-1),p.x,p.y+7);ctx.restore()});if(performance.now()<flashUntil){ctx.fillStyle='#63e6a611';ctx.fillRect(0,0,W,H)}requestAnimationFrame(draw)}
-let lastFrame=performance.now();function tick(now){const dt=Math.min(.035,(now-lastFrame)/1000);lastFrame=now;if(waveRunning&&!gameOver){const w=WAVES[waveIndex];if(spawned<w.count&&now-lastSpawn>=w.interval)spawnPacket(now);updatePackets(now,dt);$('progress').style.width=Math.round((resolved/w.count)*100)+'%';checkWaveEnd()}requestAnimationFrame(tick)}
-resize();updateUI();renderRouterPanel();requestAnimationFrame(draw);requestAnimationFrame(tick);
-</script>
-</body></html>
+    <div class="app">
+        <header class="top">
+            <div class="brand">
+                <div class="logo">🚦</div>
+                <div>
+                    <h1>Packet Panic</h1>
+                    <div class="sub">Route traffic before the network jams</div>
+                </div>
+            </div>
+            <div class="stats">
+                <div class="pill">Wave <span id="waveNum">1</span>/5</div>
+                <div class="pill">Score <span id="score">0</span></div>
+                <div class="pill">Credits <span id="credits">120</span></div>
+                <div class="pill">❤️ <span id="lives">6</span></div>
+            </div>
+        </header>
+        <div class="layout">
+            <aside class="card side">
+                <div>
+                    <div class="kicker">Mission</div>
+                    <div class="mission">Configure the routers so every packet reaches the server matching its
+                        destination IP.</div>
+                    <div class="muted">Later waves send packets faster, so router upgrades become important.</div>
+                </div>
+                <div>
+                    <div class="kicker">Destination addresses</div>
+                    <div class="legend">
+                        <div class="legend-row"><span class="dest"><span class="swatch"
+                                    style="background:#60a5fa"></span>School Website</span><strong>203.0.113.8</strong>
+                        </div>
+                        <div class="legend-row"><span class="dest"><span class="swatch"
+                                    style="background:#b794f6"></span>Mail Server</span><strong>192.0.2.25</strong>
+                        </div>
+                        <div class="legend-row"><span class="dest"><span class="swatch"
+                                    style="background:#63e6a6"></span>Cloud Drive</span><strong>198.51.100.42</strong>
+                        </div>
+                    </div>
+                </div>
+                <div class="router-panel">
+                    <h3 id="routerTitle">Select a router pad</h3>
+                    <div class="muted" id="routerInfo">Click one of the three router pads on the network map.</div>
+                    <div class="rule-buttons" id="ruleButtons" style="margin-top:10px"></div>
+                    <div class="toolbar" style="margin-top:10px"><button class="btn secondary" id="placeBtn"
+                            disabled>Place router · 30</button><button class="btn warn" id="upgradeBtn"
+                            disabled>Upgrade</button></div>
+                </div>
+                <div>
+                    <div class="kicker">Wave progress</div>
+                    <div class="progress">
+                        <div id="progress"></div>
+                    </div>
+                </div>
+                <div class="status" id="status">Configure the network before starting Wave 1.</div>
+                <div class="toolbar"><button class="btn primary" id="waveBtn">▶ Start Wave 1</button><button
+                        class="btn secondary" id="resetBtn">Reset game</button></div>
+                <div class="help"><strong>Simplified model:</strong> each router advertises one destination rule. A
+                    packet reads as <em>“TO: IP address”</em>, then waits for a router whose routing rule matches. If
+                    that router is connected to the wrong server, the packet is misrouted.</div>
+            </aside>
+            <section class="card game"><canvas id="canvas"></canvas>
+                <div class="tip" id="tip">Click a router pad, place a router, then choose its destination rule.</div>
+                <div class="overlay" id="intro">
+                    <div class="dialog"><span class="badge">Primary 4 ICT · Computer Systems</span>
+                        <h2>Traffic is coming! 🚦</h2>
+                        <p>Packets carry a <strong>destination IP address</strong>. Routers examine that address and use
+                            routing rules to decide where the packet goes next.</p>
+                        <div class="rules">
+                            <div class="rulecard"><strong>1. Place</strong><span>Build routers on the three branch
+                                    pads.</span></div>
+                            <div class="rulecard"><strong>2. Configure</strong><span>Give each router the correct
+                                    destination rule.</span></div>
+                            <div class="rulecard"><strong>3. Upgrade</strong><span>Faster routers prevent congestion in
+                                    busy waves.</span></div>
+                        </div>
+                        <p>This is a deliberately simplified model of routing, designed to show the relationship between
+                            a packet header, a routing rule, and a destination.</p><button class="btn primary"
+                            id="startBtn">Open the network</button>
+                    </div>
+                </div>
+                <div class="overlay hidden" id="result">
+                    <div class="dialog"><span class="badge">Wave complete</span>
+                        <h2 id="resultTitle">Network stable 🎉</h2>
+                        <p id="resultText"></p><button class="btn primary" id="nextBtn">Continue</button>
+                    </div>
+                </div>
+            </section>
+        </div>
+    </div>
+    <script>
+        // Packet Panic — Primary 4 ICT
+        const canvas = document.getElementById('canvas'), ctx = canvas.getContext('2d'), $ = id => document.getElementById(id);
+        const DESTS = [{ key: 'school', name: 'School Website', ip: '203.0.113.8', color: '#60a5fa' }, { key: 'mail', name: 'Mail Server', ip: '192.0.2.25', color: '#b794f6' }, { key: 'cloud', name: 'Cloud Drive', ip: '198.51.100.42', color: '#63e6a6' }];
+        const WAVES = [{ count: 10, interval: 1500, types: ['school'], label: 'One destination' }, { count: 14, interval: 1250, types: ['school', 'mail'], label: 'Two destinations' }, { count: 18, interval: 1050, types: ['school', 'mail', 'cloud'], label: 'Three destinations' }, { count: 22, interval: 820, types: ['school', 'mail', 'cloud'], label: 'Busy network' }, { count: 28, interval: 620, types: ['school', 'mail', 'cloud'], label: 'Packet Panic' }];
+        let W = 900, H = 690, dpr = 1, routers = [], packets = [], selectedRouter = null, waveIndex = 0, score = 0, credits = 120, lives = 6, waveRunning = false, spawned = 0, resolved = 0, lastSpawn = 0, gameOver = false, flashUntil = 0;
+        function geom() { return { source: { x: W * .09, y: H * .52 }, hub: { x: W * .31, y: H * .52 }, routerPos: [{ x: W * .56, y: H * .24 }, { x: W * .56, y: H * .52 }, { x: W * .56, y: H * .80 }], servers: [{ x: W * .84, y: H * .20 }, { x: W * .84, y: H * .52 }, { x: W * .84, y: H * .84 }] } }
+        function resize() { const r = canvas.getBoundingClientRect(); dpr = Math.min(devicePixelRatio || 1, 2); const newW = Math.max(1, Math.floor(r.width)); const newH = Math.max(1, Math.floor(r.height)); canvas.width = Math.floor(newW * dpr); canvas.height = Math.floor(newH * dpr); W = newW; H = newH; ctx.setTransform(dpr, 0, 0, dpr, 0, 0); const g = geom(); if (!routers.length) routers = g.routerPos.map((p, i) => ({ slot: i, x: p.x, y: p.y, placed: false, rule: null, level: 1, busyUntil: 0 })); else routers.forEach((r, i) => { r.x = g.routerPos[i].x; r.y = g.routerPos[i].y }) }
+        addEventListener('resize', resize);
+        const gamePanel = document.querySelector('.game');
+        if ('ResizeObserver' in window) { let resizeFrame = null; const ro = new ResizeObserver(() => { cancelAnimationFrame(resizeFrame); resizeFrame = requestAnimationFrame(resize) }); ro.observe(gamePanel) }
+        const destByKey = k => DESTS.find(d => d.key === k), serverIndexForKey = k => DESTS.findIndex(d => d.key === k);
+        function updateUI() { $('waveNum').textContent = Math.min(waveIndex + 1, 5); $('score').textContent = score; $('credits').textContent = credits; $('lives').textContent = lives }
+        function setStatus(msg, kind = '') { $('status').textContent = msg; $('status').className = 'status' + (kind ? ' ' + kind : '') }
+        function resetGame() { waveIndex = 0; score = 0; credits = 120; lives = 6; waveRunning = false; spawned = 0; resolved = 0; packets = []; routers = []; selectedRouter = null; gameOver = false; resize(); updateUI(); setStatus('Configure the network before starting Wave 1.'); $('waveBtn').textContent = '▶ Start Wave 1'; $('waveBtn').disabled = false; $('progress').style.width = '0%'; renderRouterPanel() }
+        function renderRouterPanel() { const r = selectedRouter, rb = $('ruleButtons'); rb.innerHTML = ''; if (!r) { $('routerTitle').textContent = 'Select a router pad'; $('routerInfo').textContent = 'Click one of the three router pads on the network map.'; $('placeBtn').disabled = true; $('upgradeBtn').disabled = true; return } $('routerTitle').textContent = `Router ${r.slot + 1} · ${DESTS[r.slot].name} branch`; if (!r.placed) { $('routerInfo').textContent = 'This branch has no router yet.'; $('placeBtn').disabled = waveRunning || credits < 30; $('placeBtn').textContent = 'Place router · 30'; $('upgradeBtn').disabled = true } else { $('routerInfo').textContent = `Level ${r.level} router · connected physically to ${DESTS[r.slot].name}.`; $('placeBtn').disabled = true; $('placeBtn').textContent = 'Router placed'; const cost = r.level === 1 ? 45 : r.level === 2 ? 70 : null; $('upgradeBtn').disabled = waveRunning || !cost || credits < cost; $('upgradeBtn').textContent = cost ? `Upgrade to L${r.level + 1} · ${cost}` : 'Max level'; DESTS.forEach(d => { const b = document.createElement('button'); b.className = 'rule' + (r.rule === d.key ? ' active' : ''); b.innerHTML = `Route <strong>${d.ip}</strong> → ${d.name}`; b.disabled = waveRunning; b.onclick = () => { r.rule = d.key; renderRouterPanel(); setStatus(`Router ${r.slot + 1} now advertises a route to ${d.ip}.`) }; rb.appendChild(b) }) } }
+        $('placeBtn').onclick = () => { const r = selectedRouter; if (!r || r.placed || credits < 30 || waveRunning) return; credits -= 30; r.placed = true; r.rule = DESTS[r.slot].key; updateUI(); renderRouterPanel(); setStatus(`Router ${r.slot + 1} placed. Its default rule matches the connected server.`) };
+        $('upgradeBtn').onclick = () => { const r = selectedRouter; if (!r || !r.placed || waveRunning) return; const cost = r.level === 1 ? 45 : r.level === 2 ? 70 : null; if (!cost || credits < cost) return; credits -= cost; r.level++; updateUI(); renderRouterPanel(); setStatus(`Router ${r.slot + 1} upgraded to Level ${r.level}. Faster processing reduces queues.`) };
+        const routerDelay = r => r.level === 1 ? 1150 : r.level === 2 ? 760 : 440;
+        function startWave() { if (waveRunning || gameOver) return; if (!routers.some(r => r.placed)) { setStatus('Place at least one router before starting the wave.', 'bad'); return } waveRunning = true; spawned = 0; resolved = 0; lastSpawn = performance.now() - WAVES[waveIndex].interval; packets = []; $('waveBtn').disabled = true; setStatus(`${WAVES[waveIndex].label}: packets are arriving.`); selectedRouter = null; renderRouterPanel(); $('tip').textContent = 'Watch each packet destination and see which router accepts it.' }
+        function spawnPacket(now) { const w = WAVES[waveIndex], key = w.types[Math.floor(Math.random() * w.types.length)], g = geom(), d = destByKey(key); packets.push({ dest: key, color: d.color, x: g.source.x, y: g.source.y, stage: 'toHub', created: now, waitStart: null, assigned: null, done: false, speed: 130 }); spawned++; lastSpawn = now }
+        function failPacket(p, reason) { if (p.done) return; p.done = true; p.finishedAt = performance.now(); resolved++; lives--; updateUI(); setStatus(reason, 'bad'); if (lives <= 0) endGame() }
+        function resolveAtServer(p) { const correct = serverIndexForKey(p.dest); if (p.assigned === correct) { p.done = true; p.finishedAt = performance.now(); resolved++; score += 20; credits += 8; updateUI(); flashUntil = performance.now() + 250 } else failPacket(p, 'A routing rule sent the packet to the wrong server.') }
+        function updatePackets(now, dt) { const g = geom(); for (const p of packets) { if (p.done) continue; if (p.stage === 'waiting') { if (!p.waitStart) p.waitStart = now; const matching = routers.filter(r => r.placed && r.rule === p.dest && now >= r.busyUntil); if (matching.length) { const r = matching[0]; r.busyUntil = now + routerDelay(r); p.assigned = r.slot; p.stage = 'toRouter' } else if (now - p.waitStart > 5200) failPacket(p, 'No available router advertised this destination.') } } const waiting = packets.filter(p => !p.done && p.stage === 'waiting'); if (waiting.length > 8) { waiting.sort((a, b) => a.waitStart - b.waitStart); failPacket(waiting[0], 'The hub queue overflowed.') } for (const p of packets) { if (p.done) continue; let target = null; if (p.stage === 'toHub') target = g.hub; if (p.stage === 'toRouter') target = routers[p.assigned]; if (p.stage === 'toServer') target = g.servers[p.assigned]; if (target) { const dx = target.x - p.x, dy = target.y - p.y, dist = Math.hypot(dx, dy), step = p.speed * dt; if (dist <= step + 2) { p.x = target.x; p.y = target.y; if (p.stage === 'toHub') { p.stage = 'waiting'; p.waitStart = now } else if (p.stage === 'toRouter') p.stage = 'toServer'; else resolveAtServer(p) } else { p.x += dx / dist * step; p.y += dy / dist * step } } } packets = packets.filter(p => !p.done || now - p.finishedAt < 450) }
+        function checkWaveEnd() { if (!waveRunning) return; if (spawned >= WAVES[waveIndex].count && resolved >= WAVES[waveIndex].count) { waveRunning = false; $('waveBtn').disabled = false; $('progress').style.width = '100%'; if (lives <= 0) return; const bonus = lives * 10; score += bonus; credits += 30; updateUI(); setStatus(`Wave ${waveIndex + 1} complete. Bonus credits awarded.`, 'good'); const last = waveIndex === WAVES.length - 1; $('resultTitle').textContent = last ? 'Network defended! 🎉' : `Wave ${waveIndex + 1} complete`; $('resultText').innerHTML = last ? `You survived all five traffic waves. Packets were routed by their <strong>destination IP addresses</strong>, and faster routers helped prevent congestion.<br><br><strong>Final score: ${score}</strong>` : `Your routing rules delivered the traffic. You earned <strong>30 credits</strong> for the next wave. Consider whether your routers need upgrades before traffic speeds up.`; $('nextBtn').textContent = last ? 'Play again' : 'Prepare next wave'; $('result').classList.remove('hidden') } }
+        function endGame() { gameOver = true; waveRunning = false; $('waveBtn').disabled = true; $('resultTitle').textContent = 'Network overloaded'; $('resultText').innerHTML = 'Too many packets were dropped or misrouted. Check that each branch router advertises the IP address of the server it is physically connected to, then try again.'; $('nextBtn').textContent = 'Restart game'; $('result').classList.remove('hidden') }
+        $('waveBtn').onclick = startWave; $('resetBtn').onclick = resetGame; $('startBtn').onclick = () => $('intro').classList.add('hidden'); $('nextBtn').onclick = () => { $('result').classList.add('hidden'); if (gameOver || waveIndex === WAVES.length - 1) { resetGame(); return } waveIndex++; updateUI(); $('waveBtn').textContent = `▶ Start Wave ${waveIndex + 1}`; $('waveBtn').disabled = false; setStatus(`Prepare for Wave ${waveIndex + 1}: ${WAVES[waveIndex].label}.`); $('progress').style.width = '0%'; $('tip').textContent = 'Configure or upgrade routers before starting the next wave.'; renderRouterPanel() };
+        canvas.addEventListener('click', e => { if (waveRunning) return; const rect = canvas.getBoundingClientRect(), x = e.clientX - rect.left, y = e.clientY - rect.top; let best = null, dist = 999; for (const r of routers) { const d = Math.hypot(x - r.x, y - r.y); if (d < 45 && d < dist) { best = r; dist = d } } if (best) { selectedRouter = best; renderRouterPanel() } });
+        function line(a, b, color = '#35506f', width = 4) { ctx.strokeStyle = color; ctx.lineWidth = width; ctx.lineCap = 'round'; ctx.beginPath(); ctx.moveTo(a.x, a.y); ctx.lineTo(b.x, b.y); ctx.stroke() }
+        function node(x, y, r, fill, stroke, icon, label, sub) { ctx.fillStyle = fill; ctx.strokeStyle = stroke; ctx.lineWidth = 3; ctx.beginPath(); ctx.arc(x, y, r, 0, Math.PI * 2); ctx.fill(); ctx.stroke(); ctx.fillStyle = '#fff'; ctx.font = '22px system-ui'; ctx.textAlign = 'center'; ctx.textBaseline = 'middle'; ctx.fillText(icon, x, y - 2); ctx.font = '800 12px system-ui'; ctx.textBaseline = 'top'; ctx.fillText(label, x, y + r + 9); if (sub) { ctx.fillStyle = '#9fb1c6'; ctx.font = '700 10px system-ui'; ctx.fillText(sub, x, y + r + 26) } }
+        function draw() { ctx.clearRect(0, 0, W, H); const g = geom(); ctx.strokeStyle = '#ffffff07'; ctx.lineWidth = 1; for (let x = 0; x < W; x += 40) { ctx.beginPath(); ctx.moveTo(x, 0); ctx.lineTo(x, H); ctx.stroke() } for (let y = 0; y < H; y += 40) { ctx.beginPath(); ctx.moveTo(0, y); ctx.lineTo(W, y); ctx.stroke() } line(g.source, g.hub, '#35506f', 5); routers.forEach((r, i) => { line(g.hub, r, '#35506f', 4); line(r, g.servers[i], DESTS[i].color + '77', 4) }); node(g.source.x, g.source.y, 31, '#122a40', '#67e8f9', '💻', 'Classroom', 'packet source'); node(g.hub.x, g.hub.y, 34, '#17263f', '#ffd166', '🔀', 'Network Hub', 'queue'); routers.forEach((r, i) => { const sel = selectedRouter === r; ctx.save(); if (sel) { ctx.shadowColor = '#ffd166'; ctx.shadowBlur = 18 } if (r.placed) node(r.x, r.y, 34, '#241d3c', sel ? '#ffd166' : '#b794f6', '📡', `Router ${i + 1}`, `L${r.level} · ${r.rule ? destByKey(r.rule).ip : 'no rule'}`); else { ctx.setLineDash([7, 7]); ctx.strokeStyle = sel ? '#ffd166' : '#627793'; ctx.lineWidth = 3; ctx.fillStyle = '#0d1a2b'; ctx.beginPath(); ctx.arc(r.x, r.y, 34, 0, Math.PI * 2); ctx.fill(); ctx.stroke(); ctx.setLineDash([]); ctx.fillStyle = '#93a6bc'; ctx.font = '800 12px system-ui'; ctx.textAlign = 'center'; ctx.textBaseline = 'middle'; ctx.fillText('ROUTER', r.x, r.y - 5); ctx.fillText('PAD', r.x, r.y + 11); ctx.fillStyle = '#9fb1c6'; ctx.font = '700 10px system-ui'; ctx.textBaseline = 'top'; ctx.fillText(`Branch ${i + 1}`, r.x, r.y + 43) } ctx.restore() }); g.servers.forEach((s, i) => { const d = DESTS[i]; node(s.x, s.y, 34, '#14283a', d.color, '🖥️', d.name, d.ip) }); const waiting = packets.filter(p => !p.done && p.stage === 'waiting').length; if (waiting) { ctx.fillStyle = waiting >= 6 ? '#ff6b6b' : '#ffd166'; ctx.font = '900 13px system-ui'; ctx.textAlign = 'center'; ctx.fillText(`QUEUE ${waiting}/8`, g.hub.x, g.hub.y - 57) } packets.forEach(p => { if (p.done) return; const d = destByKey(p.dest); ctx.save(); ctx.shadowColor = d.color; ctx.shadowBlur = 15; ctx.fillStyle = d.color; ctx.strokeStyle = '#f3fbff'; ctx.lineWidth = 2; ctx.beginPath(); ctx.roundRect(p.x - 18, p.y - 14, 36, 28, 6); ctx.fill(); ctx.stroke(); ctx.shadowBlur = 0; ctx.fillStyle = '#071826'; ctx.font = '1000 10px system-ui'; ctx.textAlign = 'center'; ctx.textBaseline = 'middle'; ctx.fillText('PKT', p.x, p.y - 3); ctx.font = '900 7px system-ui'; ctx.fillText(d.ip.split('.').at(-1), p.x, p.y + 7); ctx.restore() }); if (performance.now() < flashUntil) { ctx.fillStyle = '#63e6a611'; ctx.fillRect(0, 0, W, H) } requestAnimationFrame(draw) }
+        let lastFrame = performance.now(); function tick(now) { const dt = Math.min(.035, (now - lastFrame) / 1000); lastFrame = now; if (waveRunning && !gameOver) { const w = WAVES[waveIndex]; if (spawned < w.count && now - lastSpawn >= w.interval) spawnPacket(now); updatePackets(now, dt); $('progress').style.width = Math.round((resolved / w.count) * 100) + '%'; checkWaveEnd() } requestAnimationFrame(tick) }
+        resize(); updateUI(); renderRouterPanel(); requestAnimationFrame(draw); requestAnimationFrame(tick);
+    </script>
+</body>
+
+</html>
