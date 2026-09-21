@@ -39,6 +39,45 @@
     "external": false
   },
   {
+    "id": "recipe-remix",
+    "title": "Recipe Remix — The Function Kitchen",
+    "description": "Build a recipe from blocks, then call it again and again with different inputs to see what a function really does.",
+    "path": "activities/functions/recipe-remix.html",
+    "year_levels": ["P4"],
+    "topic": "Functions",
+    "type": "game",
+    "week": null,
+    "term": 1,
+    "tags": ["functions", "inputs", "reuse", "blocks", "algorithms"],
+    "external": false
+  },
+  {
+    "id": "pick-the-right-slot",
+    "title": "Pick the Right Slot",
+    "description": "Match each data need to the question type that produces the answer shape you actually need.",
+    "path": "activities/data/pick-the-right-slot.html",
+    "year_levels": ["P4"],
+    "topic": "Data",
+    "type": "game",
+    "week": null,
+    "term": 1,
+    "tags": ["data collection", "question types", "answer shape", "surveys"],
+    "external": false
+  },
+  {
+    "id": "the-counting-race",
+    "title": "The Counting Race",
+    "description": "Race a pile of structured answers against a messy one to see why data has to be sorted before it can be counted.",
+    "path": "activities/data/the-counting-race.html",
+    "year_levels": ["P4"],
+    "topic": "Data",
+    "type": "game",
+    "week": null,
+    "term": 1,
+    "tags": ["structured data", "unstructured data", "sorting", "tally"],
+    "external": false
+  },
+  {
     "id": "ui-ux-good-vs-bad",
     "title": "UI/UX — Good vs Bad Examples",
     "description": "Four interactive pages showing what good UI, good UX, and their opposites look like in the wild.",

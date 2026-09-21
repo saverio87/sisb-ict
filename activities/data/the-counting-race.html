@@ -1,0 +1,475 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1,maximum-scale=1">
+<meta http-equiv="Content-Security-Policy" content="default-src 'none'; style-src 'unsafe-inline'; script-src 'unsafe-inline'; img-src data:; font-src 'none'; connect-src 'none'; media-src 'none'; object-src 'none'; frame-src 'none'; base-uri 'none'; form-action 'none'">
+<title>The Counting Race</title>
+<style>
+:root{
+  --bg:#0a111b;--text:#f4f7fb;--muted:#b2c0d1;--gold:#f0bd4f;--gold2:#ffd878;--green:#6fdaa6;--red:#ef7d7d;
+  --paper:#fff8e7;--paper-edge:#d8c9a8;--ink:#2c2c2c;--belt:#263749;--belt2:#34495f;
+}
+*{box-sizing:border-box}
+html,body{margin:0;min-height:100%;background:radial-gradient(circle at 50% 0,#15243a 0,#0a111b 56%);color:var(--text);font-family:system-ui,-apple-system,BlinkMacSystemFont,"Segoe UI",sans-serif}
+body{overflow-x:hidden}
+button,input{font:inherit}
+button{min-width:44px;min-height:44px}
+button:focus-visible,input:focus-visible{outline:3px solid #fff;outline-offset:3px}
+.app{max-width:1240px;margin:0 auto;padding:16px}
+.hidden{display:none!important}
+.start-screen{min-height:760px;display:grid;place-items:center}
+.start-card{width:min(840px,96%);background:linear-gradient(180deg,#142238,#0e1725);border:1px solid #314a66;border-radius:24px;padding:28px;box-shadow:0 28px 80px #0008;text-align:center}
+.challenge{display:inline-block;padding:8px 13px;border-radius:999px;background:#2e2715;border:1px solid #725d26;color:#ffe29b;font-size:.84rem;font-weight:900;letter-spacing:.06em;text-transform:uppercase}
+.start-card h1{font-size:clamp(2.6rem,7vw,5rem);line-height:.95;margin:18px 0 12px}
+.start-card .lead{font-size:1.1rem;color:#d5e0eb;max-width:680px;margin:0 auto 18px}
+.start-visual{margin:24px auto;display:grid;grid-template-columns:1fr auto 1fr;gap:18px;align-items:center;max-width:700px}
+.mini-lane{border:1px solid #395069;background:#0a1421;border-radius:16px;padding:16px}
+.mini-coin{width:54px;height:54px;border-radius:50%;background:var(--gold);color:#3d2c0b;display:grid;place-items:center;margin:auto;font-weight:1000}
+.mini-note{background:var(--paper);color:var(--ink);border:1px solid var(--paper-edge);transform:rotate(-3deg);padding:11px;border-radius:8px;font-weight:800}
+.vs{font-weight:1000;color:#8fa3ba}
+.start-btn{border:0;border-radius:15px;padding:13px 24px;font-weight:1000;font-size:1.08rem;background:linear-gradient(135deg,var(--gold),#e8924e);color:#241707;cursor:pointer}
+.motion-start{margin-top:18px;display:flex;justify-content:center;align-items:center;gap:10px;color:var(--muted);font-size:.9rem}
+.topbar{display:flex;align-items:center;justify-content:space-between;gap:12px;flex-wrap:wrap;margin-bottom:10px}
+.topbar h1{font-size:1.45rem;margin:0}
+.challenge-bar{background:#2a2515;border:1px solid #685728;color:#ffe299;padding:8px 12px;border-radius:12px;font-weight:900;flex:1;min-width:260px;text-align:center}
+.controls{display:flex;gap:8px;align-items:center;flex-wrap:wrap}
+.clock{min-width:84px;text-align:center;background:#07101a;border:1px solid #33495f;border-radius:12px;padding:9px 12px;font-weight:1000;font-variant-numeric:tabular-nums}
+.small-btn{border:1px solid #3b536d;background:#1b2d43;color:#fff;border-radius:11px;padding:8px 12px;font-weight:900;cursor:pointer}
+.motion-toggle{display:flex;align-items:center;gap:7px;color:#c8d4e1;font-size:.82rem}
+.motion-toggle input{width:20px;height:20px;accent-color:var(--gold)}
+.lanes{display:grid;gap:12px}
+.lane{position:relative;border:1px solid #2d435b;background:linear-gradient(180deg,#111d2d,#0d1724);border-radius:20px;padding:14px;overflow:hidden}
+.lane-head{display:flex;justify-content:space-between;gap:10px;align-items:start;margin-bottom:10px}
+.lane-label .eyebrow{text-transform:uppercase;letter-spacing:.11em;font-size:.72rem;color:#8ea4bb;font-weight:900}
+.lane-label h2{margin:2px 0 0;font-size:1.16rem}
+.lane-label p{margin:3px 0 0;color:#aebed0;font-size:.86rem}
+.badge{padding:6px 9px;border-radius:999px;font-size:.76rem;font-weight:900}
+.badge.auto{background:#173328;color:#92e4b8;border:1px solid #285d47}
+.badge.work{background:#392818;color:#ffd087;border:1px solid #654522}
+.structured-body{min-height:236px;display:grid;grid-template-columns:minmax(220px,1fr) minmax(470px,2fr);gap:14px;align-items:stretch}
+.structured-belt,.messy-belt{position:relative;background:linear-gradient(180deg,var(--belt2),var(--belt));border:1px solid #415a72;border-radius:14px;overflow:hidden}
+.structured-belt{min-height:210px}
+.belt-track{position:absolute;left:0;right:0;top:50%;height:70px;transform:translateY(-50%);background:repeating-linear-gradient(90deg,#3b4e60 0 28px,#263a4e 28px 34px);border-top:5px solid #1d2c3a;border-bottom:5px solid #1d2c3a}
+.belt-wheel{position:absolute;width:54px;height:54px;border-radius:50%;border:8px solid #172735;background:#40556b;top:50%;transform:translateY(-50%)}
+.belt-wheel.left{left:14px}.belt-wheel.right{right:14px}
+.belt-label{position:absolute;left:18px;top:14px;font-size:.76rem;color:#bfd0df;font-weight:800}
+.coin-moving{position:absolute;width:72px;height:72px;border-radius:50%;background:radial-gradient(circle at 35% 28%,#ffe7a3,var(--gold));color:#3a2a0b;border:3px solid #c69229;display:grid;place-items:center;text-align:center;font-weight:1000;font-size:.68rem;padding:5px;z-index:5;box-shadow:0 8px 18px #0006;left:12%;top:50%;transform:translate(-50%,-50%)}
+body:not(.reduced-motion) .coin-moving{animation:coinRide .62s ease-in-out forwards}
+@keyframes coinRide{0%{left:14%;transform:translate(-50%,-50%) rotate(0)}70%{left:72%;transform:translate(-50%,-50%) rotate(270deg)}100%{left:88%;transform:translate(-50%,-50%) rotate(360deg);opacity:.2}}
+.tubes{display:grid;grid-template-columns:repeat(3,1fr);gap:10px}
+.tube{position:relative;min-width:0;border:1px solid #46637d;border-radius:14px 14px 20px 20px;background:linear-gradient(180deg,#13283a,#0d1b29);padding:12px 10px 10px;text-align:center;overflow:hidden}
+.tube:before{content:"";position:absolute;left:12px;right:12px;top:46px;bottom:44px;border:3px solid #5e7d96;border-top:0;border-radius:0 0 20px 20px;background:linear-gradient(180deg,#8ad0df11,#8ad0df20)}
+.tube h3{position:relative;margin:0;font-size:.87rem;color:#e7eff6}
+.tube-count{position:relative;font-size:2.6rem;font-weight:1000;color:var(--gold2);margin-top:44px;font-variant-numeric:tabular-nums}
+.tube-caption{position:relative;font-size:.72rem;color:#97adbf}
+.tube-tick{position:absolute;right:8px;top:8px;width:25px;height:25px;border-radius:50%;background:#19372a;color:#79e4a9;border:1px solid #39765a;display:none;place-items:center;font-weight:1000}
+.tube.done .tube-tick{display:grid}
+.tube.flash{animation:tubeFlash .35s ease-out}
+@keyframes tubeFlash{50%{box-shadow:inset 0 0 0 3px #f0bd4f,0 0 22px #f0bd4f44}}
+.messy-body{min-height:360px;display:grid;grid-template-columns:minmax(230px,1fr) minmax(420px,1.7fr) minmax(300px,1.1fr);gap:12px}
+.messy-belt{min-height:286px}
+.note-incoming{position:absolute;width:115px;min-height:58px;background:var(--paper);color:var(--ink);border:1px solid var(--paper-edge);border-radius:8px;padding:8px;text-align:center;font-weight:900;font-size:.76rem;box-shadow:0 6px 14px #0005;left:8%;top:50%;transform:translate(-50%,-50%) rotate(-3deg);z-index:4}
+body:not(.reduced-motion) .note-incoming{animation:noteRide .72s ease-in-out forwards}
+@keyframes noteRide{0%{left:8%;transform:translate(-50%,-50%) rotate(-3deg)}100%{left:87%;transform:translate(-50%,-50%) rotate(3deg);opacity:.25}}
+.static-tray{position:absolute;left:12px;right:12px;bottom:12px;top:42px;border:2px dashed #5a738b;border-radius:12px;display:none;align-content:start;grid-template-columns:repeat(3,1fr);gap:6px;padding:8px;overflow:auto}
+.reduced-motion .static-tray{display:grid}
+.tray-chip{background:var(--paper);color:var(--ink);border:1px solid var(--paper-edge);border-radius:7px;padding:7px;font-size:.67rem;font-weight:900;text-align:center;min-height:46px;display:grid;place-items:center}
+.pile-wrap{border:1px solid #3a526a;background:#0b1521;border-radius:14px;padding:10px;min-width:0}
+.pile-top{display:flex;align-items:center;justify-content:space-between;gap:8px;margin-bottom:8px}
+.pile-top strong{font-size:.88rem}.counter{font-size:.78rem;color:#b6c6d6}
+.pile{position:relative;min-height:210px;border:2px dashed #3d566f;border-radius:12px;background:linear-gradient(#ffffff02,#ffffff02),radial-gradient(circle at 50% 60%,#1d2b3b,#0c1722);overflow:auto;padding:10px;display:flex;flex-wrap:wrap;align-content:flex-start;gap:8px}
+.note{position:relative;width:112px;min-height:58px;background:var(--paper);color:var(--ink);border:1px solid var(--paper-edge);border-radius:8px;padding:8px 7px;text-align:center;font-weight:900;font-size:.76rem;box-shadow:0 6px 12px #0005;touch-action:none;user-select:none;display:grid;place-items:center;cursor:grab;transform:rotate(var(--r,0deg))}
+.note:nth-child(3n+1){--r:-2deg}.note:nth-child(3n+2){--r:1.5deg}.note:nth-child(3n){--r:-.5deg}
+.note.dragging{position:fixed!important;width:112px;z-index:9999;cursor:grabbing;transform:scale(1.08) rotate(0)!important;box-shadow:0 16px 38px #000a;pointer-events:none}
+.note.returning{transition:transform .18s ease,opacity .18s ease}
+.pressure{margin-top:9px}.pressure-head{display:flex;justify-content:space-between;color:#aabacb;font-size:.74rem;margin-bottom:5px}
+.pressure-track{height:12px;background:#1f3041;border-radius:999px;overflow:hidden;border:1px solid #344c64}
+.pressure-fill{height:100%;width:0;background:linear-gradient(90deg,#65daa6,#f0bd4f 65%,#ef7d7d);transition:width .25s}
+
+.bucket-stack{display:grid;grid-template-columns:1fr;gap:10px}
+.bucket-card{border:1px solid #3a526a;background:#0b1521;border-radius:14px;padding:10px;display:grid;grid-template-columns:132px 1fr;gap:10px;align-items:center}
+.bucket{position:relative;width:130px;height:155px;border:0;background:transparent;cursor:pointer;padding:0;justify-self:center}
+.bucket-body{position:absolute;left:13px;right:13px;bottom:8px;top:33px;background:linear-gradient(90deg,#4c647a,#71879a 50%,#4c647a);clip-path:polygon(7% 0,93% 0,82% 100%,18% 100%);border-radius:4px}
+.bucket-rim{position:absolute;left:4px;right:4px;top:22px;height:26px;border-radius:50%;background:#899cad;border:5px solid #41596f}
+.bucket-handle{position:absolute;left:27px;right:27px;top:0;height:74px;border:7px solid #516a80;border-bottom:0;border-radius:55px 55px 0 0}
+.bucket-label{position:absolute;left:21px;right:21px;bottom:45px;color:#fff;background:#263b4d;border-radius:7px;padding:6px 3px;font-weight:1000;font-size:.78rem}
+.bucket.active .bucket-body,.bucket.hot .bucket-body{filter:brightness(1.35);box-shadow:0 0 28px #f0bd4f99}
+.bucket.active .bucket-rim,.bucket.hot .bucket-rim{background:var(--gold2)}
+.bucket.pulse{animation:bucketPulse .35s ease-out}
+@keyframes bucketPulse{50%{transform:scale(1.08)}}
+.bucket-info strong{display:block;font-size:.9rem}
+.bucket-info p{margin:2px 0 6px;color:#a8bacb;font-size:.76rem}
+.bucket-mini{font-size:1.65rem;font-weight:1000;color:var(--gold2);font-variant-numeric:tabular-nums}
+.bucket-note{font-size:.72rem;color:#c1cfdb}
+.bucket-help{padding:8px 10px;border-radius:12px;background:#111c2a;color:#c9d6e2;font-size:.78rem;line-height:1.35;text-align:center}
+.mistake{color:#ffb0b0;font-weight:900;min-height:1.2em}
+.pause-banner{position:absolute;left:50%;top:50%;transform:translate(-50%,-50%);z-index:20;background:#07101aee;border:1px solid #536b82;border-radius:18px;padding:16px 24px;text-align:center;box-shadow:0 20px 60px #0009;pointer-events:none}
+.pause-banner strong{display:block;font-size:1.4rem}.pause-banner span{color:#c0ccda;font-size:.85rem}
+.overlay{position:fixed;inset:0;background:#07101ab5;display:grid;place-items:center;z-index:10000;padding:18px;backdrop-filter:blur(2px)}
+.overlay-card{width:min(760px,96%);background:#142238;border:1px solid #3b5774;border-radius:22px;padding:24px;box-shadow:0 28px 80px #000b;text-align:center}
+.overlay-card .eyebrow{text-transform:uppercase;letter-spacing:.11em;color:#90a8bf;font-size:.76rem;font-weight:900}
+.overlay-card h2{font-size:clamp(1.7rem,4vw,2.7rem);margin:8px 0 10px}.overlay-card p{color:#d7e2ed}
+.answers{display:grid;grid-template-columns:repeat(3,1fr);gap:10px;margin-top:18px}
+.answer-btn{border:1px solid #4b6580;background:#1c3047;color:white;border-radius:14px;padding:13px;font-size:1.18rem;font-weight:1000;cursor:pointer}
+.reveal-number{font-size:4.5rem;line-height:1;font-weight:1000;color:var(--gold2);margin:8px 0}
+.compare{display:grid;grid-template-columns:1fr 1fr;gap:10px;margin:18px 0}
+.compare-card{background:#0b1624;border:1px solid #304963;border-radius:13px;padding:13px}.compare-card strong{font-size:1.5rem;color:white;display:block;margin-top:4px}
+.concept{background:#193225;border:1px solid #35674f;color:#b7efd0;border-radius:14px;padding:13px;font-weight:900}
+.play-again{margin-top:18px;border:0;border-radius:14px;background:linear-gradient(135deg,var(--gold),#e8924e);color:#281808;padding:12px 20px;font-weight:1000}
+.fly-ghost{position:fixed;width:112px;min-height:58px;background:var(--paper);color:var(--ink);border:1px solid var(--paper-edge);border-radius:8px;padding:8px;text-align:center;font-weight:900;font-size:.76rem;display:grid;place-items:center;z-index:10001;pointer-events:none;transition:left .24s ease,top .24s ease,transform .24s ease,opacity .24s ease}
+.sr-only{position:absolute!important;width:1px!important;height:1px!important;padding:0!important;margin:-1px!important;overflow:hidden!important;clip:rect(0,0,0,0)!important;white-space:nowrap!important;border:0!important}
+@media(max-width:1040px){
+  .messy-body{grid-template-columns:1fr 1fr}.messy-belt{grid-column:1/-1;min-height:160px}.bucket-stack{grid-column:1/-1;grid-template-columns:repeat(3,1fr)}
+  .bucket-card{grid-template-columns:1fr}
+}
+@media(max-width:899px){
+  .structured-body{grid-template-columns:1fr}.structured-belt{min-height:140px}
+  .messy-body{grid-template-columns:1fr}.messy-belt{min-height:155px}
+  .bucket-stack{grid-template-columns:1fr}
+  .bucket-card{grid-template-columns:132px 1fr}
+}
+@media(max-width:599px){
+  .app{padding:10px}.topbar{align-items:stretch}.challenge-bar{order:3;flex-basis:100%}
+  .structured-body{display:block}.structured-belt{min-height:125px;margin-bottom:10px}
+  .tubes{grid-template-columns:repeat(3,minmax(0,1fr))}.tube{padding:10px 5px}.tube h3{font-size:.72rem}.tube-count{font-size:2rem}
+  .messy-body{display:block}.messy-belt{min-height:145px;margin-bottom:10px}.pile-wrap{margin-bottom:10px}
+  .pile{min-height:155px;flex-wrap:nowrap;overflow-x:auto;overflow-y:hidden}.note{flex:0 0 108px}
+  .bucket-card{grid-template-columns:1fr}
+  .answers{grid-template-columns:1fr}.compare{grid-template-columns:1fr}.start-visual{grid-template-columns:1fr}.vs{display:none}
+}
+@media(prefers-reduced-motion:reduce){
+  *{scroll-behavior:auto!important}.coin-moving,.note-incoming,.tube.flash,.bucket.pulse{animation:none!important}
+}
+</style>
+</head>
+<body>
+<div class="app">
+<section class="start-screen" id="startScreen">
+  <div class="start-card">
+    <div class="challenge">Count both piles. Which one counts itself?</div>
+    <h1>The Counting Race</h1>
+    <p class="lead">The same 24 survey answers are coming in two different ways. One side sorts and counts itself. On the other side, you must read each messy answer and drag it into the right bucket.</p>
+    <div class="start-visual" aria-hidden="true">
+      <div class="mini-lane"><div class="mini-coin">1–3 h</div><div style="margin-top:9px;color:#a9bacb;font-size:.8rem">Already labelled</div></div>
+      <div class="vs">VS</div>
+      <div class="mini-lane"><div class="mini-note">about 2 hrs</div><div style="margin-top:9px;color:#a9bacb;font-size:.8rem">Must be interpreted</div></div>
+    </div>
+    <button class="start-btn" id="startBtn" type="button">Start the race</button>
+    <label class="motion-start"><input type="checkbox" id="motionStart"> Reduce motion</label>
+  </div>
+</section>
+
+<section class="hidden" id="gameScreen" aria-label="The Counting Race game">
+  <div class="topbar">
+    <h1>The Counting Race</h1>
+    <div class="challenge-bar">Same 24 answers. Which side counts itself — and which side needs a person?</div>
+    <div class="controls">
+      <div class="clock" id="clock" aria-label="Round timer">0:00</div>
+      <button class="small-btn" id="pauseBtn" type="button">Pause</button>
+      <label class="motion-toggle"><input type="checkbox" id="motionGame"> Reduce motion</label>
+    </div>
+  </div>
+
+  <div class="lanes">
+    <section class="lane">
+      <div class="lane-head">
+        <div class="lane-label"><div class="eyebrow">Structured data</div><h2>Pre-labelled answers</h2><p>The answers already fit into three slots.</p></div>
+        <div class="badge auto">Counts itself</div>
+      </div>
+      <div class="structured-body">
+        <div class="structured-belt">
+          <div class="belt-label">Automatic conveyor</div><div class="belt-track"></div><div class="belt-wheel left"></div><div class="belt-wheel right"></div><div id="structuredIncoming"></div>
+        </div>
+        <div class="tubes">
+          <div class="tube" id="tube-under1"><div class="tube-tick">✓</div><h3>Under 1 hour</h3><div class="tube-count" id="count-under1">0</div><div class="tube-caption">people</div></div>
+          <div class="tube" id="tube-1to3"><div class="tube-tick">✓</div><h3>1 to 3 hours</h3><div class="tube-count" id="count-1to3">0</div><div class="tube-caption">people</div></div>
+          <div class="tube" id="tube-over3"><div class="tube-tick">✓</div><h3>Over 3 hours</h3><div class="tube-count" id="count-over3">0</div><div class="tube-caption">people</div></div>
+        </div>
+      </div>
+    </section>
+
+    <section class="lane">
+      <div class="lane-head">
+        <div class="lane-label"><div class="eyebrow">Unstructured data</div><h2>Messy free-text answers</h2><p>Read each note and place it into the right bucket by hand.</p></div>
+        <div class="badge work">You interpret it</div>
+      </div>
+      <div class="messy-body">
+        <div class="messy-belt">
+          <div class="belt-label">Incoming notes</div><div class="belt-track"></div><div class="belt-wheel left"></div><div class="belt-wheel right"></div><div id="messyIncoming"></div><div class="static-tray" id="staticTray"></div>
+        </div>
+
+        <div class="pile-wrap">
+          <div class="pile-top"><strong>Note pile</strong><span class="counter"><span id="pileCount">0</span> waiting</span></div>
+          <div class="pile" id="pile"></div>
+          <div class="pressure"><div class="pressure-head"><span>Backlog pressure</span><span id="pressureText">calm</span></div><div class="pressure-track"><div class="pressure-fill" id="pressureFill"></div></div></div>
+        </div>
+
+        <div>
+          <div class="bucket-help" id="bucketHelp">Drag a note to the correct bucket.<br>Or tap a bucket, then tap a note.</div>
+          <div class="mistake" id="mistakeText" aria-live="polite"></div>
+          <div class="bucket-stack">
+            <div class="bucket-card">
+              <button class="bucket" id="bucket-under1" type="button" data-slot="under1" aria-pressed="false" aria-label="Under 1 hour bucket">
+                <span class="bucket-handle"></span><span class="bucket-rim"></span><span class="bucket-body"></span><span class="bucket-label">UNDER 1H</span>
+              </button>
+              <div class="bucket-info"><strong>Under 1 hour</strong><p>Examples: 20 minutes, half an hour</p><div class="bucket-mini" id="messy-count-under1">0</div><div class="bucket-note">sorted by you</div></div>
+            </div>
+            <div class="bucket-card">
+              <button class="bucket" id="bucket-1to3" type="button" data-slot="1to3" aria-pressed="false" aria-label="1 to 3 hours bucket">
+                <span class="bucket-handle"></span><span class="bucket-rim"></span><span class="bucket-body"></span><span class="bucket-label">1 TO 3H</span>
+              </button>
+              <div class="bucket-info"><strong>1 to 3 hours</strong><p>Examples: 2 hours, around 2, 2-3 hrs</p><div class="bucket-mini" id="messy-count-1to3">0</div><div class="bucket-note">sorted by you</div></div>
+            </div>
+            <div class="bucket-card">
+              <button class="bucket" id="bucket-over3" type="button" data-slot="over3" aria-pressed="false" aria-label="Over 3 hours bucket">
+                <span class="bucket-handle"></span><span class="bucket-rim"></span><span class="bucket-body"></span><span class="bucket-label">OVER 3H</span>
+              </button>
+              <div class="bucket-info"><strong>Over 3 hours</strong><p>Examples: 4 hours, all day, most of the day</p><div class="bucket-mini" id="messy-count-over3">0</div><div class="bucket-note">sorted by you</div></div>
+            </div>
+          </div>
+        </div>
+      </div>
+      <div class="pause-banner hidden" id="pauseBanner"><strong>Paused</strong><span>Delivery and timer are frozen. You can still sort notes.</span></div>
+    </section>
+  </div>
+</section>
+</div>
+
+<div class="overlay hidden" id="closingOverlay" role="dialog" aria-modal="true">
+  <div class="overlay-card">
+    <div class="eyebrow">The counting question</div>
+    <h2>How many people said 1 to 3 hours?</h2>
+    <p>Now both sides can answer — but one side counted itself, while the other needed your sorting work.</p>
+    <div class="answers">
+      <button class="answer-btn" type="button">7</button>
+      <button class="answer-btn" type="button">12</button>
+      <button class="answer-btn" type="button">5</button>
+    </div>
+  </div>
+</div>
+
+<div class="overlay hidden" id="revealOverlay" role="dialog" aria-modal="true">
+  <div class="overlay-card">
+    <div class="eyebrow">The reveal</div>
+    <h2>The answer was 12.</h2>
+    <div class="reveal-number">12</div>
+    <p><strong>The structured side knew instantly</strong> because its answers were already in labelled slots.</p>
+    <p><strong>The messy side only became countable because you interpreted every note and sorted it by hand.</strong> The information was there all along, but it was not ready to count.</p>
+    <div class="compare">
+      <div class="compare-card">Structured side<strong id="structuredTime">0:20</strong><span>finished unattended</span></div>
+      <div class="compare-card">Your sorting work<strong id="playerTime">0:00</strong><span>interpreting and categorising notes</span></div>
+    </div>
+    <div class="concept">Structured data already fits pre-chosen slots, so it can be counted instantly. Unstructured data must be read, interpreted, and sorted before it becomes easy to count.</div>
+    <button class="play-again" id="playAgain" type="button">Play again</button>
+  </div>
+</div>
+
+<div class="sr-only" id="live" aria-live="polite" aria-atomic="true"></div>
+
+<script>
+(() => {
+"use strict";
+
+const ANSWERS=[
+{slot:"under1",coin:"Under 1 hour",messy:"30 mins"},{slot:"under1",coin:"Under 1 hour",messy:"half an hour"},
+{slot:"under1",coin:"Under 1 hour",messy:"~45 min"},{slot:"under1",coin:"Under 1 hour",messy:"less than an hour"},
+{slot:"under1",coin:"Under 1 hour",messy:"0.5 hr"},{slot:"under1",coin:"Under 1 hour",messy:"20 minutes"},
+{slot:"under1",coin:"Under 1 hour",messy:"under 1h"},
+{slot:"1to3",coin:"1 to 3 hours",messy:"2"},{slot:"1to3",coin:"1 to 3 hours",messy:"two hours"},
+{slot:"1to3",coin:"1 to 3 hours",messy:"about 2 hrs"},{slot:"1to3",coin:"1 to 3 hours",messy:"2 hours maybe"},
+{slot:"1to3",coin:"1 to 3 hours",messy:"~2h"},{slot:"1to3",coin:"1 to 3 hours",messy:"1.5 hours"},
+{slot:"1to3",coin:"1 to 3 hours",messy:"3 hours"},{slot:"1to3",coin:"1 to 3 hours",messy:"couple of hours"},
+{slot:"1to3",coin:"1 to 3 hours",messy:"2-3 hrs"},{slot:"1to3",coin:"1 to 3 hours",messy:"around 2"},
+{slot:"1to3",coin:"1 to 3 hours",messy:"2h"},{slot:"1to3",coin:"1 to 3 hours",messy:"between 1 and 3"},
+{slot:"over3",coin:"Over 3 hours",messy:"4 hours"},{slot:"over3",coin:"Over 3 hours",messy:"loads"},
+{slot:"over3",coin:"Over 3 hours",messy:"all day"},{slot:"over3",coin:"Over 3 hours",messy:"5+ hrs"},
+{slot:"over3",coin:"Over 3 hours",messy:"most of the day"}];
+
+const TOTAL=24, STRUCTURED_INTERVAL=830, MESSY_INTERVAL=1000;
+const $=id=>document.getElementById(id);
+
+const startScreen=$("startScreen"), gameScreen=$("gameScreen"), startBtn=$("startBtn"), pauseBtn=$("pauseBtn"),
+pauseBanner=$("pauseBanner"), motionStart=$("motionStart"), motionGame=$("motionGame"), clock=$("clock"),
+pile=$("pile"), pileCount=$("pileCount"), pressureFill=$("pressureFill"), pressureText=$("pressureText"),
+structuredIncoming=$("structuredIncoming"), messyIncoming=$("messyIncoming"), staticTray=$("staticTray"),
+closingOverlay=$("closingOverlay"), revealOverlay=$("revealOverlay"), structuredTimeEl=$("structuredTime"),
+playerTimeEl=$("playerTime"), live=$("live"), mistakeText=$("mistakeText"), bucketHelp=$("bucketHelp");
+
+const bucketEls = {
+  under1: $("bucket-under1"),
+  "1to3": $("bucket-1to3"),
+  over3: $("bucket-over3")
+};
+const messyCountEls = {
+  under1: $("messy-count-under1"),
+  "1to3": $("messy-count-1to3"),
+  over3: $("messy-count-over3")
+};
+
+let phase="start", reducedMotion=false, shuffled=[], structuredOrder=[], activeDestination=null;
+let tubeCounts={under1:0,"1to3":0,over3:0}, messyCounts={under1:0,"1to3":0,over3:0};
+let structuredIndex=0, messyIndex=0, clearedCount=0, structuredDoneAt=null, roundEndMs=null;
+let timerStartMs=0, pausedAccumMs=0, pauseStartedMs=null, lastTimerMs=0;
+let structuredAccumulator=0, messyAccumulator=0, lastFrame=0, raf=0, drag=null, announceTimer=0;
+
+function shuffle(a){a=a.slice();for(let i=a.length-1;i>0;i--){const j=Math.floor(Math.random()*(i+1));[a[i],a[j]]=[a[j],a[i]]}return a}
+function fmt(ms){const s=Math.max(0,Math.floor(ms/1000)),m=Math.floor(s/60);return m+":"+String(s%60).padStart(2,"0")}
+function announce(t){clearTimeout(announceTimer);announceTimer=setTimeout(()=>{live.textContent="";requestAnimationFrame(()=>live.textContent=t)},120)}
+function currentElapsed(now=performance.now()){if(phase==="start")return 0;const end=((phase==="closing"||phase==="reveal")&&roundEndMs!=null)?roundEndMs:now;let paused=pausedAccumMs;if(phase==="paused"&&pauseStartedMs!=null)paused+=end-pauseStartedMs;return Math.max(0,end-timerStartMs-paused)}
+function updateClock(now){lastTimerMs=currentElapsed(now);clock.textContent=fmt(lastTimerMs)}
+function setReduced(on){reducedMotion=!!on;motionStart.checked=reducedMotion;motionGame.checked=reducedMotion;document.body.classList.toggle("reduced-motion",reducedMotion);renderStaticTray()}
+
+function resetState(){
+  phase="start"; shuffled=shuffle(ANSWERS); structuredOrder=shuffle(ANSWERS); activeDestination=null;
+  tubeCounts={under1:0,"1to3":0,over3:0}; messyCounts={under1:0,"1to3":0,over3:0};
+  structuredIndex=0; messyIndex=0; clearedCount=0; structuredDoneAt=null; roundEndMs=null;
+  timerStartMs=0; pausedAccumMs=0; pauseStartedMs=null; lastTimerMs=0; structuredAccumulator=0; messyAccumulator=0; lastFrame=0; drag=null;
+  pile.innerHTML=""; structuredIncoming.innerHTML=""; messyIncoming.innerHTML=""; staticTray.innerHTML=""; mistakeText.textContent="";
+  ["under1","1to3","over3"].forEach(k=>{
+    $("count-"+k).textContent="0"; $("tube-"+k).classList.remove("done","flash");
+    messyCountEls[k].textContent="0"; bucketEls[k].classList.remove("active","hot","pulse"); bucketEls[k].setAttribute("aria-pressed","false");
+  });
+  pileCount.textContent="0"; pressureFill.style.width="0%"; pressureText.textContent="calm"; clock.textContent="0:00";
+  pauseBtn.textContent="Pause"; pauseBtn.disabled=false; pauseBanner.classList.add("hidden");
+  closingOverlay.classList.add("hidden"); revealOverlay.classList.add("hidden"); bucketHelp.innerHTML="Drag a note to the correct bucket.<br>Or tap a bucket, then tap a note."; renderStaticTray();
+}
+function startRound(){if(phase!=="start")return;phase="playing";startScreen.classList.add("hidden");gameScreen.classList.remove("hidden");timerStartMs=performance.now();lastFrame=timerStartMs;announce("The counting race has started.");raf=requestAnimationFrame(loop)}
+function pauseResume(){
+  if(phase==="playing"){phase="paused";pauseStartedMs=performance.now();pauseBtn.textContent="Resume";pauseBanner.classList.remove("hidden");announce("Paused. Delivery and timer are frozen. You can still sort notes.")}
+  else if(phase==="paused"){const now=performance.now();pausedAccumMs+=now-pauseStartedMs;pauseStartedMs=null;phase="playing";pauseBtn.textContent="Pause";pauseBanner.classList.add("hidden");lastFrame=now;announce("Resumed.")}
+}
+function loop(now){
+  if(phase==="playing"){
+    const dt=Math.min(100,now-lastFrame); structuredAccumulator+=dt; messyAccumulator+=dt;
+    while(structuredIndex<TOTAL&&structuredAccumulator>=STRUCTURED_INTERVAL){structuredAccumulator-=STRUCTURED_INTERVAL; deliverStructured(structuredOrder[structuredIndex++])}
+    while(messyIndex<TOTAL&&messyAccumulator>=MESSY_INTERVAL){messyAccumulator-=MESSY_INTERVAL; deliverMessy(shuffled[messyIndex++])}
+    updateClock(now); checkRoundEnd(now);
+  } else if(phase==="paused"){updateClock(now)}
+  lastFrame=now; if(phase==="playing"||phase==="paused") raf=requestAnimationFrame(loop);
+}
+function deliverStructured(item){
+  if(reducedMotion){incrementTube(item.slot);return}
+  const coin=document.createElement("div"); coin.className="coin-moving"; coin.textContent=item.coin; structuredIncoming.appendChild(coin);
+  setTimeout(()=>{if(coin.isConnected)coin.remove(); incrementTube(item.slot)},610);
+}
+function incrementTube(slot){
+  tubeCounts[slot]++; $("count-"+slot).textContent=String(tubeCounts[slot]);
+  const tube=$("tube-"+slot); tube.classList.remove("flash"); void tube.offsetWidth; tube.classList.add("flash");
+  const label=slot==="under1"?"Under 1 hour":slot==="1to3"?"1 to 3 hours":"Over 3 hours"; announce(label+": "+tubeCounts[slot]+".");
+  if(tubeCounts.under1+tubeCounts["1to3"]+tubeCounts.over3===TOTAL){
+    structuredDoneAt=currentElapsed(); ["under1","1to3","over3"].forEach(k=>$("tube-"+k).classList.add("done"));
+    announce("Structured data finished. All 24 answers counted automatically."); checkRoundEnd(performance.now());
+  }
+}
+function deliverMessy(item){
+  if(reducedMotion){addNote(item); renderStaticTray(); return}
+  const n=document.createElement("div"); n.className="note-incoming"; n.textContent=item.messy; messyIncoming.appendChild(n);
+  setTimeout(()=>{if(n.isConnected)n.remove(); addNote(item)},700);
+}
+function renderStaticTray(){
+  staticTray.innerHTML=""; if(!reducedMotion||phase==="start") return;
+  shuffled.slice(messyIndex,Math.min(TOTAL,messyIndex+9)).forEach(item=>{const d=document.createElement("div"); d.className="tray-chip"; d.textContent=item.messy; staticTray.appendChild(d)});
+}
+function addNote(item){
+  const n=document.createElement("button");
+  n.type="button"; n.className="note"; n.textContent=item.messy; n.dataset.slot=item.slot; n.dataset.dragged="0";
+  n.setAttribute("aria-label","Messy answer: "+item.messy); n.addEventListener("pointerdown",onPointerDown); n.addEventListener("click",onNoteClick);
+  pile.appendChild(n); updateMessyUI(); renderStaticTray();
+}
+function updateMessyUI(){
+  const waiting=pile.querySelectorAll(".note:not(.dragging)").length+(drag?1:0); pileCount.textContent=String(waiting);
+  const pct=Math.min(100,waiting/TOTAL*100); pressureFill.style.width=pct+"%"; pressureText.textContent=pct<25?"calm":pct<55?"building":pct<80?"busy":"full pile";
+  ["under1","1to3","over3"].forEach(k=>messyCountEls[k].textContent=String(messyCounts[k]));
+}
+function onNoteClick(e){
+  const note=e.currentTarget; if(note.dataset.dragged==="1"){note.dataset.dragged="0"; return}
+  if(activeDestination && !drag) tryPlace(note, activeDestination);
+}
+function onPointerDown(e){
+  if(drag||(e.button!==0&&e.pointerType!=="touch"))return;
+  const n=e.currentTarget,r=n.getBoundingClientRect();
+  drag={note:n,pointerId:e.pointerId,offsetX:e.clientX-r.left,offsetY:e.clientY-r.top,startX:e.clientX,startY:e.clientY,moved:false};
+  n.setPointerCapture(e.pointerId); n.classList.add("dragging"); n.style.left=r.left+"px"; n.style.top=r.top+"px"; n.style.height=r.height+"px";
+  moveDragged(e.clientX,e.clientY); n.addEventListener("pointermove",onPointerMove); n.addEventListener("pointerup",onPointerUp,{once:true}); n.addEventListener("pointercancel",onPointerCancel,{once:true}); updateMessyUI();
+}
+function moveDragged(x,y){
+  if(!drag)return; const n=drag.note; n.style.left=(x-drag.offsetX)+"px"; n.style.top=(y-drag.offsetY)+"px";
+  for(const slot of ["under1","1to3","over3"]){
+    const br=bucketEls[slot].getBoundingClientRect();
+    const near=x>=br.left-60&&x<=br.right+60&&y>=br.top-60&&y<=br.bottom+60;
+    bucketEls[slot].classList.toggle("hot", near);
+  }
+}
+function onPointerMove(e){if(!drag||e.pointerId!==drag.pointerId)return; if(Math.hypot(e.clientX-drag.startX,e.clientY-drag.startY)>5)drag.moved=true; moveDragged(e.clientX,e.clientY)}
+function onPointerUp(e){
+  if(!drag||e.pointerId!==drag.pointerId)return;
+  let targetSlot=null;
+  for(const slot of ["under1","1to3","over3"]){
+    const br=bucketEls[slot].getBoundingClientRect(),x=e.clientX,y=e.clientY;
+    if(x>=br.left-60&&x<=br.right+60&&y>=br.top-60&&y<=br.bottom+60){targetSlot=slot; break}
+  }
+  finishDrag(targetSlot);
+}
+function onPointerCancel(e){if(drag&&e.pointerId===drag.pointerId) finishDrag(null)}
+function finishDrag(targetSlot){
+  if(!drag)return; const d=drag,n=d.note; try{n.releasePointerCapture(d.pointerId)}catch(_){}
+  n.removeEventListener("pointermove",onPointerMove); ["under1","1to3","over3"].forEach(k=>bucketEls[k].classList.remove("hot"));
+  n.dataset.dragged=d.moved?"1":"0";
+  if(targetSlot){n.classList.remove("dragging"); n.style.left=n.style.top=n.style.height=""; drag=null; tryPlace(n,targetSlot)}
+  else{n.classList.remove("dragging"); n.style.left=n.style.top=n.style.height=""; n.classList.add("returning"); setTimeout(()=>n.classList.remove("returning"),190); drag=null; updateMessyUI()}
+}
+function pulseBucket(slot){const b=bucketEls[slot]; b.classList.remove("pulse"); void b.offsetWidth; b.classList.add("pulse"); setTimeout(()=>b.classList.remove("pulse"),360)}
+function showMistake(t){mistakeText.textContent=t; setTimeout(()=>{if(mistakeText.textContent===t)mistakeText.textContent=""},1300)}
+function tryPlace(note, slot){
+  const correct=note.dataset.slot;
+  if(correct!==slot){
+    showMistake("That note belongs in a different bucket.");
+    announce("Try a different bucket.");
+    return;
+  }
+  note.remove();
+  messyCounts[slot]++; clearedCount++; pulseBucket(slot); updateMessyUI();
+  const label=slot==="under1"?"Under 1 hour":slot==="1to3"?"1 to 3 hours":"Over 3 hours";
+  announce(label+" sorted. "+clearedCount+" of 24 notes placed.");
+  checkRoundEnd(performance.now());
+}
+function toggleBucketSelection(slot){
+  activeDestination = activeDestination===slot ? null : slot;
+  ["under1","1to3","over3"].forEach(k=>{
+    bucketEls[k].classList.toggle("active", activeDestination===k);
+    bucketEls[k].setAttribute("aria-pressed", activeDestination===k ? "true":"false");
+  });
+  if(activeDestination){
+    const name=slot==="under1"?"Under 1 hour":slot==="1to3"?"1 to 3 hours":"Over 3 hours";
+    bucketHelp.innerHTML=name+" bucket selected.<br>Tap a note to place it.";
+    announce(name+" bucket selected.");
+  }else{
+    bucketHelp.innerHTML="Drag a note to the correct bucket.<br>Or tap a bucket, then tap a note.";
+    announce("Bucket selection cleared.");
+  }
+}
+function checkRoundEnd(now){
+  if((phase!=="playing"&&phase!=="paused")||clearedCount!==TOTAL||structuredDoneAt==null)return;
+  roundEndMs=phase==="paused"?pauseStartedMs:now; lastTimerMs=currentElapsed(roundEndMs); clock.textContent=fmt(lastTimerMs); phase="closing"; cancelAnimationFrame(raf); pauseBanner.classList.add("hidden"); pauseBtn.disabled=true;
+  setTimeout(()=>{closingOverlay.classList.remove("hidden"); closingOverlay.querySelector("button")?.focus()},150);
+}
+function reveal(){
+  if(phase!=="closing")return; phase="reveal"; closingOverlay.classList.add("hidden");
+  structuredTimeEl.textContent=fmt(structuredDoneAt||0); playerTimeEl.textContent=fmt(lastTimerMs); revealOverlay.classList.remove("hidden"); $("playAgain").focus();
+}
+function playAgain(){
+  revealOverlay.classList.add("hidden"); resetState(); startScreen.classList.remove("hidden"); gameScreen.classList.add("hidden"); setReduced(reducedMotion); startBtn.focus();
+}
+
+startBtn.addEventListener("click",startRound); pauseBtn.addEventListener("click",pauseResume);
+motionStart.addEventListener("change",()=>setReduced(motionStart.checked)); motionGame.addEventListener("change",()=>setReduced(motionGame.checked));
+document.querySelectorAll(".answer-btn").forEach(b=>b.addEventListener("click",reveal)); $("playAgain").addEventListener("click",playAgain);
+["under1","1to3","over3"].forEach(slot=>bucketEls[slot].addEventListener("click",()=>toggleBucketSelection(slot)));
+
+const prefersReduced=window.matchMedia&&window.matchMedia("(prefers-reduced-motion: reduce)").matches;
+setReduced(prefersReduced); resetState();
+})();
+</script>
+</body>
+</html>

@@ -1,0 +1,513 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1,maximum-scale=1">
+<meta http-equiv="Content-Security-Policy" content="default-src 'none'; style-src 'unsafe-inline'; script-src 'unsafe-inline'; img-src data:; connect-src 'none'; media-src 'none'; object-src 'none'; frame-src 'none'; base-uri 'none'; form-action 'none'">
+<title>Pick the Right Slot</title>
+<style>
+:root{
+  --bg:#09111c;--panel:#111c2d;--panel2:#18263a;--line:#304963;--text:#f4f7fb;--muted:#aebdcd;
+  --gold:#f0bd4f;--gold2:#ffd977;--green:#6ed6a3;--red:#ef8186;--blue:#77c8ef;--purple:#b99af7;
+  --paper:#fff9ec;--ink:#222831;--shadow:#0007;
+}
+*{box-sizing:border-box}
+html,body{margin:0;min-height:100%;font-family:system-ui,-apple-system,BlinkMacSystemFont,"Segoe UI",sans-serif;background:
+radial-gradient(circle at 50% 0,#182b43 0,#09111c 58%);color:var(--text)}
+body{overflow-x:hidden}
+button{font:inherit;min-height:44px}
+button:focus-visible{outline:3px solid #fff;outline-offset:3px}
+.app{max-width:1180px;margin:0 auto;padding:16px}
+.hidden{display:none!important}
+.top{display:flex;justify-content:space-between;gap:12px;align-items:center;flex-wrap:wrap;margin-bottom:12px}
+.brand h1{margin:0;font-size:clamp(1.8rem,4vw,2.8rem)}
+.brand p{margin:4px 0 0;color:var(--muted)}
+.tools{display:flex;gap:8px;flex-wrap:wrap}
+.btn{border:1px solid #3c5875;background:#1b2d43;color:white;border-radius:12px;padding:9px 13px;font-weight:900;cursor:pointer}
+.btn.primary{background:linear-gradient(135deg,var(--gold),#e99350);border:0;color:#251706}
+.btn:disabled{opacity:.45;cursor:not-allowed}
+.game{display:grid;gap:12px}
+.card{background:linear-gradient(180deg,#132238,#0d1827);border:1px solid #2f465f;border-radius:20px;box-shadow:0 18px 50px #0004}
+.need-panel{padding:18px}
+.eyebrow{text-transform:uppercase;letter-spacing:.12em;color:#8da3ba;font-size:.72rem;font-weight:1000}
+.need-wrap{display:grid;grid-template-columns:1fr auto;gap:12px;align-items:start}
+.need-card{
+  margin-top:8px;background:var(--paper);color:var(--ink);border:2px solid #dfcfaa;border-radius:16px;padding:18px;
+  box-shadow:0 12px 26px #0004;cursor:grab;user-select:none;touch-action:none;position:relative;min-height:142px
+}
+.need-card.dragging{position:fixed!important;z-index:9999;width:min(620px,72vw);cursor:grabbing;transform:rotate(1deg) scale(1.02);box-shadow:0 24px 60px #0009;pointer-events:none}
+.need-tag{display:inline-block;background:#e8ddc5;border:1px solid #c5b38d;border-radius:999px;padding:5px 8px;font-size:.74rem;font-weight:900}
+.need-card h2{margin:10px 0 7px;font-size:clamp(1.25rem,3vw,1.7rem)}
+.need-card p{margin:0;color:#5a554b}
+.need-help{background:#091522;border:1px solid #2e455f;border-radius:13px;padding:12px;color:#c8d5e2;font-size:.86rem;min-width:210px}
+.need-help strong{display:block;color:#ffe09b;margin-bottom:4px}
+.slots{display:grid;grid-template-columns:repeat(4,1fr);gap:10px}
+.slot{
+  position:relative;border:2px solid #34506d;background:linear-gradient(180deg,#132337,#0e1928);border-radius:18px;
+  min-height:230px;padding:14px;text-align:center;cursor:pointer;transition:.16s;display:flex;flex-direction:column;align-items:center;justify-content:flex-start
+}
+.slot:hover,.slot.hot{border-color:var(--gold);transform:translateY(-2px)}
+.slot.selected{box-shadow:0 0 0 3px #f0bd4f55 inset;border-color:var(--gold)}
+.slot.correct{border-color:#3f9b70;background:linear-gradient(180deg,#153426,#10251d)}
+.slot.locked{opacity:.62}
+.icon{width:88px;height:88px;display:grid;place-items:center;margin:5px auto 10px;position:relative}
+.slot h3{
+  margin:2px 0 0;
+  font-size:1.28rem;
+  line-height:1.15;
+  font-weight:1000;
+  color:#f4f7fb;
+  letter-spacing:.01em
+}
+.slot p{
+  margin:8px 0 0;
+  color:#c4d1de;
+  font-size:.9rem;
+  line-height:1.35;
+  font-weight:650
+}
+.radio-icon .r{width:22px;height:22px;border:3px solid #b8c7d7;border-radius:50%;margin:4px auto}
+.radio-icon .r:first-child{background:#b8c7d7;box-shadow:inset 0 0 0 5px #172536}
+.check-icon{display:grid;grid-template-columns:repeat(2,30px);grid-template-rows:repeat(2,30px);gap:7px}
+.check-icon span{border:3px solid #b8c7d7;border-radius:5px;position:relative}
+.check-icon span:nth-child(1)::after,.check-icon span:nth-child(4)::after{content:"✓";position:absolute;inset:-9px 0 0 1px;color:var(--green);font-size:30px;font-weight:1000}
+.text-icon{width:78px;height:58px;border:3px solid #b8c7d7;border-radius:7px;position:relative}
+.text-icon:before,.text-icon:after{content:"";position:absolute;left:10px;right:10px;height:3px;background:#b8c7d7}
+.text-icon:before{top:17px}.text-icon:after{top:31px}
+.scale-icon{width:82px}
+.scale-line{height:5px;background:#b8c7d7;border-radius:99px;position:relative;margin-top:35px}
+.scale-line:before,.scale-line:after{content:"";position:absolute;top:-8px;width:3px;height:21px;background:#b8c7d7}
+.scale-line:before{left:0}.scale-line:after{right:0}
+.scale-dots{display:flex;justify-content:space-between;margin-top:-13px}
+.scale-dots span{width:13px;height:13px;border-radius:50%;background:#b8c7d7}
+.preview-panel{padding:16px 18px}
+.preview-head{display:flex;justify-content:space-between;gap:10px;align-items:center;flex-wrap:wrap}
+.preview-title{font-weight:1000}
+.preview-strip{margin-top:10px;border:1px solid #3b536d;background:#0a1522;border-radius:14px;padding:14px;min-height:138px;display:grid;place-items:center}
+.preview-placeholder{color:#8095aa;text-align:center}
+.preview-box{width:min(760px,100%);background:#f6f9fc;color:#1d2835;border-radius:12px;padding:14px;border:1px solid #cbd8e4}
+.preview-box strong{display:block;margin-bottom:7px}
+.shape-row{display:flex;gap:8px;align-items:center;flex-wrap:wrap}
+.shape-chip{border-radius:999px;padding:7px 10px;background:#dce7f1;color:#263445;font-weight:800;font-size:.82rem}
+.shape-chip.dim{opacity:.27;text-decoration:line-through}
+.feedback{margin-top:10px;border-radius:12px;padding:11px 12px;font-size:.9rem;line-height:1.4}
+.feedback.good{background:#123324;border:1px solid #326e50;color:#bdf1d3}
+.feedback.bad{background:#381b22;border:1px solid #74414b;color:#ffd0d2}
+.feedback.hint{background:#332b16;border:1px solid #6e5b29;color:#ffe7a3}
+.progress-card{padding:14px 16px}
+.progress-row{display:flex;justify-content:space-between;gap:8px;align-items:center;flex-wrap:wrap}
+.dots{display:flex;gap:7px;flex-wrap:wrap}
+.dot{width:18px;height:18px;border-radius:50%;background:#283d54;border:2px solid #44607d}
+.dot.done{background:var(--green);border-color:#7be5b0}.dot.current{background:var(--gold);border-color:#ffdf83;transform:scale(1.15)}
+.counter{color:#c5d1dd;font-weight:900}
+.start-overlay,.finish-overlay{position:fixed;inset:0;z-index:20000;background:#07101ae8;display:grid;place-items:center;padding:18px}
+.modal{width:min(780px,96%);background:#142238;border:1px solid #3b5672;border-radius:22px;padding:25px;text-align:center;box-shadow:0 30px 90px #000b}
+.modal h2{font-size:clamp(2rem,5vw,3.2rem);margin:8px 0}
+.modal p{color:#d0dbe6;max-width:650px;margin:10px auto}
+.rule-grid{display:grid;grid-template-columns:repeat(4,1fr);gap:8px;margin:18px 0}
+.rule-mini{background:#0b1725;border:1px solid #2e455e;border-radius:12px;padding:11px;font-size:.8rem}
+.rule-mini strong{display:block;color:#ffe09c;margin-bottom:3px}
+.finish-stat{font-size:4rem;font-weight:1000;color:var(--gold2);line-height:1}
+@media(max-width:860px){.slots{grid-template-columns:repeat(2,1fr)}.need-wrap{grid-template-columns:1fr}.need-help{min-width:0}.rule-grid{grid-template-columns:repeat(2,1fr)}}
+@media(max-width:520px){.app{padding:10px}.slots{grid-template-columns:1fr}.slot{min-height:180px}.rule-grid{grid-template-columns:1fr}.need-card.dragging{width:80vw}}
+@media(prefers-reduced-motion:reduce){*{scroll-behavior:auto!important;transition:none!important;animation:none!important}}
+</style>
+</head>
+<body>
+<div class="app">
+  <div class="top">
+    <div class="brand">
+      <h1>Pick the Right Slot</h1>
+      <p>Choose the question type that produces the data shape you need.</p>
+    </div>
+    <div class="tools">
+      <button class="btn" id="hearBtn" type="button">🔊 Hear it again</button>
+      <button class="btn" id="restartBtn" type="button">Restart</button>
+    </div>
+  </div>
+
+  <main class="game">
+    <section class="card need-panel">
+      <div class="eyebrow">Data need</div>
+      <div class="need-wrap">
+        <div class="need-card" id="needCard" tabindex="0">
+          <span class="need-tag" id="needTag">Need one answer</span>
+          <h2 id="needTitle"></h2>
+          <p id="needPrompt"></p>
+        </div>
+        <aside class="need-help">
+          <strong>Your job</strong>
+          First decide what shape the answers should have. Then choose the question type that makes that shape.
+        </aside>
+      </div>
+    </section>
+
+    <section class="slots" id="slots">
+      <button class="slot" type="button" data-type="multiple">
+        <div class="icon radio-icon" aria-hidden="true"><div class="r"></div><div class="r"></div><div class="r"></div></div>
+        <h3>Multiple choice</h3>
+        <p>One answer from a list</p>
+      </button>
+
+      <button class="slot" type="button" data-type="checkbox">
+        <div class="icon check-icon" aria-hidden="true"><span></span><span></span><span></span><span></span></div>
+        <h3>Checkboxes</h3>
+        <p>Many answers from a list</p>
+      </button>
+
+      <button class="slot" type="button" data-type="short">
+        <div class="icon" aria-hidden="true"><div class="text-icon"></div></div>
+        <h3>Short answer</h3>
+        <p>Words or a typed number</p>
+      </button>
+
+      <button class="slot" type="button" data-type="scale">
+        <div class="icon scale-icon" aria-hidden="true"><div class="scale-line"></div><div class="scale-dots"><span></span><span></span><span></span><span></span><span></span></div></div>
+        <h3>Linear scale</h3>
+        <p>One number on a fixed scale</p>
+      </button>
+    </section>
+
+    <section class="card preview-panel">
+      <div class="preview-head">
+        <div class="preview-title">Data preview</div>
+        <div style="color:#92a7bc;font-size:.83rem">The shape produced by your last choice</div>
+      </div>
+      <div class="preview-strip" id="preview">
+        <div class="preview-placeholder">Drop the data-need card onto a question type.</div>
+      </div>
+      <div id="feedback"></div>
+    </section>
+
+    <section class="card progress-card">
+      <div class="progress-row">
+        <div class="dots" id="dots"></div>
+        <div class="counter"><span id="roundNum">1</span> / 10</div>
+      </div>
+    </section>
+  </main>
+</div>
+
+<div class="start-overlay" id="startOverlay">
+  <div class="modal">
+    <div class="eyebrow">P4 data collection challenge</div>
+    <h2>Pick the Right Slot</h2>
+    <p>The answer shape comes first. Your job is to choose the question type that will actually produce it.</p>
+    <div class="rule-grid">
+      <div class="rule-mini"><strong>Multiple choice</strong>One answer</div>
+      <div class="rule-mini"><strong>Checkboxes</strong>Many answers</div>
+      <div class="rule-mini"><strong>Short answer</strong>Free text / typed number</div>
+      <div class="rule-mini"><strong>Linear scale</strong>One fixed rating</div>
+    </div>
+    <p>Drag the card to a slot, or click the card and then click a slot.</p>
+    <button class="btn primary" id="startBtn" type="button">Start</button>
+  </div>
+</div>
+
+<div class="finish-overlay hidden" id="finishOverlay">
+  <div class="modal">
+    <div class="eyebrow">Round complete</div>
+    <div class="finish-stat">10 / 10</div>
+    <h2>You matched every data shape.</h2>
+    <p>The key idea: <strong>question type is not arbitrary.</strong> Decide what kind of answer you need first, then choose the type that produces that shape.</p>
+    <button class="btn primary" id="againBtn" type="button">Play again</button>
+  </div>
+</div>
+
+<script>
+(() => {
+"use strict";
+
+const TYPES = {
+  multiple:{name:"Multiple choice",shape:"one choice"},
+  checkbox:{name:"Checkboxes",shape:"many choices"},
+  short:{name:"Short answer",shape:"free text or typed number"},
+  scale:{name:"Linear scale",shape:"one number on a fixed scale"}
+};
+
+const CARDS = [
+  {
+    tag:"Need one choice",
+    title:"Which device do you use most at school?",
+    prompt:"I need exactly one device for each student.",
+    correct:"multiple",
+    sample:["Chromebook","iPad","Desktop"],
+    wrong:{
+      checkbox:"Checkboxes can produce several devices for one student. That makes 'most used' unclear because more than one can be selected.",
+      short:"Short answer creates many spellings and labels — 'Chromebook', 'chrome book', 'laptop' — instead of one clean category.",
+      scale:"A rating number does not tell us which device they use."
+    },
+    hint:"How many devices should each student choose?"
+  },
+  {
+    tag:"Need many choices",
+    title:"Which school apps do you use each week?",
+    prompt:"I need every app that applies, not just one.",
+    correct:"checkbox",
+    sample:["Google Classroom","Canva","Docs","Slides"],
+    wrong:{
+      multiple:"Multiple choice keeps only one app. The other apps disappear even if the student uses them.",
+      short:"Short answer can contain many apps, but they arrive as messy text that must be separated and cleaned by hand.",
+      scale:"A rating number cannot record the list of apps used."
+    },
+    hint:"Does the student need to choose one app, or all the apps that apply?"
+  },
+  {
+    tag:"Need a number",
+    title:"How confident are you using a spreadsheet?",
+    prompt:"I want one rating from 1 to 5 for every student.",
+    correct:"scale",
+    sample:["1","2","3","4","5"],
+    wrong:{
+      multiple:"Multiple choice can imitate 1–5, but the data no longer behaves like a clearly ordered rating scale.",
+      checkbox:"Checkboxes let students select several ratings at once — 2 and 5 together makes no sense here.",
+      short:"Short answer allows 'pretty good', '4ish', or 'five', which makes the rating messy instead of fixed."
+    },
+    hint:"Should each student give one number from a fixed range?"
+  },
+  {
+    tag:"Need free text",
+    title:"What is one thing you would improve in our ICT lessons?",
+    prompt:"I want students to write their own idea in their own words.",
+    correct:"short",
+    sample:["More robotics","More time to practise","Harder coding challenges"],
+    wrong:{
+      multiple:"Multiple choice only allows ideas the teacher predicted beforehand. New ideas cannot appear.",
+      checkbox:"Checkboxes still limit students to the teacher's list, even if they can choose several.",
+      scale:"A number tells us how much, not what they would improve."
+    },
+    hint:"Do you already know every possible answer?"
+  },
+  {
+    tag:"Need one choice",
+    title:"Which lesson topic was your favourite this term?",
+    prompt:"I need one favourite topic from the class list.",
+    correct:"multiple",
+    sample:["Networks","Data","Robotics","3D design"],
+    wrong:{
+      checkbox:"Checkboxes can produce several favourites. Then we no longer have one favourite per student.",
+      short:"Short answer creates inconsistent names for the same topic and makes counting harder.",
+      scale:"A rating can score a topic, but it does not identify which topic was the favourite."
+    },
+    hint:"The word 'favourite' usually asks for how many choices?"
+  },
+  {
+    tag:"Need many choices",
+    title:"Which actions help protect an online account?",
+    prompt:"I want students to select ALL safe actions they recognise.",
+    correct:"checkbox",
+    sample:["Strong password","2-step verification","Log out on shared devices"],
+    wrong:{
+      multiple:"Multiple choice only lets them keep one safe action. The other correct actions disappear.",
+      short:"Short answer makes students remember and type the actions themselves, producing incomplete and inconsistent lists.",
+      scale:"A number cannot show which safety actions they know."
+    },
+    hint:"The word 'ALL' tells you something important. How many answers might be correct?"
+  },
+  {
+    tag:"Need a number",
+    title:"How useful was today's activity?",
+    prompt:"I want one rating from 1 = not useful to 5 = very useful.",
+    correct:"scale",
+    sample:["1","2","3","4","5"],
+    wrong:{
+      multiple:"A list of words could work, but it loses the clean fixed numeric scale requested for comparison.",
+      checkbox:"Several ratings at once would destroy the meaning of one overall rating.",
+      short:"Students might type 'good', '4', or 'very useful', producing different-shaped answers."
+    },
+    hint:"Is this asking for words, or one position on a fixed rating scale?"
+  },
+  {
+    tag:"Need free text",
+    title:"Describe the bug you found.",
+    prompt:"I need a short explanation because the possible bugs are not known in advance.",
+    correct:"short",
+    sample:["The button does nothing","Score resets after level 2","Text overlaps the image"],
+    wrong:{
+      multiple:"A fixed list can only capture bugs the teacher already expected. Unexpected bugs disappear.",
+      checkbox:"Even several fixed choices cannot describe a new bug that is not on the list.",
+      scale:"A severity number might rate the bug, but it cannot describe what the bug is."
+    },
+    hint:"Can the teacher predict every possible bug before the form is sent?"
+  },
+  {
+    tag:"Need one choice",
+    title:"Which transport do you usually take to school?",
+    prompt:"I need one main transport category per student.",
+    correct:"multiple",
+    sample:["Car","Bus","Walk","Bicycle"],
+    wrong:{
+      checkbox:"Checkboxes may produce several transports for one student, so the main transport becomes unclear.",
+      short:"Free text creates variants like 'car', 'mum drives me', and 'family car' that must be cleaned.",
+      scale:"A number does not identify a transport category."
+    },
+    hint:"The word 'usually' asks for one main answer or several?"
+  },
+  {
+    tag:"Need many choices",
+    title:"Which features should our class game include?",
+    prompt:"Students may want several features, and I need every feature they choose.",
+    correct:"checkbox",
+    sample:["Timer","Levels","Sound effects","Teams","Power-ups"],
+    wrong:{
+      multiple:"Multiple choice forces one feature even when the student wants several. Useful preferences are lost.",
+      short:"Free text can collect several ideas but produces messy lists that must be split and standardised manually.",
+      scale:"A rating gives a number, not the set of features requested."
+    },
+    hint:"Could one student reasonably want more than one feature?"
+  }
+];
+
+const $ = id => document.getElementById(id);
+const needCard=$("needCard"),needTag=$("needTag"),needTitle=$("needTitle"),needPrompt=$("needPrompt"),
+preview=$("preview"),feedback=$("feedback"),dots=$("dots"),roundNum=$("roundNum"),
+hearBtn=$("hearBtn"),restartBtn=$("restartBtn"),startOverlay=$("startOverlay"),finishOverlay=$("finishOverlay");
+
+let index=0, misses=0, selectedCard=false, dragging=null, locked=false;
+
+function renderDots(){
+  dots.innerHTML="";
+  for(let i=0;i<CARDS.length;i++){
+    const d=document.createElement("div");
+    d.className="dot"+(i<index?" done":i===index?" current":"");
+    dots.appendChild(d);
+  }
+  roundNum.textContent=String(Math.min(index+1,CARDS.length));
+}
+
+function renderCard(){
+  if(index>=CARDS.length){finishOverlay.classList.remove("hidden");return}
+  const c=CARDS[index];
+  needTag.textContent=c.tag;needTitle.textContent=c.title;needPrompt.textContent=c.prompt;
+  misses=0;selectedCard=false;locked=false;
+  needCard.classList.remove("dragging");
+  needCard.style.left=needCard.style.top=needCard.style.width="";
+  document.querySelectorAll(".slot").forEach(s=>s.classList.remove("hot","selected","correct","locked"));
+  preview.innerHTML='<div class="preview-placeholder">Drop the data-need card onto a question type.</div>';
+  feedback.innerHTML="";
+  renderDots();
+}
+
+function shapePreview(type, card, correct){
+  if(type==="multiple"){
+    const items=card.sample.slice(0,Math.min(4,card.sample.length));
+    return `<div class="preview-box"><strong>${TYPES[type].name} produces: one selected category</strong><div class="shape-row">${
+      items.map((x,i)=>`<span class="shape-chip ${(!correct && card.correct==="checkbox" && i>0)?"dim":""}">${i===0?"◉":"○"} ${x}</span>`).join("")
+    }</div></div>`;
+  }
+  if(type==="checkbox"){
+    const items=card.sample.slice(0,Math.min(5,card.sample.length));
+    return `<div class="preview-box"><strong>${TYPES[type].name} produces: several selected categories</strong><div class="shape-row">${
+      items.map((x,i)=>`<span class="shape-chip">${i%2===0?"☑":"☐"} ${x}</span>`).join("")
+    }</div></div>`;
+  }
+  if(type==="short"){
+    const sample=card.sample[0]||"student's own words";
+    return `<div class="preview-box"><strong>${TYPES[type].name} produces: free text</strong><div style="border:1px solid #aebdca;border-radius:8px;padding:10px;background:white">${sample}</div></div>`;
+  }
+  return `<div class="preview-box"><strong>${TYPES[type].name} produces: one fixed rating</strong><div class="shape-row">${["1","2","3","4","5"].map((x,i)=>`<span class="shape-chip">${i===3?"●":"○"} ${x}</span>`).join("")}</div></div>`;
+}
+
+function attempt(type){
+  if(locked)return;
+  const c=CARDS[index];
+  preview.innerHTML=shapePreview(type,c,type===c.correct);
+  if(type===c.correct){
+    locked=true;
+    document.querySelector(`.slot[data-type="${type}"]`).classList.add("correct");
+    document.querySelectorAll(".slot").forEach(s=>s.classList.add("locked"));
+    feedback.innerHTML=`<div class="feedback good"><strong>✓ This is the shape you asked for.</strong><br>${TYPES[type].name} gives you <strong>${TYPES[type].shape}</strong>, which matches the data need.</div>`;
+    setTimeout(()=>{index++;renderCard()},1400);
+  }else{
+    misses++;
+    let html=`<div class="feedback bad"><strong>That produces the wrong shape.</strong><br>${c.wrong[type]}</div>`;
+    if(misses>=2) html+=`<div class="feedback hint"><strong>Hint:</strong> ${c.hint}</div>`;
+    feedback.innerHTML=html;
+  }
+}
+
+function selectCard(){
+  if(locked)return;
+  selectedCard=!selectedCard;
+  needCard.style.boxShadow=selectedCard?"0 0 0 4px #f0bd4f,0 12px 26px #0004":"0 12px 26px #0004";
+  document.querySelectorAll(".slot").forEach(s=>s.classList.toggle("selected",selectedCard));
+}
+
+function onPointerDown(e){
+  if(locked)return;
+  const r=needCard.getBoundingClientRect();
+  dragging={pointerId:e.pointerId,dx:e.clientX-r.left,dy:e.clientY-r.top,startX:e.clientX,startY:e.clientY,moved:false};
+  needCard.setPointerCapture(e.pointerId);
+  needCard.classList.add("dragging");
+  needCard.style.width=r.width+"px";
+  needCard.style.left=r.left+"px";needCard.style.top=r.top+"px";
+  moveDrag(e.clientX,e.clientY);
+}
+function moveDrag(x,y){
+  if(!dragging)return;
+  needCard.style.left=(x-dragging.dx)+"px";needCard.style.top=(y-dragging.dy)+"px";
+  document.querySelectorAll(".slot").forEach(s=>{
+    const r=s.getBoundingClientRect();
+    s.classList.toggle("hot",x>=r.left&&x<=r.right&&y>=r.top&&y<=r.bottom);
+  });
+}
+function onPointerMove(e){
+  if(!dragging||e.pointerId!==dragging.pointerId)return;
+  if(Math.hypot(e.clientX-dragging.startX,e.clientY-dragging.startY)>5)dragging.moved=true;
+  moveDrag(e.clientX,e.clientY);
+}
+function endDrag(e){
+  if(!dragging||e.pointerId!==dragging.pointerId)return;
+  let target=null;
+  document.querySelectorAll(".slot").forEach(s=>{
+    const r=s.getBoundingClientRect();
+    if(e.clientX>=r.left&&e.clientX<=r.right&&e.clientY>=r.top&&e.clientY<=r.bottom)target=s.dataset.type;
+    s.classList.remove("hot");
+  });
+  try{needCard.releasePointerCapture(dragging.pointerId)}catch(_){}
+  const moved=dragging.moved; dragging=null;
+  needCard.classList.remove("dragging"); needCard.style.left=needCard.style.top=needCard.style.width="";
+  if(target)attempt(target);
+  else if(!moved)selectCard();
+}
+
+needCard.addEventListener("pointerdown",onPointerDown);
+needCard.addEventListener("pointermove",onPointerMove);
+needCard.addEventListener("pointerup",endDrag);
+needCard.addEventListener("pointercancel",endDrag);
+needCard.addEventListener("keydown",e=>{if(e.key==="Enter"||e.key===" "){e.preventDefault();selectCard()}});
+
+document.querySelectorAll(".slot").forEach(slot=>{
+  slot.addEventListener("click",()=>{
+    if(selectedCard){selectedCard=false;needCard.style.boxShadow="0 12px 26px #0004";document.querySelectorAll(".slot").forEach(s=>s.classList.remove("selected"));attempt(slot.dataset.type)}
+    else attempt(slot.dataset.type);
+  });
+});
+
+hearBtn.addEventListener("click",()=>{
+  const c=CARDS[index];
+  if(!c)return;
+  const text=c.title+". "+c.prompt;
+  if("speechSynthesis" in window && "SpeechSynthesisUtterance" in window){
+    try{
+      speechSynthesis.cancel();
+      const u=new SpeechSynthesisUtterance(text);
+      u.rate=.92; speechSynthesis.speak(u);
+    }catch(_){}
+  }else{
+    feedback.innerHTML=`<div class="feedback hint"><strong>Read aloud:</strong> ${text}</div>`;
+  }
+});
+
+function restart(){
+  index=0;misses=0;selectedCard=false;locked=false;finishOverlay.classList.add("hidden");renderCard();
+}
+restartBtn.addEventListener("click",restart);
+$("againBtn").addEventListener("click",restart);
+$("startBtn").addEventListener("click",()=>{startOverlay.classList.add("hidden");renderCard()});
+
+renderCard();
+})();
+</script>
+</body>
+</html>

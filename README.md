@@ -20,9 +20,10 @@ Hosted on GitHub Pages.
 ├── activities/
 │   ├── _template.html       → starter file for new activities
 │   ├── networks/            → P4 Week 4 network games
+│   ├── functions/           → P4 function games
+│   ├── data/                → P4 data games
 │   ├── ui-ux/               → P4 UI/UX good-vs-bad examples
 │   └── wordwall/            → Wordwall activity list
-├── ui-ux-examples/          → redirect stubs (old URLs still work)
 └── wordwall/                → redirect stub (old URL still works)
 ```
 
@@ -147,15 +148,18 @@ All activity pages should link it:
 <link rel="stylesheet" href="../../assets/styles.css">
 ```
 
-The three network games are deliberately **self-contained** (no shared CSS,
-no external requests) so they keep working offline. That's fine — they simply
+The network, function, and data games are deliberately **self-contained** (no shared
+CSS, no external requests) so they keep working offline. That's fine — they simply
 don't participate in the design system.
 
 ---
 
 ## Old URLs
 
-Moving files into `activities/` changed some URLs. The old paths still work:
-`ui-ux-examples/` and `wordwall/` contain redirect stubs pointing to the new
-locations. Once you're confident nothing links to the old paths any more,
-these stubs can be deleted.
+Moving files into `activities/` changed some URLs.
+
+`ui-ux-examples/` has been removed — those old URLs no longer resolve. The
+`wordwall/` redirect stub is still in place, pointing at
+`activities/wordwall/index.html`. Once you're confident nothing links to the old
+path any more, that stub can go too. If an old link does surface, the deleted
+stubs are still in git history:
