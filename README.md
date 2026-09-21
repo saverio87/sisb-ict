@@ -19,10 +19,10 @@ Hosted on GitHub Pages.
 │       └── activities.json  → the catalogue: every activity + its tags
 ├── activities/
 │   ├── _template.html       → starter file for new activities
-│   ├── networks/            → P4 Week 4 network games
-│   ├── functions/           → P4 function games
-│   ├── data/                → P4 data games
-│   ├── ui-ux/               → P4 UI/UX good-vs-bad examples
+│   ├── networks/            → network games
+│   ├── functions/           → function games
+│   ├── data/                → data games
+│   ├── ui-ux/               → UI/UX good-vs-bad examples
 │   └── wordwall/            → Wordwall activity list
 └── wordwall/                → redirect stub (old URL still works)
 ```
@@ -47,15 +47,13 @@ If the topic is new, create the folder. Use lowercase, hyphens instead of spaces
 
 ```json
 {
-  "id": "my-new-game-week5",
+  "id": "my-new-game",
   "title": "My New Game",
   "description": "One sentence telling students what they'll do.",
   "path": "activities/networks/my-new-game.html",
-  "year_levels": ["P4"],
+  "year_levels": ["upper primary"],
   "topic": "Networks",
   "type": "game",
-  "week": 5,
-  "term": 1,
   "tags": ["router", "packets"],
   "external": false
 }
@@ -67,10 +65,9 @@ If the topic is new, create the folder. Use lowercase, hyphens instead of spaces
 | `title` | Shown on the card. |
 | `description` | One line. Keep it short — it truncates on narrow screens. |
 | `path` | Path **from the site root**. |
-| `year_levels` | Array — use several if it suits multiple years, e.g. `["P3","P4"]`. |
+| `year_levels` | Array — `"lower primary"` or `"upper primary"` (or both). |
 | `topic` | Groups activities together. New topics create a new filter chip automatically. |
 | `type` | `game`, `activity`, `website`, `video`, `worksheet`, `slides`, or `other`. |
-| `week` / `term` | Optional. Use `null` if not tied to a week. |
 | `tags` | Free-form keywords. The first three show on the card. |
 | `external` | `true` for off-site links (opens a new tab), `false` for local files. |
 
@@ -124,15 +121,16 @@ GitHub Pages redeploys within a minute or so.
 
 The hub filters on three axes:
 
-- **Year level** — P1 through P6
+- **Year level** — lower primary, upper primary
 - **Topic** — Networks, UI/UX, ...
 - **Type** — game, activity, video, ...
 
-Matching is **OR within a group**, **AND across groups**: selecting `P4` + `Networks`
-shows P4 network activities; adding `P5` widens it to P4 *or* P5 network activities.
+Matching is **OR within a group**, **AND across groups**: selecting `upper primary` + `Networks`
+shows upper primary network activities; adding `lower primary` widens it to either year level
+in Networks.
 
 Filtered views are shareable — the URL updates as you filter, e.g.
-`.../#year=P4&topic=Networks`. Copy the address bar to send someone a specific view.
+`.../#year=upper%20primary&topic=Networks`. Copy the address bar to send someone a specific view.
 
 ---
 

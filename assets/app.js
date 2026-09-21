@@ -21,7 +21,7 @@
   };
 
   /* Year levels always shown in this order, regardless of data order. */
-  var YEAR_ORDER = ['P1', 'P2', 'P3', 'P4', 'P5', 'P6'];
+  var YEAR_ORDER = ['lower primary', 'upper primary'];
 
   /* Filter state. Within a group the match is OR; across groups it is AND. */
   var state = { year: [], topic: [], type: [] };
@@ -96,7 +96,6 @@
 
   function cardHtml(a) {
     var meta = TYPE_META[a.type] || TYPE_META.other;
-    var weekLabel = a.week ? 'Week ' + a.week : (a.term ? 'Term ' + a.term : '');
     var target = a.external ? ' target="_blank" rel="noopener"' : '';
 
     var tags = []
@@ -112,7 +111,6 @@
                '<span class="type-badge" data-type="' + escapeHtml(a.type) + '">' +
                  meta.icon + ' ' + escapeHtml(meta.label) +
                '</span>' +
-               (weekLabel ? '<span class="card-week">' + escapeHtml(weekLabel) + '</span>' : '') +
              '</div>' +
              '<div class="card-title">' + escapeHtml(a.title) + '</div>' +
              '<div class="card-desc">' + escapeHtml(a.description || '') + '</div>' +
