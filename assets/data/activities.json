@@ -86,5 +86,16 @@
     "type": "activity",
     "tags": ["wordwall", "vocabulary", "review", "quiz", "weeks 1-3"],
     "external": false
+  },
+  {
+    "id": "teacher-context-toolkit",
+    "title": "Teacher Context Toolkit",
+    "description": "Build reusable teaching context packs and task briefs for working with AI — entirely in your browser.",
+    "path": "activities/teacher-tools/teacher-context-toolkit.html",
+    "year_levels": ["lower primary", "upper primary"],
+    "topic": "Teacher Tools",
+    "type": "tool",
+    "tags": ["teacher resource", "AI context", "lesson planning", "prompting", "productivity"],
+    "external": false
   }
 ]

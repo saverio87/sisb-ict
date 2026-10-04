@@ -1,81 +1,111 @@
-<!DOCTYPE html>
+<!doctype html>
 <html lang="en">
 <head>
-  <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>SISB ICT — Activity Hub</title>
-  <meta name="description" content="A growing library of ICT activities, games, and resources for SISB Primary students.">
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>SISB ICT — Digital Lab</title>
+  <meta name="description" content="Interactive ICT games, challenges, and resources for SISB Primary students.">
 
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600;700;800&display=swap" rel="stylesheet">
-
+  <link href="https://fonts.googleapis.com/css2?family=DM+Mono:wght@400;500&family=Space+Grotesk:wght@400;500;600;700&display=swap" rel="stylesheet">
   <link rel="stylesheet" href="assets/styles.css">
 </head>
-<body>
-  <div class="container">
+<body class="hub-page">
+  <div class="lab-layout">
+    <aside class="lab-sidebar">
+      <a class="lab-logo" href="./" aria-label="SISB ICT Digital Lab home">
+        <span class="lab-logo-mark">ICT</span>
+        <span>SISB Lab<small>Activity system</small></span>
+      </a>
 
-    <header class="hero">
-      <span class="hero-eyebrow">SISB Primary · ICT</span>
-      <h1>Activity Hub</h1>
-      <p class="subtitle">
-        Every game, activity, and resource for our ICT lessons — in one place.
-        Filter by year level, topic, or type to find what you need.
-      </p>
-      <div class="hero-stats">
-        <span><strong id="statCount">—</strong> activities</span>
-        <span><strong>Lower & Upper Primary</strong></span>
-        <span>Updated weekly</span>
+      <p class="side-label">Explore by topic</p>
+      <nav class="topic-nav" id="topicNav" aria-label="Filter activities by topic">
+        <!-- Topic filters are generated from activities.json -->
+      </nav>
+
+      <a class="featured-card" id="featuredCard" href="#">
+        <small>Start here</small>
+        <strong id="featuredTitle">Loading activity…</strong>
+        <span>Launch featured module ↗</span>
+      </a>
+    </aside>
+
+    <main class="lab-main">
+      <div class="lab-topbar">
+        <span class="system-status">System online · Ready to learn</span>
+        <label class="lab-search">
+          <svg viewBox="0 0 24 24" aria-hidden="true">
+            <circle cx="11" cy="11" r="7"></circle>
+            <path d="m16 16 5 5"></path>
+          </svg>
+          <input id="searchInput" type="search" placeholder="Search the activity system…" aria-label="Search activities">
+        </label>
       </div>
-    </header>
 
-    <div class="filter-bar" id="filterBar">
-      <button class="filter-toggle" id="filterToggle" type="button"
-              aria-expanded="false" aria-controls="filterGroups">
-        <span>⚙️ Filters</span>
-        <span class="filter-toggle-count" id="filterToggleCount" hidden>0</span>
-      </button>
+      <section class="lab-hero">
+        <div class="hero-copy">
+          <span class="hero-label">// SISB Primary ICT</span>
+          <h1>Enter the<br><span>Digital Lab</span></h1>
+          <p>Interactive challenges for understanding the systems, data, and ideas behind the technology we use every day.</p>
+        </div>
 
-      <div class="filter-groups" id="filterGroups">
-        <!-- Filter chips are generated from activities.json -->
-      </div>
+        <div class="signal-readout" aria-label="Activity library statistics">
+          <div class="readout-head">
+            <span>Learning signal</span>
+            <span>Live</span>
+          </div>
+          <div class="signal-pulse" aria-hidden="true">
+            <svg viewBox="0 0 280 70" preserveAspectRatio="none">
+              <path d="M0 42h35l11-19 14 35 19-48 22 52 15-20h38l12-11 13 20 18-34 15 25h68"></path>
+            </svg>
+          </div>
+          <div class="lab-stats">
+            <div><strong id="statCount">—</strong><small>Activities</small></div>
+            <div><strong id="topicCount">—</strong><small>Topics</small></div>
+            <div><strong>∞</strong><small>Ideas</small></div>
+          </div>
+        </div>
+      </section>
 
-      <button class="filter-clear" id="filterClear" type="button" hidden>Clear all</button>
-    </div>
+      <section class="mission-section" aria-labelledby="missionTitle">
+        <div class="section-head">
+          <div>
+            <span class="section-code">LIBRARY / ALL MODULES</span>
+            <h2 id="missionTitle">Available missions</h2>
+          </div>
+          <span class="result-count" id="resultCount" aria-live="polite"></span>
+        </div>
 
-    <p class="result-count" id="resultCount"></p>
+        <div class="filter-bar" id="filterBar">
+          <button class="filter-toggle" id="filterToggle" type="button" aria-expanded="false" aria-controls="filterGroups">
+            Refine results <span class="filter-toggle-count" id="filterToggleCount" hidden>0</span>
+          </button>
+          <div class="filter-groups" id="filterGroups">
+            <!-- Year and type filters are generated from activities.json -->
+          </div>
+          <button class="filter-clear" id="filterClear" type="button" hidden>Clear filters</button>
+        </div>
 
-    <div class="card-grid" id="cardGrid">
-      <!-- Activity cards are rendered from activities.json -->
-    </div>
+        <div class="mission-grid" id="cardGrid">
+          <!-- Activity cards are rendered from activities.json -->
+        </div>
 
-    <noscript>
-      <div class="empty-state">
-        <span class="empty-emoji">🔌</span>
-        <p>This page needs JavaScript to load the activity list.<br>
-        You can still reach the activity folders directly.</p>
-      </div>
-    </noscript>
+        <noscript>
+          <div class="empty-state">
+            <span class="empty-code">JS / OFFLINE</span>
+            <p>This activity library needs JavaScript to load its catalogue.</p>
+          </div>
+        </noscript>
+      </section>
 
-    <footer>
-      <span>Built for SISB Primary ICT classes.</span>
-      <a href="README.md">How to add an activity →</a>
-    </footer>
-
+      <footer class="lab-footer">
+        <span>SISB Primary / Information &amp; Communication Technology</span>
+        <a href="README.md">Teacher guide ↗</a>
+      </footer>
+    </main>
   </div>
 
   <script src="assets/app.js"></script>
-  <script>
-    // Reflect the real activity count in the hero once the data loads.
-    window.addEventListener('load', function () {
-      var grid = document.getElementById('cardGrid');
-      var stat = document.getElementById('statCount');
-      var tick = setInterval(function () {
-        var m = document.getElementById('resultCount').textContent.match(/of\s+(\d+)/);
-        if (m) { stat.textContent = m[1]; clearInterval(tick); }
-      }, 60);
-      setTimeout(function () { clearInterval(tick); }, 4000);
-    });
-  </script>
 </body>
 </html>

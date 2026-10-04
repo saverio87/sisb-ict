@@ -1,0 +1,545 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Teacher Context Toolkit</title>
+<meta name="description" content="Build reusable teaching context packs and task briefs for use with AI tools.">
+<style>
+:root{
+  --bg:#f5efe5;--bg2:#fbf7f0;--card:#fffdf9;--ink:#3c2b22;--muted:#84766d;
+  --line:#e9ded1;--accent:#d5962c;--accent2:#b77714;--soft:#fff4df;--danger:#8f4d3f;
+  --success:#4c6a3b;--shadow:0 16px 38px rgba(71,48,31,.08);--radius:24px
+}
+*{box-sizing:border-box}
+html{scroll-behavior:smooth}
+body{margin:0;font-family:"Avenir Next","Segoe UI",Inter,system-ui,-apple-system,sans-serif;color:var(--ink);
+background:radial-gradient(circle at 10% 0%,rgba(222,169,70,.18),transparent 28rem),
+radial-gradient(circle at 100% 15%,rgba(166,126,93,.13),transparent 30rem),
+linear-gradient(180deg,var(--bg2),var(--bg));min-height:100vh}
+button,input,textarea,select{font:inherit;color:inherit}
+.shell{max-width:1320px;margin:0 auto;padding:26px}
+.topbar{display:flex;gap:20px;align-items:flex-start;justify-content:space-between;margin-bottom:22px}
+.brand h1{margin:0;font-size:clamp(30px,4vw,52px);letter-spacing:-.045em;line-height:1}
+.brand p{margin:10px 0 0;color:var(--muted);max-width:760px;line-height:1.55}
+.badge{display:inline-flex;align-items:center;gap:8px;background:var(--soft);border:1px solid #f2d29a;color:#72500f;padding:8px 12px;border-radius:999px;font-size:13px;font-weight:800;margin-bottom:10px}
+.btn{border:0;border-radius:999px;padding:11px 17px;font-weight:850;cursor:pointer;transition:.15s;text-decoration:none;display:inline-flex;align-items:center;justify-content:center}
+.btn:hover{transform:translateY(-1px)}
+.btn.primary{background:var(--accent);color:#2d2118}.btn.primary:hover{background:#dfa23c}
+.btn.secondary{background:#f1e8de}.btn.ghost{background:transparent;border:1px solid #dbcdbc}
+.btn.danger{background:#f4e2dc;color:var(--danger)}
+.btn.small{padding:8px 12px;font-size:13px}
+.top-actions{display:flex;gap:9px;align-items:center;flex-wrap:wrap}
+.card{background:rgba(255,253,249,.96);border:1px solid rgba(225,212,197,.95);border-radius:var(--radius);box-shadow:var(--shadow)}
+.dashboard-head{padding:22px 24px;margin-bottom:18px;display:flex;justify-content:space-between;gap:18px;align-items:center}
+.dashboard-head p{margin:3px 0 0;color:var(--muted);line-height:1.5}
+.progress-pill{background:#f6eee5;border:1px solid #e7d9cb;border-radius:999px;padding:8px 12px;font-size:13px;font-weight:850;white-space:nowrap}
+.tool-grid{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:16px}
+.tool-card{padding:20px;display:flex;flex-direction:column;min-height:230px;position:relative;overflow:hidden}
+.tool-card:before{content:"";position:absolute;width:110px;height:110px;border-radius:50%;right:-30px;top:-38px;background:rgba(213,150,44,.08)}
+.icon{font-size:28px;margin-bottom:12px}
+.tool-card h3{margin:0;font-size:20px;letter-spacing:-.02em}
+.tool-card p{color:var(--muted);line-height:1.48;font-size:14px;margin:8px 0 16px;flex:1}
+.meta{display:flex;gap:7px;flex-wrap:wrap;margin-bottom:14px}
+.chip{font-size:11px;font-weight:850;padding:6px 9px;border-radius:999px;background:#f6eee5;border:1px solid #e7d9cb}
+.chip.done{background:#edf4e8;border-color:#cedfc5;color:var(--success)}
+.tool-actions{display:flex;justify-content:space-between;gap:9px;align-items:center}
+.section-title{margin:30px 0 12px;font-size:14px;text-transform:uppercase;letter-spacing:.12em;color:var(--muted)}
+.utility-grid{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:16px}
+.utility-card{padding:20px;display:flex;gap:16px;align-items:flex-start}
+.utility-card .icon{margin:0}.utility-card h3{margin:0 0 5px}.utility-card p{margin:0 0 12px;color:var(--muted);line-height:1.45}
+.note{margin-top:18px;padding:15px 17px;background:var(--soft);border:1px solid #f0d39f;border-radius:17px;color:#674a18;font-size:13px;line-height:1.5}
+
+.view{display:none}.view.active{display:block}
+.editor-layout{display:grid;grid-template-columns:minmax(0,1fr) minmax(390px,.78fr);gap:20px;align-items:start}
+.editor{padding:24px}.preview{position:sticky;top:16px;overflow:hidden}
+.editor-head{display:flex;align-items:flex-start;justify-content:space-between;gap:12px;margin-bottom:8px}
+.editor-head h2{font-size:30px;margin:2px 0 5px;letter-spacing:-.03em}
+.editor-head p{margin:0;color:var(--muted);line-height:1.48}
+.step-meta{display:flex;justify-content:space-between;color:var(--muted);font-size:12px;font-weight:800;margin-top:18px}
+.progress-wrap{height:7px;background:#efe5d9;border-radius:99px;overflow:hidden;margin:9px 0 18px}.progress{height:100%;background:linear-gradient(90deg,var(--accent),#e3ac4e)}
+.question{padding:17px 0;border-top:1px solid var(--line)}.question:first-child{border-top:0}
+.q-label{display:block;font-weight:850;line-height:1.35;margin-bottom:8px}.hint{font-size:13px;color:var(--muted);margin:-2px 0 10px;line-height:1.45}
+input[type=text],input[type=number],textarea,select{width:100%;border:1px solid #ddcfbf;background:#fff;border-radius:15px;padding:12px 13px;outline:none;transition:.16s}
+textarea{min-height:88px;resize:vertical;line-height:1.5}
+input:focus,textarea:focus,select:focus{border-color:var(--accent);box-shadow:0 0 0 4px rgba(213,150,44,.13)}
+.choices{display:grid;gap:8px}.choices.inline{grid-template-columns:repeat(2,minmax(0,1fr))}
+.choice{display:flex;gap:10px;align-items:flex-start;border:1px solid #e2d5c7;background:#fff;border-radius:15px;padding:10px 12px;cursor:pointer;transition:.15s}
+.choice:hover{border-color:#d8b77c;background:#fffcf6}.choice input{margin-top:3px;accent-color:var(--accent)}
+.slider-row{display:grid;grid-template-columns:auto 1fr auto;gap:10px;align-items:center;color:var(--muted);font-size:12px;font-weight:750}
+input[type=range]{width:100%;accent-color:var(--accent)}
+.editor-actions{display:flex;justify-content:space-between;gap:10px;align-items:center;margin-top:18px;padding-top:18px;border-top:1px solid var(--line)}
+.editor-actions-right{display:flex;gap:9px;flex-wrap:wrap}
+.preview-head{padding:20px 20px 0}.preview-head h3{margin:0}.preview-head p{margin:6px 0 14px;color:var(--muted);font-size:13px;line-height:1.45}
+.output-wrap{background:#2f2722;color:#f6efe8}.output-toolbar{display:flex;justify-content:space-between;align-items:center;gap:10px;padding:11px 14px;background:#372e28;border-bottom:1px solid rgba(255,255,255,.1)}
+.mini{border:1px solid rgba(255,255,255,.16);background:rgba(255,255,255,.08);color:#fff;border-radius:999px;padding:7px 10px;font-size:12px;font-weight:800;cursor:pointer}
+pre{margin:0;padding:17px;max-height:68vh;overflow:auto;white-space:pre-wrap;word-break:break-word;line-height:1.5;font-size:13px}
+.module-list{display:grid;gap:9px;margin-top:14px}.module-select{border:1px solid var(--line);border-radius:14px;padding:11px 12px;background:#fff;display:flex;align-items:flex-start;gap:9px}
+.module-select input{accent-color:var(--accent);margin-top:3px}
+.group{border:1px solid var(--line);border-radius:18px;padding:13px;background:#fffdfa;margin-top:12px}.group h4{margin:0 0 10px;color:var(--accent2);font-size:14px}
+.toast{position:fixed;right:20px;bottom:20px;background:#302721;color:#fff;padding:11px 14px;border-radius:14px;box-shadow:var(--shadow);font-size:13px;font-weight:750;opacity:0;transform:translateY(8px);pointer-events:none;transition:.2s}.toast.show{opacity:1;transform:none}
+@media(max-width:980px){.tool-grid{grid-template-columns:1fr 1fr}.editor-layout{grid-template-columns:1fr}.preview{position:static}.utility-grid{grid-template-columns:1fr}}
+@media(max-width:640px){.shell{padding:14px}.tool-grid{grid-template-columns:1fr}.dashboard-head,.topbar{flex-direction:column;align-items:flex-start}.choices.inline{grid-template-columns:1fr}}
+</style>
+</head>
+<body>
+<div class="shell">
+  <header class="topbar">
+    <div class="brand">
+      <div class="badge">Small reusable context modules</div>
+      <h1>Teacher Context Toolkit</h1>
+      <p>Build only the context you need. Each mini-tool creates a focused Markdown file you can reuse with an LLM. Nothing leaves your browser.</p>
+    </div>
+    <div class="top-actions">
+      <a class="btn ghost small" href="../../">← Digital Lab</a>
+      <button class="btn danger small" onclick="resetAll()">Reset toolkit</button>
+    </div>
+  </header>
+
+  <section id="dashboardView" class="view active">
+    <div class="card dashboard-head">
+      <div><strong>Your context library</strong><p>Complete one module or several. There is no requirement to finish the whole toolkit.</p></div>
+      <div id="overallProgress" class="progress-pill">0 of 6 core modules started</div>
+    </div>
+    <div id="toolGrid" class="tool-grid"></div>
+
+    <div class="section-title">Compose & use</div>
+    <div class="utility-grid">
+      <div class="card utility-card">
+        <div class="icon">🧰</div>
+        <div><h3>Context Pack Composer</h3><p>Select the context modules relevant to a task and combine them into one clean <code>context-pack.md</code>.</p><button class="btn primary small" onclick="openComposer()">Compose pack</button></div>
+      </div>
+      <div class="card utility-card">
+        <div class="icon">📋</div>
+        <div><h3>Artifact Brief Builder</h3><p>Describe what you want today—lesson plan, slides, worksheet, activity pack, assessment—and export a separate task brief.</p><button class="btn primary small" onclick="openArtifact()">Build brief</button></div>
+      </div>
+    </div>
+    <div class="note"><strong>Design principle:</strong> persistent context and today's task stay separate. The context modules describe your environment and defaults; the Artifact Brief describes the thing you want right now.</div>
+  </section>
+
+  <section id="editorView" class="view">
+    <div class="editor-layout">
+      <div class="card editor">
+        <div class="editor-head">
+          <div><button class="btn ghost small" onclick="goDashboard()">← Dashboard</button><h2 id="editorTitle"></h2><p id="editorIntro"></p></div>
+        </div>
+        <div class="step-meta"><span id="stepLabel"></span><span id="answerLabel"></span></div>
+        <div class="progress-wrap"><div id="progressBar" class="progress"></div></div>
+        <div id="questionArea"></div>
+        <div class="editor-actions">
+          <button id="backBtn" class="btn ghost" onclick="prevStep()">← Back</button>
+          <div class="editor-actions-right"><button class="btn secondary" onclick="saveCurrent()">Save</button><button id="nextBtn" class="btn primary" onclick="nextStep()">Next →</button></div>
+        </div>
+      </div>
+      <aside class="card preview">
+        <div class="preview-head"><h3>Live Markdown</h3><p>This is the actual reusable file this mini-tool will export.</p></div>
+        <div class="output-wrap">
+          <div class="output-toolbar"><strong id="fileNameLabel"></strong><div><button class="mini" onclick="copyOutput()">Copy</button> <button class="mini" onclick="downloadCurrent()">Download .md</button></div></div>
+          <pre id="previewOutput"></pre>
+        </div>
+      </aside>
+    </div>
+  </section>
+
+  <section id="composerView" class="view">
+    <div class="editor-layout">
+      <div class="card editor">
+        <div class="editor-head"><div><button class="btn ghost small" onclick="goDashboard()">← Dashboard</button><h2>Context Pack Composer</h2><p>Choose only the modules relevant to what you are about to do.</p></div></div>
+        <div class="question"><label class="q-label">What are you doing?</label>
+          <select id="composePreset" onchange="applyPreset()">
+            <option value="">Choose a preset or select manually…</option>
+            <option value="lesson">Planning a lesson</option><option value="slides">Creating slides</option><option value="resource">Creating a worksheet / resource</option><option value="brainstorm">Brainstorming ideas</option><option value="assessment">Creating assessment / feedback</option>
+          </select>
+        </div>
+        <div id="composerModules" class="module-list"></div>
+        <div class="question"><label class="q-label">Optional note for this context pack</label><textarea id="composerNote" placeholder="e.g. Use these as defaults unless today's task explicitly overrides them." oninput="renderComposerPreview()"></textarea></div>
+      </div>
+      <aside class="card preview"><div class="preview-head"><h3>Combined context</h3><p>The selected modules are concatenated without rewriting them.</p></div><div class="output-wrap"><div class="output-toolbar"><strong>context-pack.md</strong><div><button class="mini" onclick="copyComposer()">Copy</button> <button class="mini" onclick="downloadComposer()">Download .md</button></div></div><pre id="composerOutput"></pre></div></aside>
+    </div>
+  </section>
+
+  <section id="artifactView" class="view">
+    <div class="editor-layout">
+      <div class="card editor">
+        <div class="editor-head"><div><button class="btn ghost small" onclick="goDashboard()">← Dashboard</button><h2>Artifact Brief Builder</h2><p>Keep today's task separate from your persistent context.</p></div></div>
+        <div id="artifactQuestions"></div>
+      </div>
+      <aside class="card preview"><div class="preview-head"><h3>Task brief</h3><p>Use this alongside whichever context modules are relevant.</p></div><div class="output-wrap"><div class="output-toolbar"><strong>artifact-brief.md</strong><div><button class="mini" onclick="copyArtifact()">Copy</button> <button class="mini" onclick="downloadArtifact()">Download .md</button></div></div><pre id="artifactOutput"></pre></div></aside>
+    </div>
+  </section>
+</div>
+<div id="toast" class="toast"></div>
+
+<script>
+const MODULES = {
+ environment:{
+  icon:"🏫",title:"Teaching Environment",file:"teaching-environment.md",minutes:"3–4 min",
+  desc:"School, student population, timetable, curriculum, resources, policies and local realities.",
+  intro:"Describe where you teach and the stable constraints an AI should not have to guess.",
+  steps:[
+   {title:"Students & setting",qs:[
+    {id:"grades",t:"text",label:"Grade level(s) / age range",ph:"e.g. Grade 4, ages 9–10"},
+    {id:"classSize",t:"radio",label:"Typical class size",opts:["Under 15","15–20","21–25","26–30","30+"]},
+    {id:"language",t:"check",label:"Student language profile",opts:["Mostly native / fluent English","Developing English / EAL","Mixed English proficiency","Multilingual cohort","Some students are new to English","Other language considerations"]},
+    {id:"curriculum",t:"text",label:"Curriculum / programme",ph:"e.g. IB PYP, British National Curriculum"}
+   ]},
+   {title:"Practical realities",qs:[
+    {id:"duration",t:"radio",label:"Typical lesson length",opts:["30 min","40–45 min","50–60 min","70–90 min","Varies substantially"]},
+    {id:"tech",t:"check",label:"Usually available",opts:["Projector / display","Student laptops / Chromebooks","Student tablets","Reliable internet","Printer","Physical manipulatives","Art / maker materials","Specialist software"]},
+    {id:"constraints",t:"textarea",label:"What is unusual or important about your setting?",hint:"Only include things that would materially change planning.",ph:"e.g. Printing is unreliable. Students share devices in pairs. Transitions between rooms take time."},
+    {id:"policies",t:"textarea",label:"Policies or non-negotiable school requirements",ph:"e.g. safeguarding, homework expectations, AI-use policy, required lesson-plan elements"}
+   ]}
+  ],
+  md:s=>`# Teaching Environment
+
+## Students and setting
+- Grade / age: ${v(s,"grades","Not specified")}
+- Typical class size: ${v(s,"classSize","Not specified")}
+- Language profile: ${list(s.language)}
+- Curriculum / programme: ${v(s,"curriculum","Not specified")}
+- Typical lesson length: ${v(s,"duration","Not specified")}
+
+## Available resources
+${bullets(s.tech,"No stable resources specified.")}
+
+## Context that should affect planning
+${textBullets(s.constraints,"No additional contextual constraints specified.")}
+
+## School policies / non-negotiables
+${textBullets(s.policies,"No additional policies specified.")}
+
+## How to use this context
+Treat the information above as persistent environmental context. Do not repeatedly ask for it unless today's task clearly requires more precision.`
+ },
+ preferences:{
+  icon:"🧠",title:"Teaching Preferences",file:"teaching-preferences.md",minutes:"3–5 min",
+  desc:"Your teaching philosophy, preferred balance of explanation, practice, inquiry and student agency.",
+  intro:"Capture defaults about how you like learning to happen, without turning them into rigid rules.",
+  steps:[
+   {title:"Instructional balance",qs:[
+    {id:"intro",t:"radio",label:"When introducing something difficult, I usually prefer…",opts:["Explain/model clearly first, then practise","Let students explore first, then formalise","Use a worked example and discuss it","It depends heavily on the concept"]},
+    {id:"talk",t:"range",label:"Teacher talk vs student activity",left:"More student activity",right:"More teacher talk"},
+    {id:"breadth",t:"radio",label:"When choosing activities, I generally prefer…",opts:["Fewer activities developed deeply","A balanced sequence","More variety, even if activities are shorter"]},
+    {id:"agency",t:"radio",label:"Student choice / agency",opts:["Usually low; tightly scaffolded","Moderate; structured choices","High; students often choose approach or product","Depends on the task"]}
+   ]},
+   {title:"Methods & philosophy",qs:[
+    {id:"methods",t:"check",label:"Approaches I often value",opts:["Explicit instruction","Teacher modelling","Worked examples","Guided practice","Independent practice","Collaborative learning","Inquiry / discovery","Hands-on learning","Retrieval practice","Discussion","Project-based learning","Student choice","Real-world application","Creative production"]},
+    {id:"success",t:"radio",label:"What matters most when judging a lesson?",opts:["Students can independently do something they could not do before","Students can clearly explain the concept","Students are highly engaged and participating","Students produce a strong final artifact","A balance of understanding, participation and application"]},
+    {id:"likeYou",t:"textarea",label:"Describe a lesson that feels particularly 'like you'.",hint:"A few sentences is enough.",ph:"What is happening? What are students doing? What are you doing?"},
+    {id:"avoid",t:"textarea",label:"Any teaching approaches you generally dislike or avoid?",ph:"Optional"}
+   ]}
+  ],
+  md:s=>`# Teaching Preferences
+
+## Default instructional preferences
+- Introducing difficult concepts: ${v(s,"intro","No default specified")}
+- Teacher-talk balance (1 = student-led, 5 = teacher-led): ${v(s,"talk","3")}
+- Activity breadth: ${v(s,"breadth","No default specified")}
+- Student choice / agency: ${v(s,"agency","No default specified")}
+
+## Approaches I often value
+${bullets(s.methods,"No preferred methods specified.")}
+
+## What successful learning should look like
+- ${v(s,"success","No single success criterion specified")}
+
+## A lesson that feels like my teaching
+${para(s.likeYou,"Not described.")}
+
+## Approaches to avoid or use cautiously
+${textBullets(s.avoid,"No additional avoidances specified.")}
+
+## Default interpretation
+Use these as preferences, not absolute rules. Today's learning objective and task-specific instructions may override them.`
+ },
+ structure:{
+  icon:"🧩",title:"Lesson Structure",file:"lesson-structure.md",minutes:"3–5 min",
+  desc:"Your normal lesson architecture, stage sequence and timing—without mixing it with teaching philosophy.",
+  intro:"Build the default shape of a normal lesson. AI can deviate when the task gives a good reason.",
+  steps:[
+   {title:"Default lesson shape",qs:[
+    {id:"length",t:"radio",label:"Default lesson duration",opts:["30 min","40–45 min","50–60 min","70–90 min","Varies / no default"]},
+    {id:"stages",t:"check",label:"Which stages often belong in a normal lesson?",opts:["Starter / Do Now","Retrieval practice","Hook / curiosity prompt","Learning objective","Success criteria","Vocabulary preview","Teacher explanation","Teacher modelling","Worked example","Guided practice","Collaborative activity","Independent practice","Check for understanding","Reflection / plenary","Exit ticket","Homework / follow-up"]},
+    {id:"must",t:"check",label:"Which are usually non-negotiable?",opts:["Starter / Do Now","Learning objective","Vocabulary preview","Teacher modelling","Guided practice","Student practice","Check for understanding","Exit ticket / plenary"]},
+    {id:"timing",t:"textarea",label:"Optional: write your typical sequence with timings",ph:"e.g. Retrieval 5m → model 8m → guided practice 10m → task 17m → exit ticket 5m"}
+   ]},
+   {title:"Sequencing decisions",qs:[
+    {id:"shortTime",t:"radio",label:"If time runs short, protect…",opts:["Student practice","Teacher modelling / explanation","Check for understanding","The overall balance; shorten everything a little"]},
+    {id:"transition",t:"radio",label:"How explicit should transitions/instructions be?",opts:["Very concise; students know routines","Short but explicit","Detailed step-by-step when needed","Depends on task complexity"]},
+    {id:"flex",t:"radio",label:"How strongly should AI follow this structure?",opts:["Treat as a strong default","Use as a loose template","Only use when I explicitly ask for a lesson plan"]},
+    {id:"notes",t:"textarea",label:"Anything else about lesson flow?",ph:"Optional"}
+   ]}
+  ],
+  md:s=>`# Default Lesson Structure
+
+## Typical lesson
+- Default duration: ${v(s,"length","Not specified")}
+- Common stages: ${list(s.stages)}
+- Usually non-negotiable stages: ${list(s.must)}
+
+## Typical sequence / timings
+${para(s.timing,"No fixed timing sequence specified.")}
+
+## Sequencing rules
+- If time runs short, protect: ${v(s,"shortTime","No preference specified")}
+- Instruction / transition detail: ${v(s,"transition","No preference specified")}
+- How strongly to follow this structure: ${v(s,"flex","Treat as a loose default")}
+
+## Additional notes
+${para(s.notes,"None.")}
+
+## Use
+Use this as the default architecture for lesson plans unless today's objective, duration, or explicit task instructions justify a different sequence.`
+ },
+ support:{
+  icon:"🌱",title:"Learner Support",file:"learner-support.md",minutes:"4–5 min",
+  desc:"Language support, differentiation, accessibility, scaffolding and cognitive-load defaults.",
+  intro:"Define how materials should become more accessible without automatically making learning less demanding.",
+  steps:[
+   {title:"Language & cognitive load",qs:[
+    {id:"supports",t:"check",label:"Supports that are commonly useful",opts:["Visual cues","Sentence frames","Sentence starters","Word banks","Worked examples","Model answers","Chunked instructions","Pre-teach vocabulary","Glossaries","Concrete examples","Graphic organizers","Repetition / retrieval"]},
+    {id:"instructions",t:"radio",label:"Student-facing instructions should usually be…",opts:["Extremely concise","Concise but explicit","Moderately detailed","Detailed when independent work requires it"]},
+    {id:"newWords",t:"radio",label:"When unfamiliar vocabulary is not the learning goal…",opts:["Minimise it aggressively","Keep it limited and explain key terms","Use normal age-appropriate language","Let AI decide"]},
+    {id:"visual",t:"radio",label:"For abstract concepts, visuals should be…",opts:["Used whenever reasonably possible","Often used","Used selectively","Only when explicitly requested"]}
+   ]},
+   {title:"Differentiation",qs:[
+    {id:"diff",t:"check",label:"Preferred differentiation moves",opts:["Change scaffolding, keep same objective","Simplify language","Chunk the task","Add worked examples","Reduce choices","Add visual support","Allow alternative output formats","Provide challenge / extension","Use mixed-ability grouping","Provide teacher prompts","Reduce task length without changing concept"]},
+    {id:"neverRemove",t:"textarea",label:"When differentiating, what should NOT be removed?",ph:"e.g. the core concept, independent thinking, opportunity to explain reasoning"},
+    {id:"needs",t:"textarea",label:"Any recurring learner needs an AI should account for?",hint:"Keep this general; avoid identifiable student information.",ph:"e.g. wide language range, some weak readers, some students need reduced writing load"},
+    {id:"independent",t:"radio",label:"For independent tasks, materials should…",opts:["Be usable after a very short teacher explanation","Include enough modelling to minimise teacher dependence","Assume the teacher will circulate and support","Depends on the task"]}
+   ]}
+  ],
+  md:s=>`# Learner Support Defaults
+
+## Language and cognitive load
+- Student-facing instruction style: ${v(s,"instructions","Not specified")}
+- Unfamiliar vocabulary: ${v(s,"newWords","Not specified")}
+- Use of visuals for abstract concepts: ${v(s,"visual","Not specified")}
+
+### Commonly useful supports
+${bullets(s.supports,"No default supports specified.")}
+
+## Differentiation
+${bullets(s.diff,"No differentiation defaults specified.")}
+
+### Preserve when differentiating
+${textBullets(s.neverRemove,"No explicit preservation rule specified.")}
+
+### Recurring learner needs
+${textBullets(s.needs,"No additional recurring needs specified.")}
+
+## Independent work
+- ${v(s,"independent","No default specified")}
+
+## Core rule
+Prefer changing access, scaffolding, language load, sequencing or support before reducing the underlying learning objective, unless today's task explicitly requires otherwise.`
+ },
+ resources:{
+  icon:"🎨",title:"Resource & Slide Preferences",file:"resource-preferences.md",minutes:"4–5 min",
+  desc:"Visual density, worksheets, slides, teacher notes, preparation load and resource-design preferences.",
+  intro:"Capture stable design defaults. Specific slide counts and today's required components belong in the Artifact Brief.",
+  steps:[
+   {title:"Slides & student-facing material",qs:[
+    {id:"density",t:"radio",label:"Default slide / projected-text density",opts:["Very sparse","Sparse","Moderate","Detailed when necessary"]},
+    {id:"visuals",t:"radio",label:"Visual support",opts:["Prioritise visuals whenever they add meaning","Use visuals frequently","Use visuals selectively","Only when requested"]},
+    {id:"slideRules",t:"check",label:"Slide defaults I often want",opts:["One main idea per slide","Large readable text","Minimal paragraphs","Examples before abstraction","Diagrams where useful","Image-led slides","Answer / reveal slides","Speaker notes","Section dividers","Student-facing wording","Teacher-facing notes kept separate"]},
+    {id:"aesthetic",t:"text",label:"Optional visual/style preference",ph:"e.g. clean, modern, playful but not childish"}
+   ]},
+   {title:"Practical resource preferences",qs:[
+    {id:"prep",t:"radio",label:"Preparation tolerance",opts:["Very low","Low","Moderate","High when worthwhile"]},
+    {id:"printing",t:"radio",label:"Printing / physical prep",opts:["Avoid by default","Fine occasionally","Often acceptable","No preference"]},
+    {id:"worksheet",t:"check",label:"Worksheet/resource defaults",opts:["Worked example","Clear model","Visual support","Limited writing load","Answer key","Challenge section","Self-check","Reusable / editable format","Minimal decorative clutter"]},
+    {id:"avoid",t:"textarea",label:"Resource-design habits to avoid",ph:"Optional"}
+   ]}
+  ],
+  md:s=>`# Resource and Slide Preferences
+
+## Slides / projected material
+- Default text density: ${v(s,"density","Not specified")}
+- Visual support: ${v(s,"visuals","Not specified")}
+- Visual / aesthetic preference: ${v(s,"aesthetic","Not specified")}
+
+### Common slide defaults
+${bullets(s.slideRules,"No recurring slide defaults specified.")}
+
+## Practical resource defaults
+- Preparation tolerance: ${v(s,"prep","Not specified")}
+- Printing / physical preparation: ${v(s,"printing","Not specified")}
+
+### Worksheet / resource preferences
+${bullets(s.worksheet,"No recurring worksheet defaults specified.")}
+
+## Avoid
+${textBullets(s.avoid,"No additional avoidances specified.")}
+
+## Boundary
+These are reusable design defaults. Exact slide count, required sections and today's artifact components should come from the current Artifact Brief.`
+ },
+ guardrails:{
+  icon:"✅",title:"Quality Guardrails",file:"quality-guardrails.md",minutes:"3–4 min",
+  desc:"Recurring AI failure modes, non-negotiables and a short quality gate.",
+  intro:"Tell AI what repeatedly goes wrong. Negative constraints are often more discriminating than generic preferences.",
+  steps:[
+   {title:"Recurring failure modes",qs:[
+    {id:"failures",t:"check",label:"AI outputs I often dislike",opts:["Too much text","Generic reflection questions","Unrealistic timings","Excessive preparation","Fake differentiation","Childish language","Childish visuals","Activities disconnected from the objective","Too much teacher talk","Too many worksheets","Repetitive activities","Think-pair-share used everywhere","Too many unnecessary headings","Vague instructions","Activities that sound good but would not work in class","Overly complex workflows","Generic filler / 'AI slop'"]},
+    {id:"otherFail",t:"textarea",label:"What else does AI repeatedly get wrong?",ph:"Optional"},
+    {id:"never",t:"textarea",label:"What should AI almost never do unless you explicitly request it?",ph:"One item per line works well."}
+   ]},
+   {title:"Quality priorities",qs:[
+    {id:"priority",t:"radio",label:"If trade-offs are necessary, prioritise…",opts:["Learning objective first","Student accessibility first","Realistic classroom implementation first","Engagement first","A balanced judgement"]},
+    {id:"check",t:"check",label:"Before finalising, AI should check…",opts:["Alignment to learning objective","Age / language appropriateness","Instruction clarity","Realistic timing","Preparation burden","Student participation","Differentiation quality","Visual / text density","Whether any listed failure mode appeared"]},
+    {id:"nonneg",t:"textarea",label:"Any additional non-negotiables?",ph:"Optional"},
+    {id:"revise",t:"radio",label:"If the draft violates an important guardrail…",opts:["Revise before showing me","Show it but flag the issue","Ask me before revising"]}
+   ]}
+  ],
+  md:s=>`# Quality Guardrails
+
+## Recurring failure modes to avoid
+${bullets(s.failures,"No recurring failure modes selected.")}
+${textBullets(s.otherFail,"")}
+
+## Almost never do unless explicitly requested
+${textBullets(s.never,"No additional prohibitions specified.")}
+
+## Priority when trade-offs are necessary
+- ${v(s,"priority","Use balanced judgement")}
+
+## Quality gate
+Before finalising, check:
+${bullets(s.check,"- Alignment, clarity and classroom realism.")}
+
+## Additional non-negotiables
+${textBullets(s.nonneg,"None.")}
+
+## If a guardrail is violated
+- ${v(s,"revise","Revise before showing me")}`
+ }
+};
+
+const ARTIFACT_COMPONENTS = {
+ "Lesson architecture":["Learning objective","Success criteria","Big idea","Essential question","Starter / Do Now","Hook","Retrieval practice","Vocabulary preview","Teacher explanation","Worked example","Guided practice","Student activity 1","Student activity 2","Student activity 3","Independent practice","Check for understanding","Plenary / reflection","Exit ticket","Homework / follow-up"],
+ "Language & support":["Vocabulary list","Definitions","Word bank","Sentence frames","Sentence starters","Discussion stems","Writing frame","Simplified student instructions","Chunked instructions","Glossary","Visual vocabulary support","EAL / ESL support","Differentiation guidance","Challenge / extension","Worked-example support"],
+ "Visuals & organizers":["Labeled diagram","Process diagram","Flowchart","Cycle diagram","Timeline","Comparison visual","Venn diagram","T-chart","Table","Graphic organizer","Mind map","Concept map","Frayer model","Cause-and-effect organizer","KWL chart","Story map","Infographic","Data chart / graph","Annotated screenshot","Visual example"],
+ "Activities & thinking":["Pair activity","Group activity","Individual activity","Hands-on task","Problem-solving task","Inquiry task","Sorting / classification","Matching task","Sequencing task","Role play","Simulation","Game / playable","Design challenge","Mini project","Discussion prompt","Scenario / dilemma","Debate prompt","Compare / contrast prompt","Metacognitive prompt"],
+ "Assessment & evidence":["Quick comprehension check","Hinge question","Mini quiz","Retrieval quiz","Error analysis","Formative assessment","Assessment task","Rubric","Checklist","Answer key","Mark scheme","Model response","Exemplar response","Peer assessment","Self assessment","Performance task"],
+ "Teacher-facing":["Teacher notes","Speaker notes","Suggested teacher wording","Expected student responses","Likely misconceptions","Follow-up questions","Timing per section","Preparation notes","Materials list","Technology requirements","No-tech alternative","Answer explanations"],
+ "Slide-specific":["Agenda slide","Section dividers","Objective slide","Vocabulary slide","Question slide","Activity instruction slide","Worked-example slide","Diagram slide","Image-led slide","Practice slide","Check-for-understanding slide","Answer / reveal slide","Recap slide","Exit-ticket slide","Final summary slide","References / sources slide"]
+};
+
+const STORAGE_KEY="teacherContextToolkitV1";
+let store=JSON.parse(localStorage.getItem(STORAGE_KEY)||'{"modules":{},"artifact":{}}');
+let currentModule=null,currentStep=0;
+
+const $=id=>document.getElementById(id);
+const esc=s=>String(s??"").replace(/[&<>"']/g,m=>({"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;","'":"&#039;"}[m]));
+function v(s,k,f=""){const x=s?.[k];return (x!==undefined&&x!==null&&String(x).trim()!=="")?String(x).trim():f}
+function list(x){return Array.isArray(x)&&x.length?x.join(", "):"Not specified"}
+function bullets(x,f="None specified."){return Array.isArray(x)&&x.length?x.map(a=>`- ${a}`).join("\n"):f}
+function textBullets(x,f="None specified."){const a=String(x||"").split(/\n+/).map(z=>z.trim()).filter(Boolean);return a.length?a.map(z=>`- ${z}`).join("\n"):f}
+function para(x,f=""){return String(x||"").trim()||f}
+function saveStore(){localStorage.setItem(STORAGE_KEY,JSON.stringify(store));renderDashboard()}
+function toast(msg){const t=$("toast");t.textContent=msg;t.classList.add("show");setTimeout(()=>t.classList.remove("show"),1600)}
+function setView(id){document.querySelectorAll(".view").forEach(v=>v.classList.remove("active"));$(id).classList.add("active");window.scrollTo({top:0,behavior:"smooth"})}
+function goDashboard(){saveStore();setView("dashboardView")}
+function completion(id){const m=MODULES[id],s=store.modules[id]||{};let total=0,answered=0;m.steps.forEach(st=>st.qs.forEach(q=>{total++;const x=s[q.id];if(Array.isArray(x)?x.length:String(x||"").trim())answered++}));return {total,answered,pct:Math.round(answered/total*100)}}
+function renderDashboard(){
+ const grid=$("toolGrid");grid.innerHTML=Object.entries(MODULES).map(([id,m])=>{const c=completion(id);return `<article class="card tool-card">
+ <div class="icon">${m.icon}</div><h3>${m.title}</h3><p>${m.desc}</p>
+ <div class="meta"><span class="chip">${m.minutes}</span><span class="chip ${c.pct>=70?"done":""}">${c.answered}/${c.total} answered</span></div>
+ <div class="tool-actions"><button class="btn primary small" onclick="openModule('${id}')">${c.answered?"Continue":"Start"}</button>${c.answered?`<button class="btn ghost small" onclick="quickDownload('${id}')">Download</button>`:""}</div>
+ </article>`}).join("");
+ const started=Object.keys(MODULES).filter(id=>completion(id).answered>0).length;
+ $("overallProgress").textContent=`${started} of ${Object.keys(MODULES).length} core modules started`;
+}
+
+function openModule(id){currentModule=id;currentStep=0;setView("editorView");renderEditor()}
+function renderEditor(){
+ const m=MODULES[currentModule],s=store.modules[currentModule]||(store.modules[currentModule]={}),st=m.steps[currentStep];
+ $("editorTitle").textContent=`${m.icon} ${m.title}`;$("editorIntro").textContent=m.intro;
+ $("stepLabel").textContent=`Part ${currentStep+1} of ${m.steps.length} · ${st.title}`;
+ const c=completion(currentModule);$("answerLabel").textContent=`${c.answered}/${c.total} answered`;
+ $("progressBar").style.width=`${((currentStep+1)/m.steps.length)*100}%`;
+ $("questionArea").innerHTML=st.qs.map(q=>renderQ(q,s)).join("");
+ $("backBtn").disabled=currentStep===0;$("nextBtn").textContent=currentStep===m.steps.length-1?"Finish ✓":"Next →";
+ bindQ(st.qs,s);renderModulePreview();
+}
+function renderQ(q,s){
+ const val=s[q.id]??(q.t==="check"?[]:"");let body="";
+ if(q.t==="text"||q.t==="number")body=`<input type="${q.t}" id="q_${q.id}" value="${esc(val)}" placeholder="${esc(q.ph||"")}">`;
+ else if(q.t==="textarea")body=`<textarea id="q_${q.id}" placeholder="${esc(q.ph||"")}">${esc(val)}</textarea>`;
+ else if(q.t==="radio")body=`<div class="choices">${q.opts.map(o=>`<label class="choice"><input type="radio" name="q_${q.id}" value="${esc(o)}" ${val===o?"checked":""}><span>${esc(o)}</span></label>`).join("")}</div>`;
+ else if(q.t==="check")body=`<div class="choices inline">${q.opts.map(o=>`<label class="choice"><input type="checkbox" name="q_${q.id}" value="${esc(o)}" ${Array.isArray(val)&&val.includes(o)?"checked":""}><span>${esc(o)}</span></label>`).join("")}</div>`;
+ else if(q.t==="range")body=`<div class="slider-row"><span>${esc(q.left)}</span><input id="q_${q.id}" type="range" min="1" max="5" step="1" value="${val||3}"><span>${esc(q.right)}</span></div>`;
+ return `<div class="question"><label class="q-label">${esc(q.label)}</label>${q.hint?`<div class="hint">${esc(q.hint)}</div>`:""}${body}</div>`
+}
+function bindQ(qs,s){qs.forEach(q=>{
+ if(q.t==="radio")document.querySelectorAll(`[name="q_${q.id}"]`).forEach(el=>el.addEventListener("change",()=>{s[q.id]=el.value;saveStore();renderModulePreview()}));
+ else if(q.t==="check")document.querySelectorAll(`[name="q_${q.id}"]`).forEach(el=>el.addEventListener("change",()=>{s[q.id]=[...document.querySelectorAll(`[name="q_${q.id}"]:checked`)].map(x=>x.value);saveStore();renderModulePreview()}));
+ else {const el=$(`q_${q.id}`);["input","change"].forEach(evt=>el.addEventListener(evt,()=>{s[q.id]=el.value;saveStore();renderModulePreview()}))}
+})}
+function renderModulePreview(){const m=MODULES[currentModule],s=store.modules[currentModule]||{};$("fileNameLabel").textContent=m.file;$("previewOutput").textContent=m.md(s)}
+function prevStep(){if(currentStep>0){currentStep--;renderEditor()}}
+function nextStep(){const m=MODULES[currentModule];if(currentStep<m.steps.length-1){currentStep++;renderEditor()}else{saveStore();toast("Module saved");goDashboard()}}
+function saveCurrent(){saveStore();toast("Saved in this browser")}
+function copyText(t){navigator.clipboard.writeText(t).then(()=>toast("Copied"))}
+function dl(name,text){const blob=new Blob([text],{type:"text/markdown;charset=utf-8"}),a=document.createElement("a");a.href=URL.createObjectURL(blob);a.download=name;a.click();setTimeout(()=>URL.revokeObjectURL(a.href),500)}
+function copyOutput(){copyText($("previewOutput").textContent)}
+function downloadCurrent(){const m=MODULES[currentModule];dl(m.file,m.md(store.modules[currentModule]||{}))}
+function quickDownload(id){const m=MODULES[id];dl(m.file,m.md(store.modules[id]||{}))}
+
+function openComposer(){setView("composerView");renderComposerModules();renderComposerPreview()}
+const PRESETS={lesson:["environment","preferences","structure","support","guardrails"],slides:["environment","support","resources","guardrails"],resource:["environment","support","resources","guardrails"],brainstorm:["environment","preferences","support"],assessment:["environment","preferences","support","guardrails"]};
+function renderComposerModules(){
+ $("composerModules").innerHTML=Object.entries(MODULES).map(([id,m])=>{const c=completion(id);return `<label class="module-select"><input type="checkbox" class="compose-check" value="${id}" onchange="renderComposerPreview()"><span><strong>${m.icon} ${m.title}</strong><br><small>${c.answered?`${c.answered}/${c.total} answers available`:"Not completed yet"}</small></span></label>`}).join("")
+}
+function applyPreset(){const ids=PRESETS[$("composePreset").value]||[];document.querySelectorAll(".compose-check").forEach(x=>x.checked=ids.includes(x.value));renderComposerPreview()}
+function composerText(){const ids=[...document.querySelectorAll(".compose-check:checked")].map(x=>x.value),note=$("composerNote").value.trim();let out="# Teacher Context Pack\n\n";if(note)out+=`## Use note\n${note}\n\n`;if(!ids.length)return out+"_No modules selected yet._";ids.forEach(id=>{out+=`\n---\n\n${MODULES[id].md(store.modules[id]||{})}\n`});return out.trim()}
+function renderComposerPreview(){$("composerOutput").textContent=composerText()}
+function copyComposer(){copyText(composerText())}function downloadComposer(){dl("context-pack.md",composerText())}
+
+function openArtifact(){setView("artifactView");renderArtifactForm();renderArtifactPreview()}
+function renderArtifactForm(){
+ const a=store.artifact||(store.artifact={});$("artifactQuestions").innerHTML=`
+ <div class="question"><label class="q-label">Artifact type</label><div class="choices inline">${["Lesson plan","Slides / presentation","Worksheet","Activity pack","Assessment / quiz","Teacher guide","Other"].map(o=>`<label class="choice"><input type="radio" name="art_type" value="${o}" ${a.type===o?"checked":""}><span>${o}</span></label>`).join("")}</div></div>
+ <div class="question"><label class="q-label">Today's objective / outcome</label><textarea id="art_objective" placeholder="What should exist or what should students be able to do?">${esc(a.objective||"")}</textarea></div>
+ <div class="question"><label class="q-label">Topic / content</label><input id="art_topic" type="text" value="${esc(a.topic||"")}" placeholder="e.g. Functions in programming"></div>
+ <div class="question"><label class="q-label">Duration / scope</label><input id="art_duration" type="text" value="${esc(a.duration||"")}" placeholder="e.g. 45-minute lesson"></div>
+ <div id="slideCountWrap" class="question" style="${a.type==="Slides / presentation"?"":"display:none"}"><label class="q-label">Number of slides</label><input id="art_slides" type="number" min="1" value="${esc(a.slides||"")}" placeholder="e.g. 12"></div>
+ <div class="question"><label class="q-label">What does success look like?</label><textarea id="art_success" placeholder="e.g. A resource I can project immediately without editing.">${esc(a.success||"")}</textarea></div>
+ <div class="question"><label class="q-label">Required components</label><div id="artifactComponents">${Object.entries(ARTIFACT_COMPONENTS).map(([g,opts])=>`<div class="group"><h4>${g}</h4><div class="choices inline">${opts.map(o=>`<label class="choice"><input type="checkbox" name="art_components" value="${esc(o)}" ${(a.components||[]).includes(o)?"checked":""}><span>${esc(o)}</span></label>`).join("")}</div></div>`).join("")}</div></div>
+ <div class="question"><label class="q-label">Anything else that must be included?</label><textarea id="art_custom" placeholder="One item per line">${esc(a.custom||"")}</textarea></div>
+ <div class="question"><label class="q-label">Task-specific constraints</label><textarea id="art_constraints" placeholder="Only constraints unique to this task.">${esc(a.constraints||"")}</textarea></div>`;
+ document.querySelectorAll('[name="art_type"]').forEach(el=>el.addEventListener("change",()=>{a.type=el.value;saveStore();renderArtifactForm();renderArtifactPreview()}));
+ ["objective","topic","duration","slides","success","custom","constraints"].forEach(k=>{const el=$(`art_${k}`);if(el)el.addEventListener("input",()=>{a[k]=el.value;saveStore();renderArtifactPreview()})});
+ document.querySelectorAll('[name="art_components"]').forEach(el=>el.addEventListener("change",()=>{a.components=[...document.querySelectorAll('[name="art_components"]:checked')].map(x=>x.value);saveStore();renderArtifactPreview()}))
+}
+function artifactText(){const a=store.artifact||{};return `# Artifact Brief
+
+## Deliverable
+- Type: ${v(a,"type","Not specified")}
+${a.type==="Slides / presentation"?`- Number of slides: ${v(a,"slides","Not specified")}\n`:""}- Topic / content: ${v(a,"topic","Not specified")}
+- Duration / scope: ${v(a,"duration","Not specified")}
+
+## Objective / intended outcome
+${para(a.objective,"Not specified.")}
+
+## Success looks like
+${para(a.success,"Not specified.")}
+
+## Required components
+${bullets(a.components,"No required components selected.")}
+${textBullets(a.custom,"")}
+
+## Task-specific constraints
+${textBullets(a.constraints,"No additional task-specific constraints.")}
+
+## Instruction
+Treat the selected components as explicit inclusion requirements. Use the separate teacher context files as defaults, but today's brief takes precedence where there is a direct conflict.`}
+function renderArtifactPreview(){$("artifactOutput").textContent=artifactText()}
+function copyArtifact(){copyText(artifactText())}function downloadArtifact(){dl("artifact-brief.md",artifactText())}
+
+function resetAll(){if(confirm("Reset all saved toolkit answers in this browser?")){localStorage.removeItem(STORAGE_KEY);store={modules:{},artifact:{}};renderDashboard();toast("Toolkit reset")}}
+renderDashboard();
+</script>
+</body>
+</html>

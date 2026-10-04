@@ -1,6 +1,6 @@
-# SISB ICT — Activity Hub
+# SISB ICT — Digital Lab
 
-A growing library of ICT activities, games, worksheets, and resources for SISB Primary.
+A growing library of interactive ICT activities, games, worksheets, and resources for SISB Primary.
 Hosted on GitHub Pages.
 
 **Live site:** `https://saverio87.github.io/sisb-ict/`
@@ -11,7 +11,7 @@ Hosted on GitHub Pages.
 
 ```
 /
-├── index.html              → the hub: topic cards + tag filters
+├── index.html              → the Digital Lab hub: search, topic navigation + filters
 ├── assets/
 │   ├── styles.css           → the design system (shared by every page)
 │   ├── app.js               → filtering + card rendering
@@ -23,7 +23,8 @@ Hosted on GitHub Pages.
 │   ├── functions/           → function games
 │   ├── data/                → data games
 │   ├── ui-ux/               → UI/UX good-vs-bad examples
-│   └── wordwall/            → Wordwall activity list
+│   ├── wordwall/            → Wordwall activity list
+│   └── teacher-tools/       → Browser-based tools for teachers
 └── wordwall/                → redirect stub (old URL still works)
 ```
 
@@ -67,7 +68,7 @@ If the topic is new, create the folder. Use lowercase, hyphens instead of spaces
 | `path` | Path **from the site root**. |
 | `year_levels` | Array — `"lower primary"` or `"upper primary"` (or both). |
 | `topic` | Groups activities together. New topics create a new filter chip automatically. |
-| `type` | `game`, `activity`, `website`, `video`, `worksheet`, `slides`, or `other`. |
+| `type` | `game`, `activity`, `tool`, `website`, `video`, `worksheet`, `slides`, or `other`. |
 | `tags` | Free-form keywords. The first three show on the card. |
 | `external` | `true` for off-site links (opens a new tab), `false` for local files. |
 
@@ -117,9 +118,9 @@ GitHub Pages redeploys within a minute or so.
 
 ---
 
-## Filtering
+## Search and filtering
 
-The hub filters on three axes:
+The hub includes full-text search and filters on three axes:
 
 - **Year level** — lower primary, upper primary
 - **Topic** — Networks, UI/UX, ...
@@ -136,9 +137,12 @@ Filtered views are shareable — the URL updates as you filter, e.g.
 
 ## Design system
 
-`assets/styles.css` holds all shared styling as CSS custom properties at the top
-of the file (`:root`). To retheme the whole site, change the tokens there —
-colours, radii, shadows, fonts — and every page follows.
+`assets/styles.css` holds the shared Digital Lab styling and CSS custom properties
+at the top of the file (`:root`). To retheme the whole site, change the tokens
+there — colours, surfaces, borders, fonts — and every standard page follows.
+
+The hub uses Space Grotesk for interface text and DM Mono for system labels. The
+shared stylesheet loads both fonts and includes system fallbacks.
 
 All activity pages should link it:
 

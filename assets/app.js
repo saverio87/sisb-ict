@@ -1,7 +1,6 @@
-/* ==========================================================================
-   SISB ICT — hub filtering
-   Loads activities.json, builds filter chips from the data, renders cards.
-   Adding a new activity = one entry in activities.json. No HTML editing.
+/* ========================================================================== 
+   SISB ICT — Digital Lab activity catalogue
+   Loads activities.json and keeps search and filters reflected in the URL.
    ========================================================================== */
 
 (function () {
@@ -9,112 +8,163 @@
 
   var DATA_URL = 'assets/data/activities.json';
 
-  /* Which emoji + label represents each activity type. */
   var TYPE_META = {
-    game:      { icon: '🎮', label: 'Game' },
-    activity:  { icon: '🧩', label: 'Activity' },
-    website:   { icon: '🌐', label: 'Website' },
-    video:     { icon: '📹', label: 'Video' },
-    worksheet: { icon: '📝', label: 'Worksheet' },
-    slides:    { icon: '🎞️', label: 'Slides' },
-    other:     { icon: '📦', label: 'Other' }
+    game:      { label: 'Game' },
+    activity:  { label: 'Activity' },
+    website:   { label: 'Website' },
+    video:     { label: 'Video' },
+    tool:      { label: 'Tool' },
+    worksheet: { label: 'Worksheet' },
+    slides:    { label: 'Slides' },
+    other:     { label: 'Other' }
   };
 
-  /* Year levels always shown in this order, regardless of data order. */
+  var TOPIC_META = {
+    'Networks':     { code: 'NET', tone: '#52e8d1' },
+    'Data':         { code: 'DAT', tone: '#ffcf5a' },
+    'Functions':    { code: 'FUN', tone: '#c6ff43' },
+    'UI/UX':        { code: 'UX',  tone: '#e497ff' },
+    'Mixed Review': { code: 'REV', tone: '#8da0ff' },
+    'Teacher Tools': { code: 'TCH', tone: '#ff8a54' }
+  };
+
+  var VIZ_LABELS = {
+    'build-a-lan-week4': 'LAN',
+    'packet-panic-week4': 'PKT',
+    'packet-post-week4': 'IP',
+    'recipe-remix': 'FN',
+    'pick-the-right-slot': '[ ]',
+    'the-counting-race': '123',
+    'ui-ux-good-vs-bad': 'UI',
+    'wordwall-activities': '09',
+    'teacher-context-toolkit': 'TCT'
+  };
+
   var YEAR_ORDER = ['lower primary', 'upper primary'];
-
-  /* Filter state. Within a group the match is OR; across groups it is AND. */
-  var state = { year: [], topic: [], type: [] };
-
+  var FALLBACK_TONES = ['#52e8d1', '#c6ff43', '#ff8a54', '#8da0ff', '#e497ff'];
+  var state = { year: [], topic: [], type: [], search: '' };
   var allActivities = [];
   var els = {};
 
-  /* ---------------------------------------------------------------- utils */
-
-  function escapeHtml(s) {
-    return String(s).replace(/[&<>"']/g, function (c) {
-      return { '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;' }[c];
+  function escapeHtml(value) {
+    return String(value).replace(/[&<>"']/g, function (character) {
+      return { '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;' }[character];
     });
   }
 
-  function uniq(arr) {
-    return arr.filter(function (v, i) { return arr.indexOf(v) === i; });
+  function uniq(values) {
+    return values.filter(function (value, index) { return values.indexOf(value) === index; });
   }
 
-  /* --------------------------------------------------------------- render */
+  function topicMeta(topic, index) {
+    if (TOPIC_META[topic]) return TOPIC_META[topic];
+    return {
+      code: String(topic || 'OTH').replace(/[^a-z0-9]/gi, '').slice(0, 3).toUpperCase() || 'OTH',
+      tone: FALLBACK_TONES[index % FALLBACK_TONES.length]
+    };
+  }
 
-  function renderChips() {
-    var years = uniq(allActivities.reduce(function (a, x) { return a.concat(x.year_levels || []); }, []));
+  function typeLabel(type) {
+    return (TYPE_META[type] || TYPE_META.other).label;
+  }
+
+  function renderTopicNav() {
+    var topics = uniq(allActivities.map(function (activity) { return activity.topic; }).filter(Boolean)).sort();
+    var items = [{ value: '', label: 'All activities', code: 'ALL', count: allActivities.length }]
+      .concat(topics.map(function (topic, index) {
+        return {
+          value: topic,
+          label: topic,
+          code: topicMeta(topic, index).code,
+          count: allActivities.filter(function (activity) { return activity.topic === topic; }).length
+        };
+      }));
+
+    els.topicNav.innerHTML = items.map(function (item) {
+      return '<button class="topic-button" type="button" data-topic="' + escapeHtml(item.value) +
+             '" data-short="' + escapeHtml(item.code) + '" aria-pressed="false">' +
+               '<span class="topic-label">' + escapeHtml(item.label) + '</span>' +
+               '<span class="topic-count">' + String(item.count).padStart(2, '0') + '</span>' +
+             '</button>';
+    }).join('');
+
+    els.statCount.textContent = String(allActivities.length).padStart(2, '0');
+    els.topicCount.textContent = String(topics.length).padStart(2, '0');
+  }
+
+  function renderRefineFilters() {
+    var years = uniq(allActivities.reduce(function (values, activity) {
+      return values.concat(activity.year_levels || []);
+    }, []));
     years.sort(function (a, b) {
-      var ia = YEAR_ORDER.indexOf(a), ib = YEAR_ORDER.indexOf(b);
-      if (ia === -1) ia = 99;
-      if (ib === -1) ib = 99;
-      return ia - ib || String(a).localeCompare(String(b));
+      var aIndex = YEAR_ORDER.indexOf(a);
+      var bIndex = YEAR_ORDER.indexOf(b);
+      if (aIndex === -1) aIndex = 99;
+      if (bIndex === -1) bIndex = 99;
+      return aIndex - bIndex || String(a).localeCompare(String(b));
     });
 
-    var topics = uniq(allActivities.map(function (x) { return x.topic; }).filter(Boolean)).sort();
-    var types = uniq(allActivities.map(function (x) { return x.type; }).filter(Boolean));
+    var types = uniq(allActivities.map(function (activity) { return activity.type; }).filter(Boolean)).sort();
 
     function chipsFor(group, values, labeller) {
-      return values.map(function (v) {
+      return values.map(function (value) {
         return '<button class="filter-chip" type="button" data-group="' + group +
-               '" data-value="' + escapeHtml(v) + '" aria-pressed="false">' +
-               escapeHtml(labeller ? labeller(v) : v) + '</button>';
+               '" data-value="' + escapeHtml(value) + '" aria-pressed="false">' +
+               escapeHtml(labeller ? labeller(value) : value) + '</button>';
       }).join('');
     }
 
-    els.groups.innerHTML =
-      '<div class="filter-group">' +
-        '<span class="filter-label">Year</span>' +
+    els.filterGroups.innerHTML =
+      '<div class="filter-group"><span class="filter-label">Year</span>' +
         chipsFor('year', years) +
       '</div>' +
-      '<div class="filter-group">' +
-        '<span class="filter-label">Topic</span>' +
-        chipsFor('topic', topics) +
-      '</div>' +
-      '<div class="filter-group">' +
-        '<span class="filter-label">Type</span>' +
-        chipsFor('type', types, function (t) {
-          var m = TYPE_META[t] || TYPE_META.other;
-          return m.icon + ' ' + m.label;
-        }) +
+      '<div class="filter-group"><span class="filter-label">Format</span>' +
+        chipsFor('type', types, typeLabel) +
       '</div>';
   }
 
-  function matches(a) {
-    function groupOk(group, values) {
-      if (!values.length) return true;
+  function matches(activity) {
+    function groupMatches(group, selected) {
+      if (!selected.length) return true;
       if (group === 'year') {
-        return (a.year_levels || []).some(function (y) { return values.indexOf(y) !== -1; });
+        return (activity.year_levels || []).some(function (year) { return selected.indexOf(year) !== -1; });
       }
-      return values.indexOf(a[group]) !== -1;
+      return selected.indexOf(activity[group]) !== -1;
     }
-    return groupOk('year', state.year) &&
-           groupOk('topic', state.topic) &&
-           groupOk('type', state.type);
+
+    var searchText = [
+      activity.title,
+      activity.description,
+      activity.topic,
+      activity.type
+    ].concat(activity.year_levels || [], activity.tags || []).join(' ').toLowerCase();
+
+    return groupMatches('year', state.year) &&
+           groupMatches('topic', state.topic) &&
+           groupMatches('type', state.type) &&
+           (!state.search || searchText.indexOf(state.search.toLowerCase()) !== -1);
   }
 
-  function cardHtml(a) {
-    var meta = TYPE_META[a.type] || TYPE_META.other;
-    var target = a.external ? ' target="_blank" rel="noopener"' : '';
+  function cardHtml(activity, index) {
+    var meta = topicMeta(activity.topic, index);
+    var target = activity.external ? ' target="_blank" rel="noopener"' : '';
+    var viz = VIZ_LABELS[activity.id] || meta.code;
+    var number = String(index + 1).padStart(2, '0');
+    var levels = activity.year_levels || [];
+    var year = levels.length > 1 ? 'All primary' : (levels[0] || 'Primary');
+    var firstTag = (activity.tags || [])[0] || activity.topic || 'ICT';
 
-    var tags = []
-      .concat((a.year_levels || []).map(function (y) { return { k: 'year', v: y }; }))
-      .concat(a.topic ? [{ k: 'topic', v: a.topic }] : [])
-      .concat((a.tags || []).slice(0, 3).map(function (t) { return { k: 'tag', v: t }; }))
-      .map(function (t) {
-        return '<span class="tag" data-kind="' + t.k + '">' + escapeHtml(t.v) + '</span>';
-      }).join('');
-
-    return '<a class="card" href="' + escapeHtml(a.path) + '"' + target + '>' +
-             '<div class="card-head">' +
-               '<span class="type-badge" data-type="' + escapeHtml(a.type) + '">' +
-                 meta.icon + ' ' + escapeHtml(meta.label) +
-               '</span>' +
+    return '<a class="mission-card" href="' + escapeHtml(activity.path) + '"' + target +
+           ' style="--tone:' + meta.tone + '">' +
+             '<div class="mission-copy">' +
+               '<span class="mission-meta">' + escapeHtml(meta.code) + '.' + number +
+                 ' / ' + escapeHtml(typeLabel(activity.type)) + '</span>' +
+               '<h3>' + escapeHtml(activity.title) + '</h3>' +
+               '<p>' + escapeHtml(activity.description || '') + '</p>' +
+               '<div class="mission-tags"><span>' + escapeHtml(year) + '</span><span>' + escapeHtml(firstTag) + '</span></div>' +
+               '<div class="launch-label">Launch module <span>↗</span></div>' +
              '</div>' +
-             '<div class="card-title">' + escapeHtml(a.title) + '</div>' +
-             '<div class="card-desc">' + escapeHtml(a.description || '') + '</div>' +
-             '<div class="tag-row">' + tags + '</div>' +
+             '<div class="mission-viz" aria-hidden="true"><b>' + escapeHtml(viz) + '</b></div>' +
            '</a>';
   }
 
@@ -126,39 +176,43 @@
     var visible = allActivities.filter(matches);
 
     els.grid.innerHTML = visible.length
-      ? visible.map(cardHtml).join('')
-      : '<div class="empty-state">' +
-          '<span class="empty-emoji">🔍</span>' +
-          '<p>No activities match those filters.<br>Try removing one.</p>' +
-        '</div>';
+      ? visible.map(function (activity) { return cardHtml(activity, allActivities.indexOf(activity)); }).join('')
+      : '<div class="empty-state"><span class="empty-code">NO / MATCH</span>' +
+          '<p>No modules match this search. Try another topic or clear a filter.</p></div>';
 
-    els.count.innerHTML = 'Showing <strong>' + visible.length + '</strong> of ' +
-                          '<strong>' + allActivities.length + '</strong> ' +
-                          (allActivities.length === 1 ? 'activity' : 'activities');
+    els.resultCount.textContent = String(visible.length).padStart(2, '0') +
+      ' of ' + String(allActivities.length).padStart(2, '0') + ' modules loaded';
 
-    // Reflect filter state back onto the chips.
-    Array.prototype.forEach.call(els.groups.querySelectorAll('.filter-chip'), function (chip) {
+    Array.prototype.forEach.call(els.filterGroups.querySelectorAll('.filter-chip'), function (chip) {
       var group = chip.getAttribute('data-group');
       var value = chip.getAttribute('data-value');
       chip.setAttribute('aria-pressed', state[group].indexOf(value) !== -1 ? 'true' : 'false');
     });
 
-    var n = activeCount();
-    els.clear.hidden = n === 0;
-    els.toggleCount.hidden = n === 0;
-    els.toggleCount.textContent = String(n);
+    Array.prototype.forEach.call(els.topicNav.querySelectorAll('.topic-button'), function (button) {
+      var value = button.getAttribute('data-topic');
+      var pressed = value ? state.topic.indexOf(value) !== -1 : state.topic.length === 0;
+      button.setAttribute('aria-pressed', pressed ? 'true' : 'false');
+    });
+
+    var filtersActive = activeCount();
+    els.clear.hidden = filtersActive === 0 && !state.search;
+    els.toggleCount.hidden = filtersActive === 0;
+    els.toggleCount.textContent = String(filtersActive);
+    if (els.search.value !== state.search) els.search.value = state.search;
 
     syncHash();
   }
 
-  /* Keep filtered views shareable: #year=P4&topic=Networks */
   function syncHash() {
     var parts = [];
-    ['year', 'topic', 'type'].forEach(function (g) {
-      state[g].forEach(function (v) {
-        parts.push(g + '=' + encodeURIComponent(v));
+    ['year', 'topic', 'type'].forEach(function (group) {
+      state[group].forEach(function (value) {
+        parts.push(group + '=' + encodeURIComponent(value));
       });
     });
+    if (state.search) parts.push('q=' + encodeURIComponent(state.search));
+
     var hash = parts.length ? '#' + parts.join('&') : '';
     if (window.location.hash !== hash) {
       history.replaceState(null, '', window.location.pathname + window.location.search + hash);
@@ -168,96 +222,118 @@
   function readHash() {
     var raw = window.location.hash.replace(/^#/, '');
     if (!raw) return;
+
     raw.split('&').forEach(function (pair) {
       var bits = pair.split('=');
       var group = bits[0];
-      var value = decodeURIComponent(bits[1] || '');
-      if (state[group] && value && state[group].indexOf(value) === -1) {
+      var value = decodeURIComponent(bits.slice(1).join('=') || '');
+      if (group === 'q') state.search = value;
+      if (state[group] && Array.isArray(state[group]) && value && state[group].indexOf(value) === -1) {
         state[group].push(value);
       }
     });
   }
 
-  /* --------------------------------------------------------------- events */
+  function onTopicClick(event) {
+    var button = event.target.closest('.topic-button');
+    if (!button) return;
 
-  function onChipClick(e) {
-    var chip = e.target.closest('.filter-chip');
+    var value = button.getAttribute('data-topic');
+    if (!value) {
+      state.topic = [];
+    } else {
+      var index = state.topic.indexOf(value);
+      if (index === -1) state.topic.push(value);
+      else state.topic.splice(index, 1);
+    }
+    render();
+  }
+
+  function onFilterClick(event) {
+    var chip = event.target.closest('.filter-chip');
     if (!chip) return;
 
     var group = chip.getAttribute('data-group');
     var value = chip.getAttribute('data-value');
-    var i = state[group].indexOf(value);
-
-    if (i === -1) state[group].push(value);
-    else state[group].splice(i, 1);
-
+    var index = state[group].indexOf(value);
+    if (index === -1) state[group].push(value);
+    else state[group].splice(index, 1);
     render();
   }
 
-  function onClear() {
-    state = { year: [], topic: [], type: [] };
+  function clearFilters() {
+    state = { year: [], topic: [], type: [], search: '' };
     render();
   }
 
-  function onToggle() {
-    var open = els.bar.classList.toggle('open');
+  function toggleFilters() {
+    var open = els.filterBar.classList.toggle('open');
     els.toggle.setAttribute('aria-expanded', open ? 'true' : 'false');
   }
 
-  /* ----------------------------------------------------------------- init */
-
   function showError(message, detail) {
-    els.grid.innerHTML =
-      '<div class="empty-state">' +
-        '<span class="empty-emoji">⚠️</span>' +
-        '<p><strong>' + escapeHtml(message) + '</strong></p>' +
-        (detail ? '<p style="margin-top:8px;font-size:0.85rem;">' + escapeHtml(detail) + '</p>' : '') +
-      '</div>';
-    els.count.textContent = '';
+    els.grid.innerHTML = '<div class="empty-state"><span class="empty-code">SYS / ERROR</span>' +
+      '<p><strong>' + escapeHtml(message) + '</strong></p>' +
+      (detail ? '<p class="error-detail">' + escapeHtml(detail) + '</p>' : '') + '</div>';
+    els.resultCount.textContent = 'Catalogue unavailable';
   }
 
   function init(data) {
     allActivities = Array.isArray(data) ? data : [];
     readHash();
-    renderChips();
-    render();
+    renderTopicNav();
+    renderRefineFilters();
 
-    els.groups.addEventListener('click', onChipClick);
-    els.clear.addEventListener('click', onClear);
-    els.toggle.addEventListener('click', onToggle);
+    if (allActivities[0]) {
+      els.featured.href = allActivities[0].path;
+      els.featuredTitle.textContent = allActivities[0].title;
+    }
+
+    els.topicNav.addEventListener('click', onTopicClick);
+    els.filterGroups.addEventListener('click', onFilterClick);
+    els.clear.addEventListener('click', clearFilters);
+    els.toggle.addEventListener('click', toggleFilters);
+    els.search.addEventListener('input', function () {
+      state.search = els.search.value.trim();
+      render();
+    });
     window.addEventListener('hashchange', function () {
-      state = { year: [], topic: [], type: [] };
+      state = { year: [], topic: [], type: [], search: '' };
       readHash();
       render();
     });
+
+    render();
   }
 
   document.addEventListener('DOMContentLoaded', function () {
-    els.bar = document.getElementById('filterBar');
-    els.groups = document.getElementById('filterGroups');
+    els.topicNav = document.getElementById('topicNav');
+    els.filterBar = document.getElementById('filterBar');
+    els.filterGroups = document.getElementById('filterGroups');
     els.clear = document.getElementById('filterClear');
     els.toggle = document.getElementById('filterToggle');
     els.toggleCount = document.getElementById('filterToggleCount');
     els.grid = document.getElementById('cardGrid');
-    els.count = document.getElementById('resultCount');
+    els.resultCount = document.getElementById('resultCount');
+    els.search = document.getElementById('searchInput');
+    els.statCount = document.getElementById('statCount');
+    els.topicCount = document.getElementById('topicCount');
+    els.featured = document.getElementById('featuredCard');
+    els.featuredTitle = document.getElementById('featuredTitle');
 
     fetch(DATA_URL)
-      .then(function (r) {
-        if (!r.ok) throw new Error('HTTP ' + r.status);
-        return r.json();
+      .then(function (response) {
+        if (!response.ok) throw new Error('HTTP ' + response.status);
+        return response.json();
       })
       .then(init)
-      .catch(function (err) {
-        // Opening index.html straight from disk blocks fetch (CORS).
-        // Over GitHub Pages — or any local web server — this works.
+      .catch(function (error) {
         var isFile = window.location.protocol === 'file:';
         showError(
+          isFile ? 'This page needs to be served over HTTP.' : 'Could not load the activity catalogue.',
           isFile
-            ? 'This page needs to be served over HTTP.'
-            : 'Could not load the activity list.',
-          isFile
-            ? 'Opening the file directly blocks the data load. Run "python3 -m http.server" in this folder, then visit localhost:8000 — or just use the GitHub Pages URL.'
-            : String(err.message || err)
+            ? 'Run a local web server in this folder, then open the localhost address.'
+            : String(error.message || error)
         );
       });
   });
