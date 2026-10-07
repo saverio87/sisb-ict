@@ -37,7 +37,8 @@
     'the-counting-race': '123',
     'ui-ux-good-vs-bad': 'UI',
     'wordwall-activities': '09',
-    'teacher-context-toolkit': 'TCT'
+    'teacher-context-toolkit': 'TCT',
+    'teacher-prompt-collection': 'PRM'
   };
 
   var YEAR_ORDER = ['lower primary', 'upper primary'];

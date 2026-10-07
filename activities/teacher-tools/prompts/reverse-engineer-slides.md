@@ -1,0 +1,1 @@
+SLIDES / DECKS: Analyse slide roles, sequencing, recurring layouts, hierarchy, density, rhythm, transitions, examples and interaction patterns. Create a reusable deck-generation prompt with placeholders for [TOPIC], [AUDIENCE], [DURATION] and [OUTCOME].

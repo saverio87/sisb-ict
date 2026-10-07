@@ -1,0 +1,1 @@
+IMAGES / VISUALS: Analyse composition, visual hierarchy, viewpoint, style, palette, typography, text density and recurring motifs. Separate subject matter from visual decisions. Create a reusable image prompt with placeholders for [SUBJECT], [TEXT], [AUDIENCE] and [FORMAT].

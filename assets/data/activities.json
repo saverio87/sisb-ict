@@ -97,5 +97,16 @@
     "type": "tool",
     "tags": ["teacher resource", "AI context", "lesson planning", "prompting", "productivity"],
     "external": false
+  },
+  {
+    "id": "teacher-prompt-collection",
+    "title": "Teacher Prompt Collection",
+    "description": "Browse, preview, copy, and download ready-to-use prompts for planning, visuals, slides, and classroom resources.",
+    "path": "activities/teacher-tools/prompt-collection.html",
+    "year_levels": ["lower primary", "upper primary"],
+    "topic": "Teacher Tools",
+    "type": "tool",
+    "tags": ["prompt library", "AI", "backward design", "visual design", "resource creation"],
+    "external": false
   }
 ]

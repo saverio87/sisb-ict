@@ -24,7 +24,7 @@ Hosted on GitHub Pages.
 │   ├── data/                → data games
 │   ├── ui-ux/               → UI/UX good-vs-bad examples
 │   ├── wordwall/            → Wordwall activity list
-│   └── teacher-tools/       → Browser-based tools for teachers
+│   └── teacher-tools/       → Browser-based tools and reusable prompts for teachers
 └── wordwall/                → redirect stub (old URL still works)
 ```
 

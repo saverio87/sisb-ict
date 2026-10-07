@@ -1,0 +1,1 @@
+WORKSHEETS / RESOURCES: Analyse task types, progression, instructions, examples, repetition, difficulty, answer format, layout and language load. Create a reusable resource prompt with placeholders for [TOPIC], [GRADE], [LANGUAGE LEVEL], [ITEMS] and [SUCCESS CRITERIA].

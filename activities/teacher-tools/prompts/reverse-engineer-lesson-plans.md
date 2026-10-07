@@ -1,0 +1,1 @@
+LESSON PLANS: Analyse learning sequence, teacher/student roles, questioning, scaffolding, grouping, timing, practice and assessment. Separate pedagogy from topic content. Create a reusable planning prompt with placeholders for [GRADE], [SUBJECT], [OUTCOME], [TIME] and [STUDENT CONTEXT].
