@@ -3,109 +3,101 @@
 <head>
   <meta charset="utf-8">
   <meta name="viewport" content="width=device-width, initial-scale=1">
-  <title>SISB ICT — Digital Lab</title>
-  <meta name="description" content="Interactive ICT games, challenges, and resources for SISB Primary students.">
+  <title>SISB ICT — Activity Hub</title>
+  <meta name="description" content="Interactive ICT games, classroom challenges, and practical teacher tools for SISB Primary.">
 
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-  <link href="https://fonts.googleapis.com/css2?family=DM+Mono:wght@400;500&family=Space+Grotesk:wght@400;500;600;700&display=swap" rel="stylesheet">
-  <link rel="stylesheet" href="assets/styles.css">
+  <link href="https://fonts.googleapis.com/css2?family=DM+Mono:wght@400;500&family=Manrope:wght@500;600;700;800&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="assets/styles.css?v=playground-20261008">
 </head>
 <body class="hub-page">
-  <div class="lab-layout">
-    <aside class="lab-sidebar">
-      <a class="lab-logo" href="./" aria-label="SISB ICT Digital Lab home">
-        <span class="lab-logo-mark">ICT</span>
-        <span>SISB Lab<small>Activity system</small></span>
+  <div class="site-shell">
+    <header class="site-topbar">
+      <a class="site-brand" href="./" aria-label="SISB ICT Activity Hub home">
+        <span class="brand-mark">ICT</span>
+        <span>SISB Activity Hub<small>Primary School</small></span>
       </a>
-
-      <p class="side-label">Explore by topic</p>
-      <nav class="topic-nav" id="topicNav" aria-label="Filter activities by topic">
-        <!-- Topic filters are generated from activities.json -->
+      <nav class="site-nav" aria-label="Main navigation">
+        <a href="#activities">Explore</a>
+        <a href="#topic=Teacher%20Tools">Teacher tools</a>
+        <a class="guide-link" href="README.md">Teacher guide ↗</a>
       </nav>
+    </header>
 
-      <a class="featured-card" id="featuredCard" href="#">
-        <small>Start here</small>
-        <strong id="featuredTitle">Loading activity…</strong>
-        <span>Launch featured module ↗</span>
-      </a>
-    </aside>
-
-    <main class="lab-main">
-      <div class="lab-topbar">
-        <span class="system-status">System online · Ready to learn</span>
-        <label class="lab-search">
-          <svg viewBox="0 0 24 24" aria-hidden="true">
-            <circle cx="11" cy="11" r="7"></circle>
-            <path d="m16 16 5 5"></path>
-          </svg>
-          <input id="searchInput" type="search" placeholder="Search the activity system…" aria-label="Search activities">
-        </label>
-      </div>
-
-      <section class="lab-hero">
+    <main>
+      <section class="playground-hero">
         <div class="hero-copy">
-          <span class="hero-label">// SISB Primary ICT</span>
-          <h1>Enter the<br><span>Digital Lab</span></h1>
-          <p>Interactive challenges for understanding the systems, data, and ideas behind the technology we use every day.</p>
+          <span class="hero-eyebrow">For learners, makers &amp; teachers</span>
+          <h1>SISB ICT<br><em>Activity Hub</em></h1>
+          <p>Interactive games, classroom challenges and practical teacher tools for SISB Primary — all in one place.</p>
+          <div class="hero-actions">
+            <a class="primary-action" href="#activities">Explore the library <span>↓</span></a>
+            <span class="hero-stat"><b><span id="statCount">—</span> resources</b><br><span id="topicCount">—</span> topics and growing</span>
+          </div>
         </div>
 
-        <div class="signal-readout" aria-label="Activity library statistics">
-          <div class="readout-head">
-            <span>Learning signal</span>
-            <span>Live</span>
+        <div class="activity-orbit" aria-hidden="true">
+          <div class="orbit-core">✦<small>Explore</small></div>
+          <div class="orbit-item orbit-one">
+            <svg viewBox="0 0 48 48"><circle cx="13" cy="16" r="5"></circle><circle cx="35" cy="13" r="5"></circle><circle cx="30" cy="35" r="5"></circle><path d="M17 15l13-1M16 20l11 12M34 18l-3 12"></path></svg>
           </div>
-          <div class="signal-pulse" aria-hidden="true">
-            <svg viewBox="0 0 280 70" preserveAspectRatio="none">
-              <path d="M0 42h35l11-19 14 35 19-48 22 52 15-20h38l12-11 13 20 18-34 15 25h68"></path>
-            </svg>
+          <div class="orbit-item orbit-two">
+            <svg viewBox="0 0 48 48"><path d="M8 12h32v24H8zM8 20h32M18 20v16"></path></svg>
           </div>
-          <div class="lab-stats">
-            <div><strong id="statCount">—</strong><small>Activities</small></div>
-            <div><strong id="topicCount">—</strong><small>Topics</small></div>
-            <div><strong>∞</strong><small>Ideas</small></div>
+          <div class="orbit-item orbit-three">
+            <svg viewBox="0 0 48 48"><path d="M17 10c-6 4-9 9-9 14s3 10 9 14M31 10c6 4 9 9 9 14s-3 10-9 14M28 7l-8 34"></path></svg>
           </div>
         </div>
       </section>
 
-      <section class="mission-section" aria-labelledby="missionTitle">
-        <div class="section-head">
+      <section class="browse-section" id="activities" aria-labelledby="libraryTitle">
+        <div class="browse-head">
           <div>
-            <span class="section-code">LIBRARY / ALL MODULES</span>
-            <h2 id="missionTitle">Available missions</h2>
+            <span class="section-kicker">Activities &amp; teacher resources</span>
+            <h2 id="libraryTitle">What will you discover?</h2>
           </div>
-          <span class="result-count" id="resultCount" aria-live="polite"></span>
+          <label class="library-search">
+            <svg viewBox="0 0 24 24" aria-hidden="true"><circle cx="11" cy="11" r="7"></circle><path d="m16 16 5 5"></path></svg>
+            <input id="searchInput" type="search" placeholder="Search the library…" aria-label="Search activities and resources">
+          </label>
         </div>
 
         <div class="filter-bar" id="filterBar">
-          <button class="filter-toggle" id="filterToggle" type="button" aria-expanded="false" aria-controls="filterGroups">
-            Refine results <span class="filter-toggle-count" id="filterToggleCount" hidden>0</span>
+          <button class="filter-toggle" id="filterToggle" type="button" aria-expanded="false" aria-controls="filterPanel">
+            Browse filters <span class="filter-toggle-count" id="filterToggleCount" hidden>0</span>
           </button>
-          <div class="filter-groups" id="filterGroups">
-            <!-- Year and type filters are generated from activities.json -->
+          <div class="filter-panel" id="filterPanel">
+            <div class="topic-nav" id="topicNav" aria-label="Filter by topic">
+              <!-- Topic filters are generated from activities.json -->
+            </div>
+            <div class="filter-groups" id="filterGroups">
+              <!-- Year and format filters are generated from activities.json -->
+            </div>
           </div>
           <button class="filter-clear" id="filterClear" type="button" hidden>Clear filters</button>
         </div>
 
-        <div class="mission-grid" id="cardGrid">
-          <!-- Activity cards are rendered from activities.json -->
+        <p class="result-count" id="resultCount" aria-live="polite"></p>
+        <div class="activity-grid" id="cardGrid">
+          <div class="library-loading"><span></span>Loading the activity library…</div>
         </div>
 
         <noscript>
           <div class="empty-state">
-            <span class="empty-code">JS / OFFLINE</span>
-            <p>This activity library needs JavaScript to load its catalogue.</p>
+            <span class="empty-code">JavaScript required</span>
+            <p>This page needs JavaScript to load the activity catalogue.</p>
           </div>
         </noscript>
       </section>
-
-      <footer class="lab-footer">
-        <span>SISB Primary / Information &amp; Communication Technology</span>
-        <a href="README.md">Teacher guide ↗</a>
-      </footer>
     </main>
+
+    <footer class="site-footer">
+      <span>© SISB Primary ICT</span>
+      <span>Explore · Make · Share</span>
+    </footer>
   </div>
 
-  <script src="assets/app.js"></script>
+  <script src="assets/app.js?v=playground-20261008"></script>
 </body>
 </html>

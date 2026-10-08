@@ -1,4 +1,4 @@
-# SISB ICT — Digital Lab
+# SISB ICT — Activity Hub
 
 A growing library of interactive ICT activities, games, worksheets, and resources for SISB Primary.
 Hosted on GitHub Pages.
@@ -11,7 +11,7 @@ Hosted on GitHub Pages.
 
 ```
 /
-├── index.html              → the Digital Lab hub: search, topic navigation + filters
+├── index.html              → the Playground hub: search, topic navigation + filters
 ├── assets/
 │   ├── styles.css           → the design system (shared by every page)
 │   ├── app.js               → filtering + card rendering
@@ -137,11 +137,11 @@ Filtered views are shareable — the URL updates as you filter, e.g.
 
 ## Design system
 
-`assets/styles.css` holds the shared Digital Lab styling and CSS custom properties
+`assets/styles.css` holds the shared Playground styling and CSS custom properties
 at the top of the file (`:root`). To retheme the whole site, change the tokens
 there — colours, surfaces, borders, fonts — and every standard page follows.
 
-The hub uses Space Grotesk for interface text and DM Mono for system labels. The
+The hub uses Manrope for interface text and DM Mono for compact labels. The
 shared stylesheet loads both fonts and includes system fallbacks.
 
 All activity pages should link it:

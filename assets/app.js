@@ -1,12 +1,12 @@
 /* ========================================================================== 
-   SISB ICT — Digital Lab activity catalogue
+   SISB ICT — Playground activity catalogue
    Loads activities.json and keeps search and filters reflected in the URL.
    ========================================================================== */
 
 (function () {
   'use strict';
 
-  var DATA_URL = 'assets/data/activities.json';
+  var DATA_URL = 'assets/data/activities.json?v=playground-20261008';
 
   var TYPE_META = {
     game:      { label: 'Game' },
@@ -20,12 +20,12 @@
   };
 
   var TOPIC_META = {
-    'Networks':     { code: 'NET', tone: '#52e8d1' },
-    'Data':         { code: 'DAT', tone: '#ffcf5a' },
-    'Functions':    { code: 'FUN', tone: '#c6ff43' },
-    'UI/UX':        { code: 'UX',  tone: '#e497ff' },
-    'Mixed Review': { code: 'REV', tone: '#8da0ff' },
-    'Teacher Tools': { code: 'TCH', tone: '#ff8a54' }
+    'Networks':      { code: 'NET', tone: '#715cff' },
+    'Data':          { code: 'DAT', tone: '#e6503b' },
+    'Functions':     { code: 'FUN', tone: '#15987d' },
+    'UI/UX':         { code: 'UX',  tone: '#b48200' },
+    'Mixed Review':  { code: 'REV', tone: '#d34e91' },
+    'Teacher Tools': { code: 'TCH', tone: '#ff715b' }
   };
 
   var VIZ_LABELS = {
@@ -42,7 +42,7 @@
   };
 
   var YEAR_ORDER = ['lower primary', 'upper primary'];
-  var FALLBACK_TONES = ['#52e8d1', '#c6ff43', '#ff8a54', '#8da0ff', '#e497ff'];
+  var FALLBACK_TONES = ['#715cff', '#15987d', '#ff715b', '#d34e91', '#b48200'];
   var state = { year: [], topic: [], type: [], search: '' };
   var allActivities = [];
   var els = {};
@@ -71,19 +71,22 @@
 
   function renderTopicNav() {
     var topics = uniq(allActivities.map(function (activity) { return activity.topic; }).filter(Boolean)).sort();
-    var items = [{ value: '', label: 'All activities', code: 'ALL', count: allActivities.length }]
+    var items = [{ value: '', label: 'Everything', code: 'ALL', count: allActivities.length, tone: '#17251f' }]
       .concat(topics.map(function (topic, index) {
+        var meta = topicMeta(topic, index);
         return {
           value: topic,
           label: topic,
-          code: topicMeta(topic, index).code,
+          code: meta.code,
+          tone: meta.tone,
           count: allActivities.filter(function (activity) { return activity.topic === topic; }).length
         };
       }));
 
     els.topicNav.innerHTML = items.map(function (item) {
       return '<button class="topic-button" type="button" data-topic="' + escapeHtml(item.value) +
-             '" data-short="' + escapeHtml(item.code) + '" aria-pressed="false">' +
+             '" data-short="' + escapeHtml(item.code) + '" aria-pressed="false" style="--topic-tone:' + item.tone + '">' +
+               '<span class="topic-dot" aria-hidden="true"></span>' +
                '<span class="topic-label">' + escapeHtml(item.label) + '</span>' +
                '<span class="topic-count">' + String(item.count).padStart(2, '0') + '</span>' +
              '</button>';
@@ -155,17 +158,17 @@
     var year = levels.length > 1 ? 'All primary' : (levels[0] || 'Primary');
     var firstTag = (activity.tags || [])[0] || activity.topic || 'ICT';
 
-    return '<a class="mission-card" href="' + escapeHtml(activity.path) + '"' + target +
+    return '<a class="activity-card" href="' + escapeHtml(activity.path) + '"' + target +
            ' style="--tone:' + meta.tone + '">' +
-             '<div class="mission-copy">' +
-               '<span class="mission-meta">' + escapeHtml(meta.code) + '.' + number +
-                 ' / ' + escapeHtml(typeLabel(activity.type)) + '</span>' +
-               '<h3>' + escapeHtml(activity.title) + '</h3>' +
-               '<p>' + escapeHtml(activity.description || '') + '</p>' +
-               '<div class="mission-tags"><span>' + escapeHtml(year) + '</span><span>' + escapeHtml(firstTag) + '</span></div>' +
-               '<div class="launch-label">Launch module <span>↗</span></div>' +
+             '<div class="activity-card-head">' +
+               '<span class="activity-type">' + escapeHtml(typeLabel(activity.type)) + ' · ' + escapeHtml(activity.topic || 'ICT') + '</span>' +
+               '<span class="card-arrow" aria-hidden="true">↗</span>' +
              '</div>' +
-             '<div class="mission-viz" aria-hidden="true"><b>' + escapeHtml(viz) + '</b></div>' +
+             '<div class="activity-graphic" aria-hidden="true"><span>' + escapeHtml(viz) + '</span><i></i></div>' +
+             '<span class="activity-number">' + escapeHtml(meta.code) + '.' + number + '</span>' +
+             '<h3>' + escapeHtml(activity.title) + '</h3>' +
+             '<p>' + escapeHtml(activity.description || '') + '</p>' +
+             '<div class="activity-tags"><span>' + escapeHtml(year) + '</span><span>' + escapeHtml(firstTag) + '</span></div>' +
            '</a>';
   }
 
@@ -181,8 +184,8 @@
       : '<div class="empty-state"><span class="empty-code">NO / MATCH</span>' +
           '<p>No modules match this search. Try another topic or clear a filter.</p></div>';
 
-    els.resultCount.textContent = String(visible.length).padStart(2, '0') +
-      ' of ' + String(allActivities.length).padStart(2, '0') + ' modules loaded';
+    els.resultCount.textContent = 'Showing ' + String(visible.length) +
+      ' of ' + String(allActivities.length) + ' resources';
 
     Array.prototype.forEach.call(els.filterGroups.querySelectorAll('.filter-chip'), function (chip) {
       var group = chip.getAttribute('data-group');
@@ -285,11 +288,6 @@
     renderTopicNav();
     renderRefineFilters();
 
-    if (allActivities[0]) {
-      els.featured.href = allActivities[0].path;
-      els.featuredTitle.textContent = allActivities[0].title;
-    }
-
     els.topicNav.addEventListener('click', onTopicClick);
     els.filterGroups.addEventListener('click', onFilterClick);
     els.clear.addEventListener('click', clearFilters);
@@ -319,9 +317,6 @@
     els.search = document.getElementById('searchInput');
     els.statCount = document.getElementById('statCount');
     els.topicCount = document.getElementById('topicCount');
-    els.featured = document.getElementById('featuredCard');
-    els.featuredTitle = document.getElementById('featuredTitle');
-
     fetch(DATA_URL)
       .then(function (response) {
         if (!response.ok) throw new Error('HTTP ' + response.status);
